@@ -1,7 +1,7 @@
 {
   "name": "Cooking Cards",
   "short_name": "Cooking Cards",
-  "description": "No more scrolling up and down with wet hands. Swipe through recipes one step at a time, with built-in timers, a servings scaler, and a shopping list that builds itself.",
+  "description": "Cook without losing your place. Swipe through any recipe one step at a time.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

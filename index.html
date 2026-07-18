@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#16110B">
 <title>Cooking Cards</title>
-<meta name="description" content="No more scrolling up and down with wet hands. Swipe through recipes one step at a time, with built-in timers, a servings scaler, and a shopping list that builds itself.">
+<meta name="description" content="Cook without losing your place. Swipe through any recipe one step at a time.">
 <link rel="canonical" href="https://cookingcards.app/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://cookingcards.app/">
 <meta property="og:site_name" content="Cooking Cards">
 <meta property="og:title" content="Cooking Cards — recipes that walk you through it">
-<meta property="og:description" content="No more scrolling up and down with wet hands. Swipe through recipes one step at a time, with built-in timers, a servings scaler, and a shopping list that builds itself.">
+<meta property="og:description" content="Cook without losing your place. Swipe through any recipe one step at a time.">
 <meta property="og:image" content="https://cookingcards.app/icons/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Cooking Cards — recipes that walk you through it">
-<meta name="twitter:description" content="No more scrolling up and down with wet hands. Swipe through recipes one step at a time, with built-in timers, a servings scaler, and a shopping list that builds itself.">
+<meta name="twitter:description" content="Cook without losing your place. Swipe through any recipe one step at a time.">
 <meta name="twitter:image" content="https://cookingcards.app/icons/og-image.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -218,6 +218,9 @@
   .thumb-xs .ic-color{width:20px;height:20px}
   /* emoji icon picker */
   .icon-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  .icon-grid-label{grid-column:1/-1;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);margin:2px 0 -1px;display:flex;align-items:center;gap:6px}
+  .icon-grid-label:not(:first-child){margin-top:6px}
+  .icon-grid-label b{color:var(--saffron);font-weight:700}
   .icon-cell{min-height:46px;border-radius:12px;background:var(--surface);display:grid;place-items:center;font-size:24px;line-height:1;transition:background .15s ease,transform .1s ease}
   .icon-cell:hover{background:var(--surface-2)}
   .icon-cell:active{transform:scale(.9)}
@@ -321,6 +324,12 @@
   .photo-prev img{width:100%;height:100%;object-fit:cover;display:block}
   .photo-x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:999px;background:var(--scrim);display:grid;place-items:center}
   .photo-x svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+  .photo-link-toggle{display:block;width:100%;text-align:center;font-size:13px;color:var(--saffron);font-weight:600;padding:10px 0 2px}
+  .photo-url-row{display:flex;gap:8px;margin-top:8px}
+  .photo-url-row .in{padding:11px 13px;font-size:15px}
+  .photo-url-go{flex:none;padding:0 18px;border-radius:11px;background:var(--btn-bg);color:var(--btn-ink);font-weight:600;font-size:14px}
+  .photo-url-go:hover{filter:brightness(.94)}
+  .photo-url-row.hidden{display:none}
   /* category picker (editor) */
   .cat-pick{display:flex;flex-wrap:wrap;gap:8px}
   .cat-chip{background:var(--ground);box-shadow:inset 0 0 0 1.5px var(--hairline);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;color:var(--ink-dim);transition:background .15s ease,color .15s ease,transform .1s ease,box-shadow .15s ease}
@@ -1775,7 +1784,11 @@
   }
   function renderIconGrid(){
     var g=$("#iconGrid"); if(!g)return;
-    g.innerHTML=CUSTOM_ORDER.map(function(k){return cellHTML("ic:"+k)}).concat(EMOJI_SET.map(cellHTML)).join("");
+    g.innerHTML=
+      '<div class="icon-grid-label">🎨 <b>Native</b> — made just for Cooking Cards</div>'+
+      CUSTOM_ORDER.map(function(k){return cellHTML("ic:"+k)}).join("")+
+      '<div class="icon-grid-label">Emoji</div>'+
+      EMOJI_SET.map(cellHTML).join("");
   }
   function updateIconCurrent(){
     var c=$("#curEmoji"); if(c) c.innerHTML=iconVal(pickedEmoji);
@@ -1794,8 +1807,17 @@
       g.innerHTML='<div class="photo-prev"><img src="'+esc(pickedPhoto)+'" alt=""><button type="button" class="photo-x" id="photoRemove" aria-label="Remove photo"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>';
       var rm=$("#photoRemove"); if(rm) rm.onclick=function(){ pickedPhoto=""; renderPhotoPick(); };
     } else {
-      g.innerHTML='<button type="button" class="photo-add" id="photoAdd"><svg viewBox="0 0 24 24"><path d="M4 7h3l1.6-2h6.8L17 7h3v12H4z"/><circle cx="12" cy="13" r="3.4"/></svg>Add a photo of the dish</button>';
+      g.innerHTML='<button type="button" class="photo-add" id="photoAdd"><svg viewBox="0 0 24 24"><path d="M4 7h3l1.6-2h6.8L17 7h3v12H4z"/><circle cx="12" cy="13" r="3.4"/></svg>Add a photo of the dish</button>'+
+        '<button type="button" class="photo-link-toggle" id="photoUrlToggle" aria-expanded="false">or paste a link to a photo you found online</button>'+
+        '<div class="photo-url-row hidden" id="photoUrlRow"><input type="url" class="in" id="photoUrlIn" placeholder="https://example.com/dish.jpg" aria-label="Image link" autocomplete="off"><button type="button" class="photo-url-go" id="photoUrlGo">Use</button></div>';
       var ad=$("#photoAdd"); if(ad) ad.onclick=choosePhoto;
+      var tog=$("#photoUrlToggle"); if(tog) tog.onclick=function(){
+        var row=$("#photoUrlRow"); var open=row.classList.toggle("hidden")===false;
+        tog.setAttribute("aria-expanded",open?"true":"false");
+        if(open){ $("#photoUrlIn").focus(); }
+      };
+      var go=$("#photoUrlGo"); if(go) go.onclick=usePhotoUrl;
+      var pin=$("#photoUrlIn"); if(pin) pin.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); usePhotoUrl(); } });
     }
   }
   function choosePhoto(){
@@ -1819,6 +1841,38 @@
     };
     rd.onerror=function(){ toast("Could not read that image"); };
     rd.readAsDataURL(file);
+  }
+  /* pull in an image from a URL (e.g. a recipe blog photo) and store it the same
+     compressed way as an upload — the app is offline-first, so the raw remote URL
+     can't be stored as-is; it must be baked into a local data: URL. Many sites don't
+     send CORS headers on their images, which taints the canvas and blocks readback —
+     that's a browser security rule we can't route around, so we fail with a clear
+     explanation rather than silently doing nothing. */
+  function usePhotoUrl(){
+    var v=$("#photoUrlIn").value.trim(); if(!v) return;
+    if(!/^https?:\/\//i.test(v)){ toast("Paste a full image link starting with http:// or https://"); return; }
+    var go=$("#photoUrlGo"); if(go){ go.disabled=true; go.textContent="Loading…"; }
+    var img=new Image();
+    img.crossOrigin="anonymous";
+    img.onload=function(){
+      var max=640, w=img.width, h=img.height;
+      if(w>h){ if(w>max){ h=Math.round(h*max/w); w=max; } } else { if(h>max){ w=Math.round(w*max/h); h=max; } }
+      var c=document.createElement("canvas"); c.width=w; c.height=h;
+      try{
+        c.getContext("2d").drawImage(img,0,0,w,h);
+        pickedPhoto=c.toDataURL("image/jpeg",0.82);
+        renderPhotoPick();
+        toast("Photo added");
+      }catch(e){
+        toast("That site won't let apps save its images — save the picture to your phone instead and upload it");
+        if(go){ go.disabled=false; go.textContent="Use"; }
+      }
+    };
+    img.onerror=function(){
+      toast("Couldn't load that link — double check the URL, or save the image and upload it");
+      if(go){ go.disabled=false; go.textContent="Use"; }
+    };
+    img.src=v;
   }
   function blankStep(){return {heading:"",body:"",items:[],timer:0}}
   var catValue="", catOther=false;
