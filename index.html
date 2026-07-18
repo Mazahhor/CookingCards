@@ -5,7 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#16110B">
 <title>Cooking Cards</title>
-<meta name="description" content="Your interactive cookbook. Swipeable recipe step-cards with timers.">
+<meta name="description" content="No more scrolling up and down with wet hands. Swipe through recipes one step at a time, with built-in timers, a servings scaler, and a shopping list that builds itself.">
+<link rel="canonical" href="https://cookingcards.app/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cookingcards.app/">
+<meta property="og:site_name" content="Cooking Cards">
+<meta property="og:title" content="Cooking Cards — recipes that walk you through it">
+<meta property="og:description" content="No more scrolling up and down with wet hands. Swipe through recipes one step at a time, with built-in timers, a servings scaler, and a shopping list that builds itself.">
+<meta property="og:image" content="https://cookingcards.app/icons/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cooking Cards — recipes that walk you through it">
+<meta name="twitter:description" content="No more scrolling up and down with wet hands. Swipe through recipes one step at a time, with built-in timers, a servings scaler, and a shopping list that builds itself.">
+<meta name="twitter:image" content="https://cookingcards.app/icons/og-image.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -14,7 +27,7 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<script>try{var kt=localStorage.getItem("kitchencards.theme.v1");document.documentElement.setAttribute("data-theme",kt==="light"?"light":"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}</script>
+<script>try{var kt=localStorage.getItem("kitchencards.theme.v1");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -190,7 +203,7 @@
   .thumb-img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}
   .thumb-sm .thumb-img{border-radius:9px}
   /* collapsed icon picker */
-  .icon-current{display:flex;align-items:center;gap:12px;width:100%;padding:9px 12px;border-radius:12px;background:var(--surface);transition:background .15s ease}
+  .icon-current{display:flex;align-items:center;gap:12px;width:100%;padding:9px 12px;border-radius:12px;background:var(--ground);box-shadow:inset 0 0 0 1.5px var(--hairline);transition:background .15s ease}
   .icon-current:hover{background:var(--surface-2)}
   .icon-current .cur-emoji{width:42px;height:42px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:24px;background:var(--ground-2);box-shadow:inset 0 0 0 1px var(--hairline);overflow:hidden}
   .icon-current .cur-emoji .ic-color{width:28px;height:28px}
@@ -288,6 +301,12 @@
   .add-all-btn:hover{color:var(--ink);background:var(--surface-2)}
   .add-all-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linejoin:round}
   .ing-hint{font-size:12px;color:var(--ink-faint)}
+  .shop-add-row{display:flex;gap:8px;padding:2px 18px 14px}
+  .shop-add-row .in{padding:11px 13px}
+  .shop-add-btn{flex:none;width:46px;height:46px;border-radius:11px;background:var(--btn-bg);color:var(--btn-ink);display:grid;place-items:center;transition:filter .15s ease,transform .1s ease}
+  .shop-add-btn:hover{filter:brightness(.94)}
+  .shop-add-btn:active{transform:scale(.94)}
+  .shop-add-btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
   .chk-shop li{align-items:center}
   .ing-add{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--ink-faint);background:var(--surface);margin-left:8px;transition:background .15s ease,color .15s ease,transform .1s ease}
   .ing-add:hover{color:var(--ink);background:var(--surface-2)}
@@ -304,10 +323,10 @@
   .photo-x svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
   /* category picker (editor) */
   .cat-pick{display:flex;flex-wrap:wrap;gap:8px}
-  .cat-chip{background:var(--surface);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;color:var(--ink-dim);transition:background .15s ease,color .15s ease,transform .1s ease}
+  .cat-chip{background:var(--ground);box-shadow:inset 0 0 0 1.5px var(--hairline);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;color:var(--ink-dim);transition:background .15s ease,color .15s ease,transform .1s ease,box-shadow .15s ease}
   .cat-chip:hover{color:var(--ink)}
   .cat-chip:active{transform:scale(.96)}
-  .cat-chip.on{background:var(--btn-bg);color:var(--btn-ink)}
+  .cat-chip.on{background:var(--btn-bg);color:var(--btn-ink);box-shadow:none}
   /* settings sheet */
   .set-group{display:flex;flex-direction:column;gap:11px}
   .set-h{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint)}
@@ -326,7 +345,7 @@
   }
   .rcard .meta{flex:1;min-width:0}
   .rcard .meta b{font-family:var(--serif);font-weight:600;font-size:16.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .rcard .meta span{color:var(--ink-dim);font-size:12px;display:flex;gap:6px;margin-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
+  .rcard .meta span{color:var(--ink-dim);font-size:12px;display:block;margin-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rcard .meta span i{color:var(--ink-faint);font-style:normal}
   .rcard .chev{color:var(--ink-faint)}
   .rcard .chev svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
@@ -490,8 +509,9 @@
   .field{display:flex;flex-direction:column;gap:7px}
   .field label{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint)}
   /* every field stays >=16px: iOS auto-zooms into any input with smaller text */
-  .in,.ta{background:var(--surface);border:1px solid transparent;border-radius:11px;padding:12px;color:var(--ink);font-size:16px;width:100%;outline:none;transition:border-color .15s,background .15s}
-  .in:focus,.ta:focus{border-color:var(--saffron);background:var(--ground)}
+  .in,.ta{background:var(--ground);border:1px solid transparent;box-shadow:inset 0 0 0 1.5px var(--hairline);border-radius:11px;padding:12px;color:var(--ink);font-size:16px;width:100%;outline:none;transition:border-color .15s,background .15s,box-shadow .15s}
+  .in::placeholder,.ta::placeholder{color:var(--ink-faint)}
+  .in:focus,.ta:focus{border-color:var(--saffron);box-shadow:inset 0 0 0 1.5px var(--saffron)}
   .ta{resize:vertical;min-height:70px;line-height:1.45}
   /* auto-growing textareas: the box fits its content so you never scroll inside it */
   textarea.grow{resize:none;overflow:hidden}
@@ -501,19 +521,19 @@
   .step-edit{background:var(--surface);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:9px;position:relative}
   .step-edit .se-top{display:flex;align-items:center;gap:8px}
   .step-edit .se-num{font-family:var(--serif);font-size:15px;color:var(--saffron);font-weight:600;width:20px}
-  .step-edit .se-head{flex:1;background:var(--ground);border:1px solid transparent;border-radius:9px;padding:9px 10px;color:var(--ink);font-size:16px;font-weight:600;outline:none}
-  .step-edit .se-head:focus{border-color:var(--saffron)}
+  .step-edit .se-head{flex:1;background:var(--ground);border:1px solid transparent;box-shadow:inset 0 0 0 1.5px var(--hairline);border-radius:9px;padding:9px 10px;color:var(--ink);font-size:16px;font-weight:600;outline:none}
+  .step-edit .se-head:focus{border-color:var(--saffron);box-shadow:inset 0 0 0 1.5px var(--saffron)}
   .step-edit .se-del{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--ink-faint);background:var(--ground)}
   .step-edit .se-del:hover{color:var(--paprika)}
   .step-edit .se-del svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
-  .step-edit .se-body{background:var(--ground);border:1px solid transparent;border-radius:9px;padding:9px 10px;color:var(--text-body);font-size:16px;line-height:1.45;resize:vertical;min-height:52px;outline:none}
-  .step-edit .se-body:focus{border-color:var(--saffron)}
-  .step-edit .se-items{background:var(--ground);border:1px solid transparent;border-radius:9px;padding:9px 10px;color:var(--text-body);font-size:16px;line-height:1.5;resize:vertical;min-height:44px;outline:none;font-variant-numeric:tabular-nums}
-  .step-edit .se-items:focus{border-color:var(--saffron)}
+  .step-edit .se-body{background:var(--ground);border:1px solid transparent;box-shadow:inset 0 0 0 1.5px var(--hairline);border-radius:9px;padding:9px 10px;color:var(--text-body);font-size:16px;line-height:1.45;resize:vertical;min-height:52px;outline:none}
+  .step-edit .se-body:focus{border-color:var(--saffron);box-shadow:inset 0 0 0 1.5px var(--saffron)}
+  .step-edit .se-items{background:var(--ground);border:1px solid transparent;box-shadow:inset 0 0 0 1.5px var(--hairline);border-radius:9px;padding:9px 10px;color:var(--text-body);font-size:16px;line-height:1.5;resize:vertical;min-height:44px;outline:none;font-variant-numeric:tabular-nums}
+  .step-edit .se-items:focus{border-color:var(--saffron);box-shadow:inset 0 0 0 1.5px var(--saffron)}
   .step-edit .se-lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin:2px 0 -4px 2px}
   .se-timer{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-dim)}
-  .se-timer input{width:64px;background:var(--ground);border:1px solid transparent;border-radius:8px;padding:7px;color:var(--ink);font-size:16px;text-align:center;outline:none;font-variant-numeric:tabular-nums}
-  .se-timer input:focus{border-color:var(--saffron)}
+  .se-timer input{width:64px;background:var(--ground);border:1px solid transparent;box-shadow:inset 0 0 0 1.5px var(--hairline);border-radius:8px;padding:7px;color:var(--ink);font-size:16px;text-align:center;outline:none;font-variant-numeric:tabular-nums}
+  .se-timer input:focus{border-color:var(--saffron);box-shadow:inset 0 0 0 1.5px var(--saffron)}
   .add-step{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface);border:1px dashed var(--hairline);border-radius:11px;padding:11px;color:var(--ink-dim);font-size:14px}
   .add-step:hover{color:var(--ink);border-color:var(--saffron)}
   .add-step svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
@@ -732,6 +752,10 @@
     <h2 id="shopTitle">Shopping list</h2>
     <button class="link" id="btnShopClear">Clear all</button>
   </div>
+  <div class="shop-add-row">
+    <input type="text" class="in" id="shopAddIn" placeholder="Add an item (e.g. paper towels)" aria-label="Add a custom item" autocomplete="off">
+    <button class="shop-add-btn" id="shopAddBtn" aria-label="Add item"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  </div>
   <div class="sheet-body" id="shopBody"></div>
   <div class="sheet-foot">
     <button class="btn-quiet" id="btnShopClose">Close</button>
@@ -822,9 +846,33 @@
     avocado:'<path d="M12 3.4c3.7 0 5.7 4.1 5.7 9.1s-2.5 9.1-5.7 9.1-5.7-4.1-5.7-9.1S8.3 3.4 12 3.4z" fill="#5c9440"/><path d="M12 6.4c2.4 0 3.7 3 3.7 6.7s-1.6 6.5-3.7 6.5-3.7-2.9-3.7-6.5S9.6 6.4 12 6.4z" fill="#cbe090"/><circle cx="12" cy="14" r="2.6" fill="#7a4a2b"/>',
     cheese:'<path d="M4 16.2l13.6-6.4a1.6 1.6 0 0 1 2.4 1.4v4.8a1.6 1.6 0 0 1-1.6 1.6H4z" fill="#f2c14e"/><circle cx="9" cy="15" r="1" fill="#e0a838"/><circle cx="13" cy="13.9" r="1" fill="#e0a838"/><circle cx="16" cy="14.6" r=".8" fill="#e0a838"/>',
     lemon:'<ellipse cx="12" cy="12.5" rx="7.4" ry="5.9" fill="#f4d03f"/><ellipse cx="9.4" cy="10.6" rx="1.6" ry="1" fill="#f8e17a"/><path d="M12 6.6c1.6-1 3-1 4-2.2" stroke="#4a9d4e" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
-    bread:'<path d="M4 12.2a4.6 4.6 0 0 1 9 0 4.1 4.1 0 0 1 7 0v4.4a1.1 1.1 0 0 1-1.1 1.1H5.1A1.1 1.1 0 0 1 4 16.6z" fill="#d9a15c"/><path d="M4 12.6h16" stroke="#b47c3e" stroke-width="1.2"/>'
+    bread:'<path d="M4 12.2a4.6 4.6 0 0 1 9 0 4.1 4.1 0 0 1 7 0v4.4a1.1 1.1 0 0 1-1.1 1.1H5.1A1.1 1.1 0 0 1 4 16.6z" fill="#d9a15c"/><path d="M4 12.6h16" stroke="#b47c3e" stroke-width="1.2"/>',
+    /* -- French -- */
+    baguette:'<g transform="rotate(-25 12 12)"><rect x="3" y="10" width="18" height="6" rx="3" fill="#e3b573"/><path d="M6 10.5v5M9.5 10.3v5.4M13 10.3v5.4M16.5 10.5v5" stroke="#b9863f" stroke-width="1.1" stroke-linecap="round"/></g>',
+    croissant:'<path d="M4 15.4c0-6.2 4.3-10.8 9.2-10.8 2.9 0 4.5 1.4 4.5 1.4s-6.6.3-9.9 5.7c-2 3.3-1.5 6.7-1.5 6.7s-2.3-1-2.3-3z" fill="#d99a4e"/><path d="M7.2 9.6l2.3 1.6M8.6 13l2.5 1.4M10.6 7l2.1 1.8" stroke="#b97327" stroke-width="1" stroke-linecap="round" fill="none"/>',
+    wine:'<path d="M8 3.5h8l-.6 6.4a3.4 3.4 0 0 1-6.8 0z" fill="#7a1f3d"/><path d="M8 3.5h8" stroke="#c9a86a" stroke-width="1"/><path d="M12 13v6M9 19h6" stroke="#c9a86a" stroke-width="1.6" stroke-linecap="round"/>',
+    /* -- American -- */
+    burger:'<path d="M5 10.5a7 4 0 0 1 14 0z" fill="#e3b573"/><rect x="4.6" y="10.5" width="14.8" height="2.1" fill="#5c9440"/><rect x="4.4" y="12.5" width="15.2" height="2.5" rx="1" fill="#8a5327"/><rect x="4.6" y="14.9" width="14.8" height="1.5" fill="#c94b2e"/><path d="M4.2 16.4a7 3.2 0 0 0 15.6 0z" fill="#f0c88a"/>',
+    fries:'<path d="M5.5 9.5h13l-1.6 9.4a1.4 1.4 0 0 1-1.4 1.1H8.5a1.4 1.4 0 0 1-1.4-1.1z" fill="#e14b3a"/><rect x="8" y="4" width="1.8" height="9" rx=".8" fill="#f6d87a"/><rect x="11.1" y="3" width="1.8" height="10" rx=".8" fill="#f6d87a"/><rect x="14.2" y="4.6" width="1.8" height="8.4" rx=".8" fill="#f6d87a"/>',
+    hotdog:'<path d="M3.5 13.5c0-2.8 2.3-5 5-5h7c2.8 0 5 2.2 5 5s-2.2 5-5 5h-7c-2.7 0-5-2.2-5-5z" fill="#e3b573"/><path d="M6 12.2c0-1.7 1.4-3 3-3h6c1.7 0 3 1.3 3 3s-1.3 3-3 3H9c-1.6 0-3-1.3-3-3z" fill="#a5522f"/><path d="M7 12.2c1-1.4 2-1.6 2.6-2.4M11 12.6c1-1.4 2-1.6 2.6-2.4M15 12.6c.6-.9 1.2-1.2 1.6-1.8" stroke="#f2d24a" stroke-width="1" fill="none" stroke-linecap="round"/>',
+    pancakes:'<ellipse cx="12" cy="17" rx="7.4" ry="2" fill="#c98a3f"/><ellipse cx="12" cy="14.4" rx="7" ry="1.9" fill="#e0a352"/><ellipse cx="12" cy="11.9" rx="6.5" ry="1.8" fill="#eab767"/><rect x="10.4" y="7.6" width="3.2" height="2.6" rx=".6" fill="#f6d94a"/><path d="M9 10.2c1.4.6 4.6.6 6 0" stroke="#8a5327" stroke-width=".9" fill="none" stroke-linecap="round"/>',
+    /* -- Indian -- */
+    naan:'<ellipse cx="12" cy="12.5" rx="9.5" ry="6.2" fill="#e3b573" transform="rotate(-18 12 12.5)"/><path d="M8 10.5c1 .6 2 .6 3-.2M12.5 13.4c1 .6 2.4.4 3.2-.4M9.5 15c.8.4 1.6.3 2.2-.2" stroke="#a5622a" stroke-width="1.1" fill="none" stroke-linecap="round"/>',
+    samosa:'<path d="M4 19L12 4l8 15z" fill="#d9924a"/><path d="M12 4L8.4 19M12 4l3.6 15" stroke="#a5622a" stroke-width="1" fill="none"/>',
+    chai:'<path d="M6 10h11l-1 7a2 2 0 0 1-2 1.7H9a2 2 0 0 1-2-1.7z" fill="#c98a3f"/><path d="M17 11.4c1.6 0 2.6 1 2.6 2.2S18.6 16 17 16" stroke="#c98a3f" stroke-width="1.4" fill="none"/><ellipse cx="11.5" cy="19.6" rx="6.5" ry="1.3" fill="#e0a352"/><path d="M9.5 8.4c.4-1 0-1.4-.4-2M12.5 8.4c.4-1 0-1.4-.4-2" stroke="#c9a86a" stroke-width="1" fill="none" stroke-linecap="round"/>',
+    curry:'<path d="M3.6 12h16.8a8.4 4.6 0 0 1-16.8 0z" fill="#e8792b"/><path d="M4.2 12a7.8 4 0 0 0 15.6 0" fill="none" stroke="#b9541c" stroke-width="1"/><path d="M9.5 6.6c.4-1 0-1.4-.4-2M14.5 6.6c.4-1 0-1.4-.4-2" stroke="#c9a86a" stroke-width="1" fill="none" stroke-linecap="round"/>',
+    /* -- Chinese -- */
+    dumpling:'<path d="M4 14.5a8 6.5 0 0 1 16 0c0 2.8-3.4 4.5-8 4.5s-8-1.7-8-4.5z" fill="#f2e6c9" stroke="#d9c495" stroke-width="1"/><path d="M5 13.6c1.2-1.2 2.6-1.6 3.4-.6M9 13c1.2-1.2 2.6-1.6 3.4-.6M13 13c1.2-1.2 2.6-1.6 3.4-.6M17 13.4c.9-1 1.8-1.3 2.4-.5" stroke="#c2a876" stroke-width="1.3" fill="none" stroke-linecap="round"/><circle cx="12" cy="9.6" r="1.3" fill="#e8d29a"/>',
+    noodles:'<path d="M4 13h16a8 5 0 0 1-16 0z" fill="#e0a352"/><path d="M6.5 13c0-3 1-5.4 1-7.4M12 13c0-3.4-1.4-5.6-1-8M17 13c0-3-1.2-5-.6-7.2" stroke="#f6d94a" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M14.5 5.2l4-1.6M15 6.6l4.2.4" stroke="#a5622a" stroke-width="1.2" stroke-linecap="round"/>',
+    wok:'<path d="M3 12a9 5 0 0 0 18 0z" fill="#3a3a3a"/><path d="M21 11.2l2.4-1.4" stroke="#3a3a3a" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="10.6" r="1.6" fill="#e14b3a"/><circle cx="13" cy="10" r="1.4" fill="#5c9440"/><circle cx="11.4" cy="12" r="1.3" fill="#f2c14e"/>',
+    /* -- Italian -- */
+    pizza:'<path d="M12 3.6L21 19H3z" fill="#e3b573"/><path d="M12 3.6L19.5 17H4.5z" fill="#e14b3a"/><circle cx="10" cy="12" r="1.1" fill="#a5522f"/><circle cx="13.6" cy="10.4" r="1" fill="#a5522f"/><circle cx="12" cy="14.6" r="1" fill="#a5522f"/><path d="M3 19h18" stroke="#c9924a" stroke-width="1.6" stroke-linecap="round"/>',
+    pasta:'<path d="M4 13h16a8 5 0 0 1-16 0z" fill="#e8792b"/><path d="M7 12.6c1-2.6-.4-4.6.6-7M11 12.6c1-2.8-.6-5 .4-7.6M15 12.6c1-2.6-.2-4.8.8-7" stroke="#f6d94a" stroke-width="1.3" fill="none" stroke-linecap="round"/><circle cx="9" cy="11.4" r=".9" fill="#c94b2e"/><circle cx="14" cy="12" r=".8" fill="#5c9440"/>',
+    gelato:'<path d="M9 13h6l-2.4 8a1.2 1.2 0 0 1-2 0z" fill="#d9924a"/><path d="M9.4 13.6l5.2-.2M9.8 15.4l4.4-.2M10.2 17.2l3.6-.2" stroke="#a5622a" stroke-width=".7"/><circle cx="10.4" cy="9.4" r="3.4" fill="#f4a6b8"/><circle cx="14" cy="8.4" r="3" fill="#fdf3e0"/>'
   };
-  var CUSTOM_ORDER=["drumstick","egg","tomato","chili","carrot","broccoli","avocado","cheese","lemon","bread"];
+  var CUSTOM_ORDER=["drumstick","egg","tomato","chili","carrot","broccoli","avocado","cheese","lemon","bread",
+    "baguette","croissant","wine","burger","fries","hotdog","pancakes","naan","samosa","chai","curry",
+    "dumpling","noodles","wok","pizza","pasta","gelato"];
   function customSvg(key){ return CUSTOM[key]?'<svg class="ic-color" viewBox="0 0 24 24" aria-hidden="true">'+CUSTOM[key]+'</svg>':''; }
   var EMOJI_SET=["🍗","🍖","🥩","🍤","🦐","🐟","🍳","🍚","🍛","🍜","🍝","🥟","🍲","🥘","🫕","🥗","🥬","🍅","🌶","🌽","🥑","🥕","🥦","🍄","🧀","🥚","🍞","🥖","🫓","🥯","🍕","🍔","🌭","🌮","🌯","🥪","🥞","🧇","🍰","🧁","🍪","🍩","🍫","🍯","🍮","🍨","🥧","☕","🍵","🥤","🧋","🍹","🥂"];
   function iconVal(v){ if(v&&v.indexOf("ic:")===0){ var s=customSvg(v.slice(3)); if(s) return s; } return esc(v||"🍽️"); }
@@ -987,7 +1035,9 @@
       save(SEED);
       try{localStorage.setItem(SEEDKEY,JSON.stringify(SEED.map(function(s){return s.id})));}catch(e){}
       try{localStorage.setItem("kitchencards.migver",String(MIGVER));}catch(e){}
-      return SEED.slice();
+      /* deep-clone: editing/favoriting a starter recipe must never mutate the SEED
+         constant itself, or "Restore starter recipes" would restore the user's edit. */
+      return SEED.map(function(s){return JSON.parse(JSON.stringify(s))});
     }
     /* merge only brand-new default recipes; never re-add ones already seeded once */
     var seeded={};
@@ -995,7 +1045,7 @@
     var have={}; r.forEach(function(x){have[x.id]=1});
     var known=Object.keys(seeded), changed=false;
     for(var i=SEED.length-1;i>=0;i--){ var s=SEED[i];
-      if(!seeded[s.id]){ known.push(s.id); if(!have[s.id]){ r.unshift(s); changed=true; } }
+      if(!seeded[s.id]){ known.push(s.id); if(!have[s.id]){ r.unshift(JSON.parse(JSON.stringify(s))); changed=true; } }
     }
     try{localStorage.setItem(SEEDKEY,JSON.stringify(known));}catch(e){}
     if(changed) save(r);
@@ -1456,7 +1506,7 @@
 
   /* ---------- player ---------- */
   var cur=null, idx=0, wake=null;
-  var tState={sec:0,run:false,int:null};
+  var tState={sec:0,run:false,int:null,stepIdx:-1};
   var audioCtx=null;
   function unlockAudio(){ try{ if(!audioCtx){ var C=window.AudioContext||window.webkitAudioContext; if(C) audioCtx=new C(); } if(audioCtx&&audioCtx.state==="suspended") audioCtx.resume(); }catch(e){} }
 
@@ -1531,8 +1581,11 @@
     }
   }
   function renderStep(dir){
-    stopTimer();
     var st=cur.steps[idx];
+    /* a timer already running/paused for THIS exact step survives navigating away and back;
+       only a timer belonging to a different step gets torn down (and only once this step
+       actually needs the shared timer slot for its own countdown). */
+    var owns=tState.stepIdx===idx&&tState.sec>0&&(tState.run||tState.sec!==st.timer);
     var box=$("#cardIn");
     var bodyHtml, bodyTxt=fmtUnits(st.body);
     if(bodyTxt&&bodyTxt.indexOf("\n")>-1){
@@ -1546,9 +1599,9 @@
       bodyHtml;
     if(st.items&&st.items.length){ html+='<ul class="chk">'+st.items.map(function(x){return ingLi(showLine(x))}).join("")+'</ul>'; }
     if(st.timer&&st.timer>0){
-      tState.sec=st.timer; tState.run=false;
-      html+='<div class="timer-wrap"><div class="timer" id="timer">'+fmtClock(st.timer)+'</div>'+
-        '<button class="play" id="btnPlay" aria-label="Start timer"><svg viewBox="0 0 24 24" id="playIco"><path d="M8 5v14l11-7z"/></svg></button></div>';
+      if(!owns){ stopTimer(); tState.stepIdx=idx; tState.sec=st.timer; tState.run=false; }
+      html+='<div class="timer-wrap"><div class="timer'+(tState.run?' running':'')+'" id="timer">'+fmtClock(tState.sec)+'</div>'+
+        '<button class="play" id="btnPlay" aria-label="Start timer"><svg viewBox="0 0 24 24" id="playIco">'+(tState.run?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>')+'</svg></button></div>';
     }
     box.innerHTML=html;
     $("#stage").scrollTop=0;
@@ -1575,22 +1628,28 @@
     if(showingIng) return;                    /* overview is the first card */
     if(idx>0) go(idx-1); else showOverview(-1);
   }
-  function showOverview(dir){ stopTimer(); showingIng=true; setExpanded("#btnInfo",true); renderIng(dir==null?-1:dir); }
+  function showOverview(dir){ showingIng=true; setExpanded("#btnInfo",true); renderIng(dir==null?-1:dir); }
 
   /* timer */
   function toggleTimer(){ tState.run?pauseTimer():startTimer() }
   function startTimer(){
     unlockAudio(); ensureNotifPerm();
-    tState.run=true; setPlayIcon(true);
-    $("#timer").classList.add("running");
-    if(cur&&cur.steps[idx]) scheduleTimerNotif(tState.sec, cur.title||"Cooking Cards", "Timer done: "+(cur.steps[idx].heading||"step"));
+    tState.run=true; tState.stepIdx=idx; setPlayIcon(true);
+    var t0=$("#timer"); if(t0) t0.classList.add("running");
+    /* capture the owning recipe/step now: the countdown keeps running (and must still
+       ding + notify correctly) even after the user navigates to a different step or card,
+       where cur/idx may have moved on by the time this timer finishes */
+    var ownerTitle=cur&&cur.title||"Cooking Cards", ownerHeading=(cur&&cur.steps[idx]&&cur.steps[idx].heading)||"step";
+    scheduleTimerNotif(tState.sec, ownerTitle, "Timer done: "+ownerHeading);
+    clearInterval(tState.int);
     tState.int=setInterval(function(){
       tState.sec--;
-      var t=$("#timer"); if(!t){stopTimer();return}
-      t.textContent=fmtClock(Math.max(tState.sec,0));
+      var t=$("#timer");                      /* may be null while a different card is on screen */
+      if(t) t.textContent=fmtClock(Math.max(tState.sec,0));
       if(tState.sec<=0){
-        stopTimer(); t.classList.remove("running"); t.classList.add("done"); t.textContent="Done";
-        ding(); toast("Timer done: "+ (cur.steps[idx].heading||"step") );
+        stopTimer();
+        if(t){ t.classList.remove("running"); t.classList.add("done"); t.textContent="Done"; }
+        ding(); toast("Timer done: "+ownerHeading);
       }
     },1000);
   }
@@ -1633,7 +1692,7 @@
     var hero=cur.photo?'<img class="hero-photo" src="'+esc(cur.photo)+'" alt="">':'';
     box.innerHTML='<div class="ingredients-card">'+hero+
       '<h1 class="step-title">'+esc(cur.title)+'</h1>'+metaHtml+
-      unitsBarHTML()+scaleBarHTML()+videoPillHTML()+
+      scaleBarHTML()+videoPillHTML()+
       (raw.length?'<div class="ing-tools"><button class="add-all-btn" id="ingAddAll"><svg viewBox="0 0 24 24"><path d="M6 6h15l-1.6 9H7.5z"/><path d="M6 6L5 3H2"/></svg>Add all to list</button><span class="ing-hint">or tap + on what you need</span></div>':'')+
       (items?'<ul class="chk chk-shop">'+items+'</ul>':'<p class="step-body">No ingredients listed. Tap edit to add them.</p>')+
       '</div>';
@@ -1665,7 +1724,7 @@
     if(all){ addAll(cur); renderIng(); toast("Added to shopping list"); return; }
     var b=e.target&&e.target.closest?e.target.closest(".ing-add"):null;
     if(b){ var i=+b.getAttribute("data-i"); var t=(cur.ingredients||[])[i];
-      if(t!=null){ toggleItem(cur,t); var on=hasItem(cur.id,t);
+      if(t!=null){ toggleItem(cur,t,scaleLine(t)); var on=hasItem(cur.id,t);
         b.classList.toggle("on",on); b.setAttribute("aria-label",on?"Remove from shopping list":"Add to shopping list");
         b.innerHTML=on?'<svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>':'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>'; }
     }
@@ -1675,7 +1734,7 @@
   $("#btnSharePlayer").onclick=function(){ if(cur) shareRecipe(cur.id) };
   document.addEventListener("keydown",function(e){
     if(!$("#player").classList.contains("on"))return;
-    if($("#sheet").classList.contains("on"))return;
+    if(anySheetOpen())return;
     if(e.key==="ArrowRight"){next()}
     else if(e.key==="ArrowLeft"){prev()}
     else if(e.key==="Escape"){closePlayer()}
@@ -1894,7 +1953,8 @@
     var servings=$("#fServings").value.trim();
     var category=(catOther?$("#fCatOther").value.trim():catValue).slice(0,40);
     var video=$("#fVideo").value.trim();
-    if(video&&!/^https?:\/\//i.test(video)) video="https://"+video;
+    if(video&&!/^[a-z][a-z0-9+.-]*:\/\//i.test(video)) video="https://"+video;  /* bare "instagram.com/x" -> https:// */
+    if(video&&!/^https?:\/\//i.test(video)) video="";                          /* discard any other scheme (ftp:, javascript:, ...) */
     video=video.slice(0,500);
     var prepMin=parseInt($("#fPrep").value,10)||0;
     var cookMin=parseInt($("#fCook").value,10)||0;
@@ -1934,6 +1994,14 @@
     $("#pasteCta").setAttribute("aria-expanded",open?"true":"false");
     if(open){$("#pasteIn").focus()}
   };
+  /* true when every step row is still empty (the state a fresh/blank editor starts in) */
+  function stepsEditBlank(){
+    var rows=$("#stepsEdit").children;
+    for(var i=0;i<rows.length;i++){
+      if(rows[i].querySelector(".se-head").value.trim()||rows[i].querySelector(".se-body").value.trim()||rows[i].querySelector(".se-items").value.trim()) return false;
+    }
+    return true;
+  }
   $("#btnParse").onclick=function(){
     var raw=$("#pasteIn").value;
     if(!raw.trim()){toast("Paste some text first");return}
@@ -1943,7 +2011,7 @@
     if(p.servings&&!$("#fServings").value.trim())$("#fServings").value=p.servings;
     if(p.prepMin&&!$("#fPrep").value.trim())$("#fPrep").value=p.prepMin;
     if(p.cookMin&&!$("#fCook").value.trim())$("#fCook").value=p.cookMin;
-    if(p.steps.length)renderStepsEdit(p.steps);
+    if(p.steps.length&&(stepsEditBlank()||window.confirm("Replace your "+$("#stepsEdit").children.length+" step(s) with the "+p.steps.length+" pasted step(s)?")))renderStepsEdit(p.steps);
     $("#pasteField").classList.add("hidden");
     growAll();
     var bits=[p.steps.length+" step"+(p.steps.length===1?"":"s")];
@@ -2147,11 +2215,15 @@
   function findGroup(id){ for(var i=0;i<shopping.length;i++){ if(shopping[i].id===id) return shopping[i]; } return null; }
   function inList(id){ return !!findGroup(id); }
   function hasItem(id,text){ var g=findGroup(id); return !!g&&g.items.some(function(it){return it.t===text}); }
-  function addItem(r,text){
+  function addItem(r,text,scaledText){
     var g=findGroup(r.id);
     if(!g){ g={id:r.id,title:r.title,emoji:r.emoji||"🍽️",photo:r.photo||"",items:[]}; shopping.push(g); }
     else { g.title=r.title; g.emoji=r.emoji||"🍽️"; g.photo=r.photo||""; }
-    if(!g.items.some(function(it){return it.t===text})) g.items.push({t:text,done:false});
+    /* `t` is the raw ingredient line (stable identity, used to match +/✓ state against the
+       recipe's own ingredient list); `st` is the line as scaled by servings at the moment it
+       was added, so the shopping list reflects "4 lb chicken" if that's what was on screen
+       when 2x servings was selected, not the recipe's base "2 lb chicken". */
+    if(!g.items.some(function(it){return it.t===text})) g.items.push({t:text,st:scaledText||text,done:false});
     saveShopping(); renderShopCount();
   }
   function removeItem(id,text){
@@ -2159,8 +2231,8 @@
     g.items=g.items.filter(function(it){return it.t!==text});
     if(!g.items.length) removeFromList(id); else { saveShopping(); renderShopCount(); }
   }
-  function toggleItem(r,text){ if(hasItem(r.id,text)) removeItem(r.id,text); else addItem(r,text); paintBasket(); }
-  function addAll(r){ (r.ingredients||[]).forEach(function(t){ addItem(r,t); }); paintBasket(); }
+  function toggleItem(r,text,scaledText){ if(hasItem(r.id,text)) removeItem(r.id,text); else addItem(r,text,scaledText); paintBasket(); }
+  function addAll(r){ (r.ingredients||[]).forEach(function(t){ addItem(r,t,scaleLine(t)); }); paintBasket(); }
   function removeFromList(id){ shopping=shopping.filter(function(s){return s.id!==id}); saveShopping(); renderShopCount(); }
   function renderShopCount(){ var b=$("#shopBadge"); if(!b)return; var n=shopping.length; b.textContent=n; b.classList.toggle("on",n>0); }
   function paintBasket(){ var b=$("#btnBasket"); if(!b)return; var on=cur&&inList(cur.id); b.classList.toggle("fav-on",!!on); b.removeAttribute("aria-pressed"); b.setAttribute("aria-label","Shopping list"); }
@@ -2181,7 +2253,7 @@
       (s.items||[]).forEach(function(it,ii){
         var k=shopKey(it.t)||String(it.t||"").toLowerCase();
         if(!map[k]){ map[k]={key:k,names:[],qtys:[],srcs:[],refs:[],done:true}; order.push(k); }
-        var e=map[k], nm=shopBaseName(it.t), p=ingParts(fmtUnits(it.t));
+        var e=map[k], nm=shopBaseName(it.t), p=ingParts(fmtUnits(it.st||it.t));
         if(nm&&e.names.indexOf(nm)<0) e.names.push(nm);
         var q=(p.q?p.q+(p.u?" "+p.u:""):"").trim();
         if(q&&e.qtys.indexOf(q)<0) e.qtys.push(q);
@@ -2326,10 +2398,22 @@
   $("#btnShopShare").onclick=shareShopping;
   $("#btnShopClear").onclick=function(){ if(!shopping.length)return; shopping=[]; saveShopping(); renderShopCount(); renderShoppingBody(); paintBasket(); toast("Shopping list cleared"); };
   $("#btnBasket").onclick=openShopping;
+  /* free-typed items not tied to any recipe, e.g. "paper towels" — stored as their own
+     group (findGroup/addItem/flatList already work on any group id, recipe or not) */
+  var CUSTOM_GID="__custom__";
+  function addCustomItem(){
+    var v=$("#shopAddIn").value.trim(); if(!v) return;
+    addItem({id:CUSTOM_GID,title:"Other items",emoji:"📝",photo:""},v);
+    $("#shopAddIn").value="";
+    renderShoppingBody();
+    toast("Added to shopping list");
+  }
+  $("#shopAddBtn").onclick=addCustomItem;
+  $("#shopAddIn").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); addCustomItem(); } });
 
   /* ---------- theme (day / night) ---------- */
   var THEME="kitchencards.theme.v1";
-  var theme="dark";
+  var theme="light";
   try{var tv=localStorage.getItem(THEME); if(tv==="light"||tv==="dark") theme=tv;}catch(e){}
   function applyTheme(){
     document.documentElement.setAttribute("data-theme",theme);
@@ -2374,7 +2458,7 @@
       '</div>';
     $("#setExport").onclick=doExport;
     $("#setImport").onclick=doImport;
-    $("#setTrash").onclick=openTrash;
+    $("#setTrash").onclick=function(){ closeSettings(); openTrash(); };
     $("#setReseed").onclick=reseedStarters;
   }
   /* ---------- recently deleted UI ---------- */

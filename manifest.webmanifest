@@ -1,7 +1,7 @@
 {
   "name": "Cooking Cards",
   "short_name": "Cooking Cards",
-  "description": "Your interactive cookbook. Swipeable recipe step-cards with timers.",
+  "description": "No more scrolling up and down with wet hands. Swipe through recipes one step at a time, with built-in timers, a servings scaler, and a shopping list that builds itself.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
