@@ -1,0 +1,20 @@
+{
+  "name": "Cooking Cards",
+  "short_name": "Cooking Cards",
+  "description": "Your interactive cookbook. Swipeable recipe step-cards with timers.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#16110B",
+  "theme_color": "#16110B",
+  "id": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["food", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
