@@ -133,6 +133,26 @@
     /* solid, not a fade — cards used to show THROUGH the transparent lower half */
     position:sticky;top:0;background:var(--ground);z-index:5;
   }
+  /* timer bell: lives in the header so a running timer is visible from anywhere,
+     not just inside the recipe that started it */
+  .bell{flex:none;position:relative;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:var(--surface);color:var(--ink-dim);transition:background .15s ease,color .15s ease}
+  .bell:hover{background:var(--surface-2);color:var(--ink)}
+  .bell svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .bell.live{color:var(--saffron)}
+  .bell-dot{position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:999px;background:var(--paprika);box-shadow:0 0 0 2px var(--ground);animation:bellpulse 1.6s ease-in-out infinite}
+  @keyframes bellpulse{0%,100%{opacity:1}50%{opacity:.35}}
+  /* running-timer strip under the header — tap to jump back to that step */
+  .timer-strip{display:flex;align-items:center;gap:10px;width:100%;background:var(--saffron-soft);border-radius:13px;padding:10px 13px;margin:0 0 12px;text-align:left}
+  /* display:flex above would defeat the hidden attribute — this must win */
+  .timer-strip[hidden]{display:none}
+  .timer-strip .ts-ico{width:30px;height:30px;flex:none;border-radius:9px;background:var(--saffron);display:grid;place-items:center}
+  .timer-strip .ts-ico svg{width:16px;height:16px;stroke:#1a1206;fill:none;stroke-width:2;stroke-linecap:round}
+  .timer-strip .ts-txt{flex:1;min-width:0}
+  .timer-strip .ts-txt b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .timer-strip .ts-txt span{display:block;font-size:12px;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .timer-strip .ts-clock{font-family:var(--serif);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .timer-strip.done{background:var(--good);}
+  .timer-strip.done .ts-clock,.timer-strip.done .ts-txt b,.timer-strip.done .ts-txt span{color:#0d2f16}
   .brand-logo{flex:none;width:48px;height:48px;display:block}
   .brand-logo svg{width:100%;height:100%;display:block}
   .brand{display:flex;flex-direction:column;line-height:1.05;flex:1;min-width:0}
@@ -330,6 +350,17 @@
   .photo-url-go{flex:none;padding:0 18px;border-radius:11px;background:var(--btn-bg);color:var(--btn-ink);font-weight:600;font-size:14px}
   .photo-url-go:hover{filter:brightness(.94)}
   .photo-url-row.hidden{display:none}
+  /* account sheet */
+  .acct-note{font-size:13.5px;color:var(--ink-dim);line-height:1.55;margin:0}
+  .acct-card{display:flex;align-items:center;gap:13px;background:var(--surface);border-radius:14px;padding:13px}
+  .acct-av{width:46px;height:46px;flex:none;border-radius:999px;background:var(--saffron);color:#1a1206;display:grid;place-items:center;font-family:var(--serif);font-size:21px;font-weight:600}
+  .acct-who{display:flex;flex-direction:column;min-width:0}
+  .acct-who b{font-family:var(--serif);font-size:17px;font-weight:600}
+  .acct-who span{font-size:13px;color:var(--ink-dim)}
+  /* btn-primary's flex:1 is for the sheet FOOTER row; inside the column body it must not grow */
+  .sheet-body .btn-primary,.sheet-body .btn-quiet{flex:none}
+  .acct-or{display:flex;align-items:center;gap:10px;color:var(--ink-faint);font-size:12px;margin:2px 0}
+  .acct-or::before,.acct-or::after{content:"";flex:1;height:1px;background:var(--hairline)}
   /* category picker (editor) */
   .cat-pick{display:flex;flex-wrap:wrap;gap:8px}
   .cat-chip{background:var(--ground);box-shadow:inset 0 0 0 1.5px var(--hairline);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;color:var(--ink-dim);transition:background .15s ease,color .15s ease,transform .1s ease,box-shadow .15s ease}
@@ -359,6 +390,8 @@
   .rcard .chev{color:var(--ink-faint)}
   .rcard .chev svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
   .empty{flex:1;display:grid;place-content:center;justify-items:center;gap:10px;text-align:center;color:var(--ink-dim);padding:40px 20px}
+  .empty-acts{display:flex;flex-direction:column;gap:9px;width:100%;max-width:260px;margin-top:8px}
+  .empty-acts .btn-primary,.empty-acts .btn-quiet{width:100%}
   .empty .big{font-size:40px}
   .empty b{font-family:var(--serif);font-size:20px;color:var(--ink)}
   .lib-foot{display:flex;gap:10px;padding-top:14px}
@@ -381,6 +414,32 @@
 
   /* ---------- PLAYER ---------- */
   /* fade+settle instead of display:none -> flex, which snapped in (looked like a flash) */
+  /* Explore sits above the library but below the player, so opening a recipe from
+     Explore still uses the normal full-screen cooking view. */
+  .explore{position:fixed;inset:0;background:var(--ground);z-index:16;overflow-y:auto;
+    opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease, visibility 0s linear .18s}
+  .explore.on{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .18s ease, visibility 0s}
+  .app-wrap-explore{max-width:var(--shell);margin:0 auto;width:100%;min-height:100%;display:flex;flex-direction:column;
+    padding:0 18px}
+  /* .lib and .lib-top carry their own side padding + safe-area top + 86px bottom —
+     the wrapper must not add them again (double inset pushed cards 36px in and
+     floated them 170px above the tab bar) */
+  .app-wrap-explore .lib{padding-left:0;padding-right:0}
+  .explore .brand h1{font-family:var(--serif);font-size:26px;font-weight:600;margin:0}
+  .explore .brand span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:3px;display:block}
+  /* .rcard .meta span (0,2,1) outranks a bare .byline class — match its specificity */
+  .rcard .meta .byline{display:block;font-size:11.5px;color:var(--saffron);font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rcard .meta .byline.mine{color:var(--good)}
+  .pub-badge{color:var(--good);font-weight:700}
+  .credit-pill{align-self:center;background:var(--saffron-soft);color:var(--saffron);font-size:13px;font-weight:600;border-radius:999px;padding:7px 15px;min-height:34px}
+  .credit-pill:hover{filter:brightness(1.05)}
+  .pub-pill{background:var(--surface);color:var(--ink-dim)}
+  .pub-pill.on{background:var(--good);color:#0d2f16}
+  .pub-pill:disabled{opacity:.6}
+  .prof-head{display:flex;align-items:center;gap:13px;margin-bottom:4px}
+  .prof-av{width:52px;height:52px;flex:none;border-radius:999px;background:var(--saffron);color:#1a1206;display:grid;place-items:center;font-family:var(--serif);font-size:24px;font-weight:600}
+  .prof-who b{display:block;font-family:var(--serif);font-size:19px;font-weight:600}
+  .prof-who span{font-size:13px;color:var(--ink-dim)}
   .player{position:fixed;inset:0;background:var(--ground-2);display:flex;flex-direction:column;z-index:20;
     opacity:0;visibility:hidden;transform:scale(.985);pointer-events:none;
     transition:opacity .2s ease, transform .24s cubic-bezier(.2,.7,.2,1), visibility 0s linear .24s}
@@ -476,7 +535,9 @@
   .reorder-bar span{flex:1;font-size:13.5px;color:var(--ink-dim)}
   .reorder-bar .btn-primary{padding:10px 22px;font-size:15px}
   body.reordering .botnav{display:none}
-  .botnav{position:fixed;left:0;right:0;bottom:0;z-index:15;max-width:var(--shell);margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--ground);border-top:1px solid var(--hairline);padding:8px 6px calc(6px + env(safe-area-inset-bottom))}
+  /* above Explore (16) so the tab bar stays reachable, below the player (20)
+     which deliberately takes over the whole screen while cooking */
+  .botnav{position:fixed;left:0;right:0;bottom:0;z-index:18;max-width:var(--shell);margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--ground);border-top:1px solid var(--hairline);padding:8px 6px calc(6px + env(safe-area-inset-bottom))}
   .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;color:var(--ink-faint);transition:color .15s ease}
   .nav-item:hover{color:var(--ink-dim)}
   .nav-item.active{color:var(--ink)}
@@ -506,15 +567,16 @@
     box-shadow:0 -20px 60px rgba(0,0,0,.5);
     transition:transform .3s cubic-bezier(.2,.7,.2,1), visibility 0s;
   }
-  /* editor opens full-screen (its own view), not a partial sheet */
-  #sheet{top:0;height:100dvh;max-height:none;border-radius:0}
-  #sheet .sheet-grip{display:none}
-  #sheet .sheet-head{padding-top:calc(14px + env(safe-area-inset-top))}
+  /* editor, settings, account and profile open full-screen (their own page),
+     not as a partial sheet sliding up from the bottom */
+  #sheet,#settings,#account,#profileSheet{top:0;height:100dvh;max-height:none;border-radius:0}
+  #sheet .sheet-grip,#settings .sheet-grip,#account .sheet-grip,#profileSheet .sheet-grip{display:none}
+  #sheet .sheet-head,#settings .sheet-head,#account .sheet-head,#profileSheet .sheet-head{padding-top:calc(14px + env(safe-area-inset-top))}
   .sheet-grip{width:38px;height:4px;border-radius:4px;background:var(--hairline);margin:10px auto 4px}
   .sheet-head{display:flex;align-items:center;gap:12px;padding:6px 18px 12px}
   .sheet-head h2{font-family:var(--serif);font-size:21px;font-weight:600;margin:0;flex:1}
   .sheet-head .link{font-size:14px;color:var(--saffron)}
-  .sheet-body{overflow-y:auto;padding:4px 18px 18px;display:flex;flex-direction:column;gap:16px}
+  .sheet-body{flex:1;overflow-y:auto;padding:4px 18px 18px;display:flex;flex-direction:column;gap:16px}
   .field{display:flex;flex-direction:column;gap:7px}
   .field label{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint)}
   /* every field stays >=16px: iOS auto-zooms into any input with smaller text */
@@ -600,21 +662,26 @@
         </g>
       </svg></span>
       <div class="brand"><b>Cooking Cards</b><span>Your interactive cookbook</span></div>
+      <button class="bell" id="btnBell" aria-label="Timers and alerts">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="bell-dot" id="bellDot" hidden></span>
+      </button>
     </div>
     <label class="search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
       <input id="searchIn" type="search" placeholder="Search recipes" aria-label="Search recipes" autocomplete="off">
     </label>
+    <button class="timer-strip" id="timerStrip" hidden></button>
     <div class="filter-bar" id="filterBar"></div>
     <div class="cards" id="cardList"></div>
   </section>
   <div class="reorder-bar" id="reorderBar"><span>Drag the recipes to reorder</span><button class="btn-primary" id="btnReorderDone">Done</button></div>
   <nav class="botnav" id="botnav" aria-label="Main">
-    <button class="nav-item active" id="navRecipes" aria-label="Recipes">
-      <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/></svg></span><span class="lbl">Recipes</span>
+    <button class="nav-item active" id="navRecipes" aria-label="My cookbook">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 1 6.5 18H19v3H6.5A1.5 1.5 0 0 1 5 19.5z"/></svg></span><span class="lbl">Cookbook</span>
     </button>
-    <button class="nav-item" id="navFav" aria-label="Favorites">
-      <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></span><span class="lbl">Favorites</span>
+    <button class="nav-item" id="navExplore" aria-label="Explore recipes">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><span class="lbl">Explore</span>
     </button>
     <button class="nav-item nav-add" id="btnAdd" aria-label="Add a recipe">
       <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="lbl">Add</span>
@@ -622,11 +689,34 @@
     <button class="nav-item shop-btn" id="btnShop" aria-label="Shopping list">
       <span class="nav-ico"><svg viewBox="0 0 24 24"><path d="M6 6h15l-1.6 9H7.5z"/><path d="M6 6L5 3H2"/><circle cx="9" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg><span class="shop-badge" id="shopBadge"></span></span><span class="lbl">Shopping</span>
     </button>
-    <button class="nav-item" id="btnSettings" aria-label="Settings">
-      <span class="nav-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="lbl">Settings</span>
+    <button class="nav-item" id="btnSettings" aria-label="Profile and settings">
+      <span class="nav-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg></span><span class="lbl">Profile</span>
     </button>
   </nav>
 </div>
+
+<!-- EXPLORE (public recipes from everyone) -->
+<section class="explore" id="explore" aria-label="Explore recipes" aria-hidden="true">
+  <div class="app-wrap-explore">
+    <div class="lib-top">
+      <div class="brand"><h1>Explore</h1><span id="exploreSub">Recipes shared by other cooks</span></div>
+    </div>
+    <div class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="exploreSearch" placeholder="Search all recipes" aria-label="Search public recipes" autocomplete="off">
+    </div>
+    <button class="timer-strip" id="timerStripEx" hidden></button>
+    <div class="lib" id="exploreList"></div>
+  </div>
+</section>
+
+<!-- PUBLIC PROFILE -->
+<section class="sheet" id="profileSheet" role="dialog" aria-modal="true" aria-labelledby="profTitle" aria-hidden="true">
+  <div class="sheet-grip"></div>
+  <div class="sheet-head"><h2 id="profTitle">Profile</h2></div>
+  <div class="sheet-body" id="profBody"></div>
+  <div class="sheet-foot"><button class="btn-quiet" id="btnProfClose" style="flex:1">Done</button></div>
+</section>
 
 <!-- PLAYER -->
 <section class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="pTitle" aria-hidden="true">
@@ -647,6 +737,9 @@
     <div class="p-actions">
       <button class="p-act" id="btnFav" aria-label="Add favorite" aria-pressed="false">
         <svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>Save</span>
+      </button>
+      <button class="p-act hidden" id="btnSavePublic" aria-label="Save to my cookbook">
+        <svg viewBox="0 0 24 24"><path d="M12 3v12M8 13l4 4 4-4M5 21h14"/></svg><span>Save</span>
       </button>
       <button class="p-act" id="btnBasket" aria-label="Shopping list">
         <svg viewBox="0 0 24 24"><path d="M6 6h15l-1.6 9H7.5z"/><path d="M6 6L5 3H2"/><circle cx="9" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg><span>Shop</span>
@@ -746,7 +839,7 @@
 <section class="sheet" id="settings" role="dialog" aria-modal="true" aria-labelledby="setTitle" aria-hidden="true">
   <div class="sheet-grip"></div>
   <div class="sheet-head">
-    <h2 id="setTitle">Settings</h2>
+    <h2 id="setTitle">Profile</h2>
   </div>
   <div class="sheet-body" id="setBody"></div>
   <div class="sheet-foot">
@@ -783,6 +876,7 @@
     <button class="cm-item" id="cmOpen"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span class="cm-label">Open recipe</span></button>
     <button class="cm-item" id="cmEdit"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20h4L18 10l-4-4L4 16v4zM14 6l4 4"/></svg><span class="cm-label">Edit recipe</span></button>
     <button class="cm-item" id="cmReorder"><svg viewBox="0 0 24 24" fill="none"><path d="M8 6h13M8 12h13M8 18h13M4 6h.01M4 12h.01M4 18h.01"/></svg><span class="cm-label">Reorder recipes</span></button>
+    <button class="cm-item" id="cmPublish"><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V6M6 12l6-6 6 6"/><path d="M4 21h16"/></svg><span class="cm-label">Publish to Explore</span></button>
     <button class="cm-item" id="cmShare"><svg viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="M8.1 10.8l7.8-4.6M8.1 13.2l7.8 4.6"/></svg><span class="cm-label">Share recipe</span></button>
     <button class="cm-item" id="cmShop"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6h15l-1.6 9H7.5z"/><path d="M6 6L5 3H2"/><circle cx="9" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg><span class="cm-label">Add ingredients to shopping list</span></button>
     <button class="cm-item" id="cmFav"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span class="cm-label">Add to favorites</span></button>
@@ -820,6 +914,16 @@
   </div>
   <div class="sheet-body" id="trashBody"></div>
   <div class="sheet-foot"><button class="btn-quiet" id="btnTrashClose" style="flex:1">Done</button></div>
+</section>
+
+<!-- ACCOUNT -->
+<section class="sheet" id="account" role="dialog" aria-modal="true" aria-labelledby="acctTitle" aria-hidden="true">
+  <div class="sheet-grip"></div>
+  <div class="sheet-head">
+    <h2 id="acctTitle">Account</h2>
+  </div>
+  <div class="sheet-body" id="acctBody"></div>
+  <div class="sheet-foot"><button class="btn-quiet" id="btnAcctClose" style="flex:1">Done</button></div>
 </section>
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -1038,15 +1142,26 @@
 
   /* ---------- store ---------- */
   function load(){
-    var r=null;
-    try{r=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+    var raw=null, r=null, parsed=true;
+    try{raw=localStorage.getItem(KEY);}catch(e){}
+    try{r=raw==null?null:JSON.parse(raw);}catch(e){parsed=false;}
+    if(!parsed){
+      /* CORRUPTED store (truncated write, quota clip). Never overwrite the bytes —
+         stash them under a backup key so the data stays recoverable, and show empty. */
+      try{localStorage.setItem(KEY+".corrupt."+Date.now(),raw);}catch(e){}
+      setTimeout(function(){ toast("Your cookbook data couldn't be read — a backup copy was kept."); },600);
+      return [];
+    }
     if(!Array.isArray(r)){
-      save(SEED);
+      /* A brand-new cookbook starts EMPTY. The starter recipes are one person's
+         personal recipes — shipping them to every new account would hand strangers
+         someone else's dinners. They live on the public side (Explore) instead,
+         where anyone can find and save them deliberately.
+         Existing installs are untouched: this branch only runs when nothing is stored. */
+      save([]);
       try{localStorage.setItem(SEEDKEY,JSON.stringify(SEED.map(function(s){return s.id})));}catch(e){}
       try{localStorage.setItem("kitchencards.migver",String(MIGVER));}catch(e){}
-      /* deep-clone: editing/favoriting a starter recipe must never mutate the SEED
-         constant itself, or "Restore starter recipes" would restore the user's edit. */
-      return SEED.map(function(s){return JSON.parse(JSON.stringify(s))});
+      return [];
     }
     /* merge only brand-new default recipes; never re-add ones already seeded once */
     var seeded={};
@@ -1060,7 +1175,10 @@
     if(changed) save(r);
     return migrate(r);
   }
-  function save(r){try{localStorage.setItem(KEY,JSON.stringify(r));}catch(e){toast("Storage full. Export a backup.");}}
+  /* "pub:" entries are other people's recipes held in memory only while being previewed
+     from Explore — they must never reach storage or the sync engine. */
+  function ownRecipes(r){ return (r||[]).filter(function(x){ return String(x.id).indexOf("pub:")!==0 }); }
+  function save(r){try{localStorage.setItem(KEY,JSON.stringify(ownRecipes(r)));}catch(e){toast("Storage full. Export a backup.");}}
   /* refresh starter-recipe content to the latest SEED, once per MIGVER.
      Skips any recipe the user has hand-edited (userEdited flag). */
   function migrate(r){
@@ -1079,7 +1197,9 @@
   var recipes=load();
 
   /* ---------- helpers ---------- */
-  function uid(){return "r"+Math.abs(Math.floor((performance.now()*1000))).toString(36)+recipes.length}
+  /* ids must be unique ACROSS devices now that cookbooks sync — performance.now()
+     resets every page load, so two phones could easily mint the same id */
+  function uid(){return "r"+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36)}
   function pad2(n){return n<10?"0"+n:""+n}
   function fmtClock(s){s=Math.max(0,Math.floor(s));var h=Math.floor(s/3600),m=Math.floor(s/60)%60,ss=s%60;return h?h+":"+pad2(m)+":"+pad2(ss):m+":"+pad2(ss)}
   function totalSecs(r){return r.steps.reduce(function(a,s){return a+(s.timer||0)},0)}
@@ -1240,7 +1360,7 @@
   var curFilter={mode:"all",cat:""};
   function toggleFav(id){
     var r=recipes.filter(function(x){return x.id===id})[0]; if(!r)return;
-    r.fav=!r.fav; save(recipes);
+    r.fav=!r.fav; touchRecipe(r); save(recipes); syncSoon();
     if(cur&&cur.id===id) paintFav();
     renderFilterBar(); renderLib($("#searchIn").value);
     toast(r.fav?"Added to favorites":"Removed from favorites");
@@ -1249,16 +1369,19 @@
     var cats={};
     recipes.forEach(function(r){ if(r.category) cats[r.category]=1; });
     var catKeys=Object.keys(cats).sort();
-    var hasFav=recipes.some(function(r){return r.fav});
-    /* reset stale selection */
-    if(curFilter.mode==="fav"&&!hasFav) curFilter={mode:"all",cat:""};
+    var favCount=ownRecipes(recipes).filter(function(r){return r.fav}).length;
     if(curFilter.mode==="cat"&&!cats[curFilter.cat]) curFilter={mode:"all",cat:""};
-    if(!hasFav&&!catKeys.length) return "";
+    /* Favorites lost its nav tab, so this chip is now its ONLY home — it must be
+       permanently visible (not conditional on having favorites) or the feature
+       silently disappears for anyone who hasn't starred something yet. */
+    if(!ownRecipes(recipes).length) return "";
     var h='<button class="chip-f'+(curFilter.mode==="all"?" on":"")+'" data-f="all">All</button>';
-    if(hasFav) h+='<button class="chip-f'+(curFilter.mode==="fav"?" on":"")+'" data-f="fav">★ Favorites</button>';
+    h+='<button class="chip-f'+(curFilter.mode==="fav"?" on":"")+'" data-f="fav">★ Favorites'+(favCount?" "+favCount:"")+'</button>';
     catKeys.forEach(function(c){
       h+='<button class="chip-f'+(curFilter.mode==="cat"&&curFilter.cat===c?" on":"")+'" data-f="cat" data-c="'+esc(c)+'">'+esc(c)+'</button>';
     });
+    /* reorder used to be long-press-only — an invisible gesture; give it a visible home */
+    if(ownRecipes(recipes).length>1) h+='<button class="chip-f" data-f="reorder">⇅ Reorder</button>';
     return h;
   }
   function renderFilterBar(){ var el=$("#filterBar"); if(el) el.innerHTML=filterBarHTML(); }
@@ -1266,6 +1389,7 @@
     var c=e.target&&e.target.closest?e.target.closest(".chip-f"):null;
     if(!c) return;
     var f=c.getAttribute("data-f");
+    if(f==="reorder"){ enterReorder(); return; }
     curFilter=(f==="cat")?{mode:"cat",cat:c.getAttribute("data-c")}:{mode:f,cat:""};
     renderFilterBar(); renderLib($("#searchIn").value);
   });
@@ -1286,7 +1410,7 @@
     var list=$("#cardList"); list.innerHTML="";
     if(typeof updateNavActive==="function") updateNavActive();
     var terms=filter?filter.split(/\s+/).filter(Boolean):[];
-    var shown=recipes.filter(function(r){
+    var shown=ownRecipes(recipes).filter(function(r){
       if(curFilter.mode==="fav"&&!r.fav) return false;
       if(curFilter.mode==="cat"&&r.category!==curFilter.cat) return false;
       if(!terms.length) return true;
@@ -1296,7 +1420,22 @@
     if(!shown.length){
       var big="🔍", head="No matches", sub="Try another search or filter";
       if(curFilter.mode==="fav"&&!filter){ big="⭐"; head="No favorites yet"; sub="Tap the star on any recipe to save it here."; }
-      else if(curFilter.mode==="all"&&!filter){ big="🍳"; head="No recipes yet"; sub="Tap Add to start your cookbook."; }
+      else if(curFilter.mode==="all"&&!filter&&!recipes.length){
+        /* a genuinely empty cookbook (new account) — offer the two ways forward
+           rather than leaving someone staring at nothing */
+        list.innerHTML='<div class="empty"><div class="big">🍳</div><b>Your cookbook is empty</b>'+
+          '<div>Add a recipe of your own, or find one from another cook.</div>'+
+          '<div class="empty-acts">'+
+            '<button class="btn-primary" id="emptyAdd">Add a recipe</button>'+
+            '<button class="btn-quiet" id="emptyExplore">Explore recipes from other cooks</button>'+
+            (signedIn()?'':'<button class="btn-quiet" id="emptySignIn">Sign in to restore a backed-up cookbook</button>')+
+          '</div></div>';
+        var ea=$("#emptyAdd"); if(ea) ea.onclick=function(){ openEditor(null) };
+        var ex=$("#emptyExplore"); if(ex) ex.onclick=function(){ openExplore(); };
+        var si=$("#emptySignIn"); if(si) si.onclick=function(){ openAccount(); };
+        return;
+      }
+      else if(curFilter.mode==="all"&&!filter){ big="🍳"; head="No recipes here"; sub="Tap Add to put one in."; }
       list.innerHTML='<div class="empty"><div class="big">'+big+'</div><b>'+head+'</b><div>'+sub+'</div></div>';
       return;
     }
@@ -1306,7 +1445,10 @@
       var b=document.createElement("button"); b.className="rcard-main";
       b.innerHTML='<div class="thumb">'+thumbInner(r)+
           (r.video?'<span class="vid-badge" title="Has a cooking video"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>':'')+'</div>'+
-        '<div class="meta"><b>'+esc(r.title)+'</b><span>'+metaLine(r)+'</span></div>'+
+        '<div class="meta"><b>'+esc(r.title)+'</b><span>'+metaLine(r)+
+          (isPublished(r.id)?' <i>·</i> <span class="pub-badge">Published</span>':'')+
+          (r.fromUser?' <i>·</i> <span class="byline" style="display:inline">@'+esc(r.fromUser)+'</span>':'')+
+        '</span></div>'+
         '<span class="chev"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>';
       b.onclick=function(){ if(reordering) return; if(Date.now()-lpFiredAt<700) return; openPlayer(r.id); };
       var st=document.createElement("button"); st.className="star"+(r.fav?" on":"");
@@ -1446,10 +1588,12 @@
   })();
   function openCardMenu(id){
     var r=recipes.filter(function(x){return x.id===id})[0]; if(!r)return;
+    navOpened();
     cmId=id; _return=document.activeElement;
     $("#cmTitle").textContent=r.title;
     $("#cmThumb").innerHTML=thumbInner(r);
     $("#cmFav .cm-label").textContent=r.fav?"Remove from favorites":"Add to favorites";
+    $("#cmPublish .cm-label").textContent=isPublished(id)?"Remove from Explore":"Publish to Explore";
     $("#scrim").classList.add("on"); $("#cardMenu").classList.add("on"); refreshInert(); focusFirst($("#cardMenu"));
   }
   function closeCardMenu(){ $("#cardMenu").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); }
@@ -1458,13 +1602,19 @@
   $("#cmEdit").onclick=function(){ var id=cmId; closeCardMenu(); openEditor(id); };
   $("#cmReorder").onclick=function(){ closeCardMenu(); enterReorder(); };
   $("#cmShare").onclick=function(){ var id=cmId; closeCardMenu(); shareRecipe(id); };
+  $("#cmPublish").onclick=function(){
+    var id=cmId, r=recipes.filter(function(x){return x.id===id})[0];
+    closeCardMenu(); if(!r) return;
+    if(isPublished(id)) unpublishRecipe(id); else publishRecipe(r);
+  };
   $("#cmShop").onclick=function(){ var r=recipes.filter(function(x){return x.id===cmId})[0]; if(r){ addAll(r); toast("Added to shopping list"); } closeCardMenu(); };
   $("#cmFav").onclick=function(){ if(cmId) toggleFav(cmId); closeCardMenu(); };
   $("#cmDelete").onclick=function(){
     var r=recipes.filter(function(x){return x.id===cmId})[0]; if(!r){ closeCardMenu(); return; }
     if(!window.confirm('Delete "'+r.title+'"?\n\nIt goes to Recently deleted in Settings, where you can restore it.')) return;
-    trashRecipe(r);
-    recipes=recipes.filter(function(x){return x.id!==cmId}); save(recipes); removeFromList(cmId);
+    if(!trashRecipe(r)){ toast("Couldn't secure it in the bin — nothing was deleted"); closeCardMenu(); return; }
+    if(isPublished(cmId)) unpublishRecipe(cmId);   /* don't strand an orphan copy in Explore */
+    recipes=recipes.filter(function(x){return x.id!==cmId}); save(recipes); removeFromList(cmId); addTomb(cmId);
     renderFilterBar(); renderLib($("#searchIn").value); toast("Moved to Recently deleted");
     closeCardMenu();
   };
@@ -1501,11 +1651,39 @@
   var _return=null;
   function setInert(el,on){ if(!el)return; if(on){el.setAttribute("inert","");el.setAttribute("aria-hidden","true");} else {el.removeAttribute("inert");el.removeAttribute("aria-hidden");} }
   function anySheetOpen(){ return !!document.querySelector(".sheet.on"); }
+  /* ---- device back button ----
+     Every layer (player, explore, any sheet) pushes one history entry when it opens,
+     and the back button/back-swipe closes the topmost open layer instead of exiting
+     the app. Button-closes leave their entry behind; the reuse check below caps that
+     at a single stale entry, whose only cost is one silent back-press. */
+  function anyLayerOpen(){ return anySheetOpen()||$("#player").classList.contains("on")||$("#explore").classList.contains("on"); }
+  function navOpened(){
+    try{
+      if(history.state&&history.state.cc&&!anyLayerOpen()) history.replaceState({cc:1},"");
+      else history.pushState({cc:1},"");
+    }catch(e){}
+  }
+  window.addEventListener("popstate",function(){
+    var seq=[["#cardMenu",function(){closeCardMenu()}],["#shareSheet",function(){closeShareSheet()}],
+      ["#trashSheet",function(){closeTrash()}],["#account",function(){closeAccount()}],
+      ["#settings",function(){closeSettings()}],["#shopping",function(){closeShopping()}],
+      ["#profileSheet",function(){closeProfile()}],["#sheet",function(){closeSheet()}],
+      ["#player",function(){closePlayer()}],["#explore",function(){closeExplore()}]];
+    for(var i=0;i<seq.length;i++){
+      var el=$(seq[i][0]);
+      if(el&&el.classList.contains("on")){ seq[i][1](); return; }
+    }
+  });
+
   function refreshInert(){
     var sheetOn=anySheetOpen();
     var playerOn=$("#player").classList.contains("on");
     setInert($("#app"), sheetOn||playerOn);
     setInert($("#player"), sheetOn && playerOn);
+    /* Explore must go inert behind the player and sheets, or keyboard/screen-reader
+       focus can wander into the covered screen */
+    var ex=$("#explore");
+    if(ex) setInert(ex, !ex.classList.contains("on") || sheetOn || playerOn);
     var sheets=document.querySelectorAll(".sheet");
     for(var i=0;i<sheets.length;i++){ setInert(sheets[i], !sheets[i].classList.contains("on")); }
   }
@@ -1515,7 +1693,9 @@
 
   /* ---------- player ---------- */
   var cur=null, idx=0, wake=null;
-  var tState={sec:0,run:false,int:null,stepIdx:-1};
+  /* recipeId/heading let a running timer survive leaving the player: the countdown
+     keeps going and the header strip can name it and jump back to it. */
+  var tState={sec:0,run:false,int:null,stepIdx:-1,recipeId:null,heading:"",title:"",done:false};
   var audioCtx=null;
   function unlockAudio(){ try{ if(!audioCtx){ var C=window.AudioContext||window.webkitAudioContext; if(C) audioCtx=new C(); } if(audioCtx&&audioCtx.state==="suspended") audioCtx.resume(); }catch(e){} }
 
@@ -1538,10 +1718,15 @@
 
   function openPlayer(id){
     cur=recipes.filter(function(r){return r.id===id})[0]; if(!cur)return;
+    navOpened();
+    /* a PAUSED leftover from a different recipe must not bleed into this one's
+       same-numbered step. A RUNNING timer is never killed by mere navigation —
+       "open another recipe to peek" must not silence the roast. */
+    if(tState.recipeId!==id && !tState.run){ stopTimer(); tState.stepIdx=-1; tState.sec=0; tState.recipeId=null; }
     /* open on the overview card (card 1); the steps follow it */
     _return=document.activeElement; showingIng=true; idx=0;
     scaleBase=baseServings(cur); scaleN=scaleBase;
-    paintFav(); paintBasket();
+    paintFav(); paintBasket(); paintSaveBtn();
     setExpanded("#btnInfo",true);
     $("#pThumb").innerHTML=thumbInner(cur);
     $("#pTitle").textContent=cur.title;
@@ -1559,7 +1744,19 @@
     b.setAttribute("aria-label",cur.fav?"Remove favorite":"Add favorite");
   }
   function closePlayer(){
-    stopTimer(); showingIng=false;
+    /* drop any transient public-recipe preview so it can't linger in the library —
+       EXCEPT one whose timer is still running, or the strip couldn't jump back to it */
+    recipes=recipes.filter(function(x){
+      if(String(x.id).indexOf("pub:")!==0) return true;
+      return tState.run && tState.recipeId===x.id;
+    });
+    /* a RUNNING timer deliberately survives leaving the recipe — you often step away
+       mid-cook. Only a paused/unstarted one is torn down. */
+    if(!tState.run){ stopTimer(); tState.stepIdx=-1; tState.sec=0; tState.recipeId=null; }
+    showingIng=false;
+    /* reset the servings scaler too — factor() must not leak recipe A's 2→6 scale into
+       recipe B's "Add ingredients to shopping list" from the long-press menu */
+    scaleBase=null; scaleN=null;
     $("#player").classList.remove("on");
     refreshInert();
     releaseWake(); cur=null;
@@ -1591,10 +1788,10 @@
   }
   function renderStep(dir){
     var st=cur.steps[idx];
-    /* a timer already running/paused for THIS exact step survives navigating away and back;
-       only a timer belonging to a different step gets torn down (and only once this step
-       actually needs the shared timer slot for its own countdown). */
-    var owns=tState.stepIdx===idx&&tState.sec>0&&(tState.run||tState.sec!==st.timer);
+    /* a timer already running/paused for THIS exact recipe+step survives navigating away
+       and back; a foreign RUNNING timer is left alone (it keeps counting in the strip),
+       and only a stale paused leftover is torn down when this step needs the slot. */
+    var owns=tState.recipeId===cur.id&&tState.stepIdx===idx&&tState.sec>0&&(tState.run||tState.sec!==st.timer);
     var box=$("#cardIn");
     var bodyHtml, bodyTxt=fmtUnits(st.body);
     if(bodyTxt&&bodyTxt.indexOf("\n")>-1){
@@ -1608,9 +1805,12 @@
       bodyHtml;
     if(st.items&&st.items.length){ html+='<ul class="chk">'+st.items.map(function(x){return ingLi(showLine(x))}).join("")+'</ul>'; }
     if(st.timer&&st.timer>0){
-      if(!owns){ stopTimer(); tState.stepIdx=idx; tState.sec=st.timer; tState.run=false; }
-      html+='<div class="timer-wrap"><div class="timer'+(tState.run?' running':'')+'" id="timer">'+fmtClock(tState.sec)+'</div>'+
-        '<button class="play" id="btnPlay" aria-label="Start timer"><svg viewBox="0 0 24 24" id="playIco">'+(tState.run?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>')+'</svg></button></div>';
+      /* claim the slot only from a non-running leftover; a live foreign countdown keeps
+         going untouched and this card just shows its own full duration */
+      if(!owns && !tState.run){ stopTimer(); tState.recipeId=cur.id; tState.stepIdx=idx; tState.sec=st.timer; tState.run=false; }
+      var showSec=owns?tState.sec:st.timer, showRun=owns&&tState.run;
+      html+='<div class="timer-wrap"><div class="timer'+(showRun?' running':'')+'" id="timer">'+fmtClock(showSec)+'</div>'+
+        '<button class="play" id="btnPlay" aria-label="Start timer"><svg viewBox="0 0 24 24" id="playIco">'+(showRun?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>')+'</svg></button></div>';
     }
     box.innerHTML=html;
     $("#stage").scrollTop=0;
@@ -1640,30 +1840,88 @@
   function showOverview(dir){ showingIng=true; setExpanded("#btnInfo",true); renderIng(dir==null?-1:dir); }
 
   /* timer */
-  function toggleTimer(){ tState.run?pauseTimer():startTimer() }
+  function toggleTimer(){
+    /* pressing pause only pauses a countdown this step OWNS; pressing play while a
+       foreign timer runs deliberately replaces it (one active timer by design) */
+    var mine=cur&&tState.recipeId===cur.id&&tState.stepIdx===idx;
+    (tState.run&&mine)?pauseTimer():startTimer();
+  }
   function startTimer(){
     unlockAudio(); ensureNotifPerm();
-    tState.run=true; tState.stepIdx=idx; setPlayIcon(true);
-    var t0=$("#timer"); if(t0) t0.classList.add("running");
+    /* claim the slot: starting from a step we don't own loads THAT step's duration
+       (and stops whatever other countdown was live — replaced, not merged) */
+    var st=cur&&cur.steps[idx];
+    if(!(cur&&tState.recipeId===cur.id&&tState.stepIdx===idx&&tState.sec>0)){
+      clearInterval(tState.int); cancelTimerNotif();
+      tState.sec=(st&&st.timer)||0;
+      if(tState.sec<=0) return;
+    }
+    tState.run=true; tState.stepIdx=idx; tState.done=false; setPlayIcon(true);
+    var t0=$("#timer"); if(t0){ t0.classList.add("running"); t0.classList.remove("done"); t0.textContent=fmtClock(tState.sec); }
     /* capture the owning recipe/step now: the countdown keeps running (and must still
-       ding + notify correctly) even after the user navigates to a different step or card,
+       ding + notify correctly) even after the user leaves the player entirely,
        where cur/idx may have moved on by the time this timer finishes */
-    var ownerTitle=cur&&cur.title||"Cooking Cards", ownerHeading=(cur&&cur.steps[idx]&&cur.steps[idx].heading)||"step";
+    var ownerId=cur&&cur.id, ownerStep=idx;
+    var ownerTitle=cur&&cur.title||"Cooking Cards", ownerHeading=(st&&st.heading)||"step";
+    tState.recipeId=ownerId; tState.heading=ownerHeading; tState.title=ownerTitle;
     scheduleTimerNotif(tState.sec, ownerTitle, "Timer done: "+ownerHeading);
     clearInterval(tState.int);
     tState.int=setInterval(function(){
       tState.sec--;
-      var t=$("#timer");                      /* may be null while a different card is on screen */
+      /* only touch the on-screen countdown if the visible step is the OWNER —
+         otherwise this would overwrite another step's static timer display */
+      var onOwner=cur&&cur.id===ownerId&&idx===ownerStep&&!showingIng&&$("#player").classList.contains("on");
+      var t=onOwner?$("#timer"):null;
       if(t) t.textContent=fmtClock(Math.max(tState.sec,0));
+      renderTimerStrip();
       if(tState.sec<=0){
-        stopTimer();
+        clearInterval(tState.int); tState.int=null; tState.run=false; tState.done=true;
+        cancelTimerNotif(); if(onOwner) setPlayIcon(false);
         if(t){ t.classList.remove("running"); t.classList.add("done"); t.textContent="Done"; }
-        ding(); toast("Timer done: "+ownerHeading);
+        ding(); webNotify(ownerTitle,"Timer done: "+ownerHeading); toast("Timer done: "+ownerHeading);
+        renderTimerStrip();
       }
     },1000);
+    renderTimerStrip();
   }
-  function pauseTimer(){ tState.run=false; setPlayIcon(false); clearInterval(tState.int); cancelTimerNotif(); var t=$("#timer"); if(t)t.classList.remove("running") }
-  function stopTimer(){ tState.run=false; clearInterval(tState.int); tState.int=null; cancelTimerNotif(); setPlayIcon(false) }
+  /* header strip + bell reflect whatever timer is currently live, from any screen */
+  function renderTimerStrip(){
+    var strip=$("#timerStrip"), bell=$("#btnBell"), dot=$("#bellDot");
+    if(!strip) return;
+    var stripEx=$("#timerStripEx");                       /* Explore carries its own copy */
+    var live=tState.run&&tState.sec>0, done=tState.done;
+    if(!live&&!done){
+      strip.hidden=true; if(stripEx) stripEx.hidden=true;
+      if(bell) bell.classList.remove("live");
+      if(dot) dot.hidden=true;
+      return;
+    }
+    var html='<span class="ts-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></span>'+
+      '<span class="ts-txt"><b>'+esc(done?"Timer done":tState.heading||"Timer")+'</b>'+
+      '<span>'+esc(tState.title||"")+(done?" · tap to open":" · tap to go back")+'</span></span>'+
+      '<span class="ts-clock">'+(done?"Done":fmtClock(Math.max(tState.sec,0)))+'</span>';
+    [strip,stripEx].forEach(function(s){
+      if(!s) return;
+      s.hidden=false; s.classList.toggle("done",!!done); s.innerHTML=html;
+    });
+    if(bell) bell.classList.add("live");
+    if(dot) dot.hidden=false;
+  }
+  function jumpToTimer(){
+    var id=tState.recipeId, step=tState.stepIdx, wasDone=tState.done;
+    if(tState.done){ tState.done=false; renderTimerStrip(); }
+    if(!id) return;
+    if(!recipes.some(function(x){return x.id===id})){
+      if(!wasDone) toast("That recipe isn't here anymore");     /* deleted/preview gone */
+      return;
+    }
+    closeExplore();
+    if($("#player").classList.contains("on") && cur && cur.id!==id) closePlayer();
+    if(!$("#player").classList.contains("on")) openPlayer(id);
+    if(cur&&cur.id===id&&step>=0&&step<cur.steps.length){ showingIng=false; setExpanded("#btnInfo",false); idx=step; renderStep(0); }
+  }
+  function pauseTimer(){ tState.run=false; setPlayIcon(false); clearInterval(tState.int); cancelTimerNotif(); var t=$("#timer"); if(t)t.classList.remove("running"); renderTimerStrip(); }
+  function stopTimer(){ tState.run=false; tState.done=false; clearInterval(tState.int); tState.int=null; cancelTimerNotif(); setPlayIcon(false); renderTimerStrip(); }
   function setPlayIcon(run){
     var b=$("#btnPlay"); if(!b)return;
     b.classList.toggle("is-run",run);
@@ -1699,13 +1957,34 @@
     var metaHtml='<div class="meta-strip">'+meta.map(function(m){return '<div class="chip"><span>'+m[0]+'</span><b>'+m[1]+'</b></div>'}).join("")+'</div>';
     /* photo only when there is one — no placeholder icon tile */
     var hero=cur.photo?'<img class="hero-photo" src="'+esc(cur.photo)+'" alt="">':'';
+    /* attribution: on a recipe being previewed from Explore, and on one already saved
+       from another cook — both tap through to that cook's profile */
+    var _pr=pubRowOf(cur);
+    var credName = _pr ? ((authorOf(_pr)||{}).username||"") : (cur.fromUser||"");
+    var credit = credName
+      ? '<button class="credit-pill" id="creditPill" data-u="'+esc(credName)+'">from @'+esc(credName)+'</button>'
+      : '';
+    /* publishing was only reachable by long-press (an invisible gesture) — surface it
+       on the recipe's own overview card, where the decision naturally happens */
+    if(!_pr && signedIn() && String(cur.id).indexOf("pub:")!==0){
+      var pub=isPublished(cur.id);
+      credit += '<button class="credit-pill pub-pill'+(pub?" on":"")+'" id="pubPill">'+
+        (pub?'✓ Published — tap to remove':'Publish to Explore')+'</button>';
+    }
     box.innerHTML='<div class="ingredients-card">'+hero+
-      '<h1 class="step-title">'+esc(cur.title)+'</h1>'+metaHtml+
+      '<h1 class="step-title">'+esc(cur.title)+'</h1>'+credit+metaHtml+
       scaleBarHTML()+videoPillHTML()+
       (raw.length?'<div class="ing-tools"><button class="add-all-btn" id="ingAddAll"><svg viewBox="0 0 24 24"><path d="M6 6h15l-1.6 9H7.5z"/><path d="M6 6L5 3H2"/></svg>Add all to list</button><span class="ing-hint">or tap + on what you need</span></div>':'')+
       (items?'<ul class="chk chk-shop">'+items+'</ul>':'<p class="step-body">No ingredients listed. Tap edit to add them.</p>')+
       '</div>';
     wireScaleBar();
+    var cp=$("#creditPill"); if(cp) cp.onclick=function(){ openProfile(this.getAttribute("data-u")); };
+    var pp=$("#pubPill"); if(pp) pp.onclick=function(){
+      if(!cur) return;
+      var was=isPublished(cur.id);
+      this.disabled=true; this.textContent=was?"Removing…":"Publishing…";
+      (was?unpublishRecipe(cur.id):publishRecipe(cur)).then(function(){ if(showingIng) renderIng(); });
+    };
     var va=$("#vidAdd"); if(va) va.onclick=function(){ if(cur) openEditor(cur.id) };
     $("#stage").scrollTop=0;
     box.classList.remove("enter","enter-rev"); void box.offsetWidth;
@@ -1739,6 +2018,7 @@
     }
   });
   $("#btnFav").onclick=function(){ if(cur) toggleFav(cur.id) };
+  $("#btnSavePublic").onclick=savePublicToCookbook;
   $("#btnEditFromPlayer").onclick=function(){ if(cur) openEditor(cur.id) };
   $("#btnSharePlayer").onclick=function(){ if(cur) shareRecipe(cur.id) };
   document.addEventListener("keydown",function(e){
@@ -1805,7 +2085,7 @@
     var g=$("#photoPick"); if(!g)return;
     if(pickedPhoto){
       g.innerHTML='<div class="photo-prev"><img src="'+esc(pickedPhoto)+'" alt=""><button type="button" class="photo-x" id="photoRemove" aria-label="Remove photo"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>';
-      var rm=$("#photoRemove"); if(rm) rm.onclick=function(){ pickedPhoto=""; renderPhotoPick(); };
+      var rm=$("#photoRemove"); if(rm) rm.onclick=function(){ pickedPhoto=""; renderPhotoPick(); saveDraft(); };
     } else {
       g.innerHTML='<button type="button" class="photo-add" id="photoAdd"><svg viewBox="0 0 24 24"><path d="M4 7h3l1.6-2h6.8L17 7h3v12H4z"/><circle cx="12" cy="13" r="3.4"/></svg>Add a photo of the dish</button>'+
         '<button type="button" class="photo-link-toggle" id="photoUrlToggle" aria-expanded="false">or paste a link to a photo you found online</button>'+
@@ -1822,7 +2102,7 @@
   }
   function choosePhoto(){
     var inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
-    inp.onchange=function(){ var f=inp.files&&inp.files[0]; if(!f)return; compressImage(f,function(u){ pickedPhoto=u; renderPhotoPick(); }); };
+    inp.onchange=function(){ var f=inp.files&&inp.files[0]; if(!f)return; compressImage(f,function(u){ pickedPhoto=u; renderPhotoPick(); saveDraft(); }); };
     inp.click();
   }
   function compressImage(file,cb){
@@ -1852,16 +2132,21 @@
     var v=$("#photoUrlIn").value.trim(); if(!v) return;
     if(!/^https?:\/\//i.test(v)){ toast("Paste a full image link starting with http:// or https://"); return; }
     var go=$("#photoUrlGo"); if(go){ go.disabled=true; go.textContent="Loading…"; }
+    /* the load is async — by the time it finishes the user may have cancelled the editor
+       or opened a DIFFERENT recipe; only apply the photo if we're still on the same one */
+    var forId=editId;
+    function stillHere(){ return $("#sheet").classList.contains("on") && editId===forId; }
     var img=new Image();
     img.crossOrigin="anonymous";
     img.onload=function(){
+      if(!stillHere()) return;
       var max=640, w=img.width, h=img.height;
       if(w>h){ if(w>max){ h=Math.round(h*max/w); w=max; } } else { if(h>max){ w=Math.round(w*max/h); h=max; } }
       var c=document.createElement("canvas"); c.width=w; c.height=h;
       try{
         c.getContext("2d").drawImage(img,0,0,w,h);
         pickedPhoto=c.toDataURL("image/jpeg",0.82);
-        renderPhotoPick();
+        renderPhotoPick(); saveDraft();
         toast("Photo added");
       }catch(e){
         toast("That site won't let apps save its images — save the picture to your phone instead and upload it");
@@ -1869,6 +2154,7 @@
       }
     };
     img.onerror=function(){
+      if(!stillHere()) return;
       toast("Couldn't load that link — double check the URL, or save the image and upload it");
       if(go){ go.disabled=false; go.textContent="Use"; }
     };
@@ -1899,6 +2185,8 @@
   $("#catPick").addEventListener("click",function(e){ var b=e.target&&e.target.closest?e.target.closest(".cat-chip"):null; if(b) pickCat(b.getAttribute("data-cat")); });
   $("#fCatOther").addEventListener("input",function(){ if(catOther) catValue=this.value; });
   function openEditor(id){
+    /* previews of other people's recipes are not editable — the edit would go nowhere */
+    if(id&&String(id).indexOf("pub:")===0){ toast("Save it to your cookbook first, then edit your copy"); return; }
     editId=id||null;
     var r=id?recipes.filter(function(x){return x.id===id})[0]:null;
     $("#sheetTitle").textContent=r?"Edit recipe":"New recipe";
@@ -2014,32 +2302,53 @@
     var cookMin=parseInt($("#fCook").value,10)||0;
     if(editId){
       var r=recipes.filter(function(x){return x.id===editId})[0];
+      /* the recipe can have been removed underneath the open editor (another device's
+         delete syncing in) — save the work as a new recipe instead of throwing it away */
+      if(!r){ r={id:editId,fav:false}; recipes.unshift(r); }
       r.title=title;r.emoji=emoji;r.photo=photo;r.servings=servings;r.category=category;r.video=video;r.prepMin=prepMin;r.cookMin=cookMin;r.ingredients=ing;r.steps=steps;
-      r.userEdited=true;
+      r.userEdited=true; touchRecipe(r); syncSoon(); syncPublishedCopy(r);
       toast("Recipe updated");
     }else{
-      recipes.unshift({id:uid(),emoji:emoji,photo:photo,title:title,servings:servings,category:category,video:video,prepMin:prepMin,cookMin:cookMin,fav:false,ingredients:ing,steps:steps});
+      var fresh={id:uid(),emoji:emoji,photo:photo,title:title,servings:servings,category:category,video:video,prepMin:prepMin,cookMin:cookMin,fav:false,ingredients:ing,steps:steps};
+      touchRecipe(fresh); recipes.unshift(fresh); syncSoon();
       clearDraft(); $("#btnDiscard").classList.add("hidden");
       toast("Recipe saved");
     }
+    var savedId=editId;                     /* closeSheet() nulls editId — capture it first */
     save(recipes); closeSheet(); renderFilterBar();
-    if($("#player").classList.contains("on")&&cur&&cur.id===editId){ cur=recipes.filter(function(x){return x.id===editId})[0]; $("#pThumb").innerHTML=thumbInner(cur); $("#pTitle").textContent=cur.title; scaleBase=baseServings(cur); scaleN=scaleBase; paintFav(); if(idx>=cur.steps.length)idx=cur.steps.length-1; buildSegs(); if(showingIng) renderIng(); else renderStep(0); }
+    if($("#player").classList.contains("on")&&cur&&cur.id===savedId){
+      cur=recipes.filter(function(x){return x.id===savedId})[0];
+      /* the steps (and any timer durations) may have changed — drop the old countdown */
+      stopTimer(); tState.stepIdx=-1; tState.sec=0;
+      $("#pThumb").innerHTML=thumbInner(cur); $("#pTitle").textContent=cur.title;
+      scaleBase=baseServings(cur); scaleN=scaleBase; paintFav();
+      if(idx>=cur.steps.length)idx=cur.steps.length-1;
+      buildSegs(); if(showingIng) renderIng(); else renderStep(0);
+      renderLib($("#searchIn").value);      /* library card under the player needs the update too */
+    }
     else { renderLib($("#searchIn").value); }
   }
   $("#btnSave").onclick=saveRecipe;
   $("#btnDelete").onclick=function(){
     if(!editId)return;
-    trashRecipe(recipes.filter(function(x){return x.id===editId})[0]);
+    var victim=recipes.filter(function(x){return x.id===editId})[0];
+    if(!trashRecipe(victim)){ toast("Couldn't secure it in the bin — nothing was deleted"); return; }
+    if(isPublished(editId)) unpublishRecipe(editId);   /* don't strand an orphan copy in Explore */
     recipes=recipes.filter(function(x){return x.id!==editId}); save(recipes);
-    removeFromList(editId);
+    removeFromList(editId); addTomb(editId);
     toast("Moved to Recently deleted"); closeSheet(); renderFilterBar();
     if($("#player").classList.contains("on"))closePlayer(); else renderLib($("#searchIn").value);
   };
   $("#btnCancel").onclick=closeSheet;
   $("#btnAdd").onclick=function(){openEditor(null)};
-  function updateNavActive(){ var f=curFilter.mode==="fav"; var r=$("#navRecipes"),fv=$("#navFav"); if(r)r.classList.toggle("active",!f); if(fv)fv.classList.toggle("active",f); }
-  $("#navRecipes").onclick=function(){ curFilter={mode:"all",cat:""}; var s=$("#searchIn"); if(s)s.value=""; renderFilterBar(); renderLib(""); try{window.scrollTo({top:0,behavior:"smooth"})}catch(e){} };
-  $("#navFav").onclick=function(){ curFilter={mode:"fav",cat:""}; renderFilterBar(); renderLib($("#searchIn").value); try{window.scrollTo({top:0,behavior:"smooth"})}catch(e){} };
+  function updateNavActive(){
+    var onExplore=$("#explore")&&$("#explore").classList.contains("on");
+    var r=$("#navRecipes"), ex=$("#navExplore");
+    if(r) r.classList.toggle("active",!onExplore);
+    if(ex) ex.classList.toggle("active",!!onExplore);
+  }
+  $("#navRecipes").onclick=function(){ closeExplore(); curFilter={mode:"all",cat:""}; var s=$("#searchIn"); if(s)s.value=""; renderFilterBar(); renderLib(""); try{window.scrollTo({top:0,behavior:"smooth"})}catch(e){} };
+  $("#navExplore").onclick=function(){ openExplore(); };
 
   /* paste parser */
   $("#pasteCta").onclick=function(){
@@ -2216,10 +2525,16 @@
     inp.onchange=function(){ var f=inp.files[0]; if(!f)return; var rd=new FileReader();
       rd.onload=function(){ try{ var data=JSON.parse(rd.result); if(!Array.isArray(data))throw 0;
         var seen={}; recipes.forEach(function(r){seen[r.id]=1}); var added=0;
+        var tb=readTombs();
         data.forEach(function(raw){ var r=normalizeRecipe(raw); if(!r)return;
-          if(seen[r.id]) r.id=uid(); seen[r.id]=1; recipes.push(r); added++; });
+          if(seen[r.id]) r.id=uid(); seen[r.id]=1;
+          /* restore-wins: a fresh timestamp beats any old deletion tombstone or stale
+             cloud copy — without this, sync silently re-deleted imported recipes */
+          touchRecipe(r); delete tb[r.id];
+          recipes.push(r); added++; });
         if(!added){ toast("No valid recipes in that file"); return; }
-        save(recipes); renderFilterBar(); renderLib(""); $("#searchIn").value=""; toast("Imported "+added+" recipe"+(added===1?"":"s"));
+        writeTombs(tb);
+        save(recipes); syncSoon(); renderFilterBar(); renderLib(""); $("#searchIn").value=""; toast("Imported "+added+" recipe"+(added===1?"":"s"));
       }catch(e){toast("That file isn't a valid backup")} };
       rd.readAsText(f);
     };
@@ -2227,28 +2542,33 @@
   };
 
   /* sheet open/close */
-  function openSheet(){ _return=document.activeElement; $("#scrim").classList.add("on"); $("#sheet").classList.add("on"); refreshInert(); focusFirst($("#sheet")); }
+  function openSheet(){ navOpened(); _return=document.activeElement; $("#scrim").classList.add("on"); $("#sheet").classList.add("on"); refreshInert(); focusFirst($("#sheet")); }
   function closeSheet(){ $("#scrim").classList.remove("on"); $("#sheet").classList.remove("on"); editId=null; refreshInert(); restoreFocus(); }
-  $("#scrim").onclick=function(){ if($("#cardMenu").classList.contains("on")) closeCardMenu(); if($("#settings").classList.contains("on")) closeSettings(); if($("#shopping").classList.contains("on")) closeShopping(); if($("#shareSheet").classList.contains("on")) closeShareSheet(); if($("#trashSheet").classList.contains("on")) closeTrash(); if($("#sheet").classList.contains("on")) closeSheet(); };
+  $("#scrim").onclick=function(){ if($("#cardMenu").classList.contains("on")) closeCardMenu(); if($("#settings").classList.contains("on")) closeSettings(); if($("#shopping").classList.contains("on")) closeShopping(); if($("#shareSheet").classList.contains("on")) closeShareSheet(); if($("#trashSheet").classList.contains("on")) closeTrash(); if($("#account").classList.contains("on")) closeAccount(); if($("#sheet").classList.contains("on")) closeSheet(); };
 
   /* ---------- shopping list ---------- */
   /* ---------- trash (recently deleted recipes) ---------- */
   var TRASHKEY="kitchencards.trash.v1", TRASHMAX=50;
   var trash=[];
   try{ var tp=JSON.parse(localStorage.getItem(TRASHKEY)); if(Array.isArray(tp)) trash=tp; }catch(e){}
-  function saveTrash(){ try{ localStorage.setItem(TRASHKEY,JSON.stringify(trash)); }catch(e){ toast("Storage full."); } }
+  function saveTrash(){ try{ localStorage.setItem(TRASHKEY,JSON.stringify(trash)); return true; }catch(e){ toast("Storage full."); return false; } }
+  /* returns false when the recipe could NOT be secured in the bin — callers must
+     then ABORT the delete, or a quota failure would destroy the recipe outright */
   function trashRecipe(r){
-    if(!r) return;
-    try{ trash.unshift({r:JSON.parse(JSON.stringify(r)), at:Date.now()}); }catch(e){ return; }
+    if(!r) return false;
+    try{ trash.unshift({r:JSON.parse(JSON.stringify(r)), at:Date.now()}); }catch(e){ return false; }
     if(trash.length>TRASHMAX) trash=trash.slice(0,TRASHMAX);
-    saveTrash();
+    if(!saveTrash()){ trash.shift(); return false; }
+    return true;
   }
   function restoreFromTrash(i){
     var e=trash[i]; if(!e||!e.r) return;
     var r=normalizeRecipe(e.r); if(!r) return;
     /* if that id came back some other way, give the restored copy a fresh one */
     if(recipes.some(function(x){return x.id===r.id})) r.id=uid();
-    recipes.unshift(r); save(recipes);
+    touchRecipe(r);                              /* newer than any tombstone, so it stays restored */
+    var tb=readTombs(); delete tb[r.id]; writeTombs(tb);
+    recipes.unshift(r); save(recipes); syncSoon();
     trash.splice(i,1); saveTrash();
     renderFilterBar(); renderLib($("#searchIn").value);
     toast('"'+r.title+'" restored');
@@ -2338,7 +2658,7 @@
   function renderShoppingBody(){
     var el=$("#shopBody"); if(!el)return;
     var list=flatList();
-    if(!list.length){ el.innerHTML='<div class="empty"><div class="big">🛒</div><b>Your list is empty</b><div>Open a recipe and tap + on the ingredients you need.</div></div>'; return; }
+    if(!list.length){ el.innerHTML='<div class="empty"><div class="big">🛒</div><b>Your list is empty</b><div>Type an item above, or open a recipe and tap + on the ingredients you need.</div></div>'; return; }
     el.innerHTML=list.map(function(e,i){
       var sub=[];
       if(e.qtys.length) sub.push(e.qtys.join(" + "));
@@ -2408,6 +2728,7 @@
     openShareSheet();
   }
   function openShareSheet(){
+    navOpened();
     _return=document.activeElement;
     var more=$("#shareMore"); if(more) more.hidden=!(navigator.share);
     $("#scrim").classList.add("on"); $("#shareSheet").classList.add("on"); refreshInert(); focusFirst($("#shareSheet"));
@@ -2439,7 +2760,7 @@
     if(b) shareVia(b.getAttribute("data-net"));
   });
   $("#shareClose").onclick=closeShareSheet;
-  function openShopping(){ _return=document.activeElement; renderShoppingBody(); $("#scrim").classList.add("on"); $("#shopping").classList.add("on"); refreshInert(); focusFirst($("#shopping")); }
+  function openShopping(){ navOpened(); _return=document.activeElement; renderShoppingBody(); $("#scrim").classList.add("on"); $("#shopping").classList.add("on"); refreshInert(); focusFirst($("#shopping")); }
   function closeShopping(){
     $("#shopping").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on");
     refreshInert(); restoreFocus();
@@ -2457,6 +2778,7 @@
   var CUSTOM_GID="__custom__";
   function addCustomItem(){
     var v=$("#shopAddIn").value.trim(); if(!v) return;
+    if(hasItem(CUSTOM_GID,v)){ toast("Already on your list"); return; }
     addItem({id:CUSTOM_GID,title:"Other items",emoji:"📝",photo:""},v);
     $("#shopAddIn").value="";
     renderShoppingBody();
@@ -2488,7 +2810,19 @@
   }
   function renderSettingsBody(){
     var el=$("#setBody"); if(!el)return;
+    var pubCount=Object.keys(pubIds).length;
+    /* signed in with a profile => a real identity header; otherwise a sign-in prompt */
+    var head = (signedIn()&&profile)
+      ? '<div class="prof-head"><div class="prof-av">'+esc((profile.display_name||profile.username).charAt(0).toUpperCase())+'</div>'+
+          '<div class="prof-who"><b>'+esc(profile.display_name||profile.username)+'</b>'+
+          '<span>@'+esc(profile.username)+' · '+ownRecipes(recipes).length+' in cookbook · '+pubCount+' published</span></div></div>'+
+        '<button class="set-btn" id="setAccount"><div><b>Account</b><span>'+esc(session.user&&session.user.email||"")+'</span></div>'+
+          '<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>'
+      : '<button class="set-btn" id="setAccount"><div><b>'+(signedIn()?"Finish your profile":"Sign in")+'</b><span>'+
+          (signedIn()?"Pick a username to publish recipes":"Save your cookbook online and publish recipes")+'</span></div>'+
+          '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg></button>';
     el.innerHTML=
+      '<div class="set-group">'+head+'</div>'+
       '<div class="set-group"><div class="set-h">Appearance</div>'+
         '<div class="seg-ctrl" role="group" aria-label="Theme" style="align-self:flex-start">'+
           '<button class="theme-opt'+(theme==="light"?" on":"")+'" data-theme="light">Day</button>'+
@@ -2507,13 +2841,11 @@
         '<button class="set-btn" id="setTrash"><div><b>Recently deleted</b><span>'+
           (trash.length? (trash.length+" recipe"+(trash.length===1?"":"s")+" you can restore") : "Deleted recipes wait here before they're gone")+
           '</span></div><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button>'+
-        '<button class="set-btn" id="setReseed"><div><b>Restore starter recipes</b><span>Bring back any of the built-in recipes you deleted</span></div>'+
-          '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 2.3 5.7M4 12V7M4 12h5"/></svg></button>'+
       '</div>';
+    $("#setAccount").onclick=function(){ closeSettings(); backToSettings=true; openAccount(); };
     $("#setExport").onclick=doExport;
     $("#setImport").onclick=doImport;
-    $("#setTrash").onclick=function(){ closeSettings(); openTrash(); };
-    $("#setReseed").onclick=reseedStarters;
+    $("#setTrash").onclick=function(){ closeSettings(); backToSettings=true; openTrash(); };
   }
   /* ---------- recently deleted UI ---------- */
   function renderTrashBody(){
@@ -2539,8 +2871,10 @@
       purgeTrash(i); renderTrashBody(); renderSettingsBody(); toast("Deleted permanently");
     }
   });
-  function openTrash(){ _return=document.activeElement; renderTrashBody(); $("#scrim").classList.add("on"); $("#trashSheet").classList.add("on"); refreshInert(); focusFirst($("#trashSheet")); }
-  function closeTrash(){ $("#trashSheet").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); }
+  function openTrash(){ navOpened(); _return=document.activeElement; renderTrashBody(); $("#scrim").classList.add("on"); $("#trashSheet").classList.add("on"); refreshInert(); focusFirst($("#trashSheet")); }
+  /* "Done" on a page reached FROM Profile steps back to Profile, not two levels out */
+  var backToSettings=false;
+  function closeTrash(){ $("#trashSheet").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); if(backToSettings){ backToSettings=false; openSettings(); } }
   $("#btnTrashClose").onclick=closeTrash;
   $("#btnTrashEmpty").onclick=function(){
     if(!trash.length){ toast("Nothing to empty"); return; }
@@ -2551,14 +2885,17 @@
   function reseedStarters(){
     var have={}; recipes.forEach(function(x){have[x.id]=1});
     var added=0;
-    for(var i=SEED.length-1;i>=0;i--){ if(!have[SEED[i].id]){ recipes.unshift(JSON.parse(JSON.stringify(SEED[i]))); added++; } }
+    var tb=readTombs();
+    for(var i=SEED.length-1;i>=0;i--){ if(!have[SEED[i].id]){
+      var s=JSON.parse(JSON.stringify(SEED[i])); touchRecipe(s); delete tb[s.id];
+      recipes.unshift(s); added++; } }
     if(!added){ toast("All starter recipes are already here"); return; }
-    save(recipes);
+    writeTombs(tb); save(recipes); syncSoon();
     try{ localStorage.setItem(SEEDKEY,JSON.stringify(SEED.map(function(s){return s.id}))); }catch(e){}
     renderFilterBar(); renderLib($("#searchIn").value); renderSettingsBody();
     toast(added+" starter recipe"+(added===1?"":"s")+" restored");
   }
-  function openSettings(){ _return=document.activeElement; renderSettingsBody(); $("#scrim").classList.add("on"); $("#settings").classList.add("on"); refreshInert(); focusFirst($("#settings")); }
+  function openSettings(){ navOpened(); _return=document.activeElement; renderSettingsBody(); $("#scrim").classList.add("on"); $("#settings").classList.add("on"); refreshInert(); focusFirst($("#settings")); }
   function closeSettings(){ $("#settings").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); }
   $("#btnSettings").onclick=openSettings;
   $("#btnSetDone").onclick=closeSettings;
@@ -2569,20 +2906,589 @@
 
   /* one-time: move retired starter recipes into Recently deleted */
   (function retireOnce(){
+    /* only relevant to devices that actually carry the old starter set — a new
+       account must not find a stranger's retired recipe sitting in its bin */
+    if(!recipes.length && !trash.length) return;
     var K="kitchencards.retired.v1", done={};
     try{ (JSON.parse(localStorage.getItem(K))||[]).forEach(function(id){done[id]=1}); }catch(e){}
     var changed=false, marked=Object.keys(done);
     RETIRED.forEach(function(rec){
       if(done[rec.id]) return;
       var inLib=recipes.filter(function(x){return x.id===rec.id})[0];
-      if(inLib){ recipes=recipes.filter(function(x){return x.id!==rec.id}); save(recipes); trashRecipe(inLib); }
+      /* tombstone the retirement or the next sync would resurrect it from the cloud */
+      if(inLib){ recipes=recipes.filter(function(x){return x.id!==rec.id}); save(recipes); trashRecipe(inLib); addTomb(rec.id); }
       else if(!trash.some(function(e){return e.r&&e.r.id===rec.id})){ trashRecipe(JSON.parse(JSON.stringify(rec))); }
       marked.push(rec.id); changed=true;
     });
     if(changed){ try{ localStorage.setItem(K,JSON.stringify(marked)); }catch(e){} }
   })();
 
+  /* ================= accounts (Supabase) =================
+     Talks to Supabase's REST endpoints with plain fetch — deliberately NO supabase-js
+     from a CDN, so the app stays a single self-contained file that still works offline.
+     The cookbook itself remains local-first: everything below is additive, and every
+     call fails soft so the app behaves exactly as before when signed out or offline. */
+  var SUPA_URL="https://rfmmwawgwpuppptjfabi.supabase.co";
+  /* anon/publishable key — safe in client code: it grants nothing on its own, all access
+     is decided by the Row Level Security policies in supabase-schema.sql */
+  var SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmbW13YXdnd3B1cHBwdGpmYWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0MDgzOTcsImV4cCI6MjA5OTk4NDM5N30.J2ILmzXo2ZgK0ysYfVLZF7Y4wd-vy6X8FI0LL4wqTxI";
+  var SESSKEY="kitchencards.session.v1";
+  var session=null, profile=null;
+  try{ var sv=JSON.parse(localStorage.getItem(SESSKEY)); if(sv&&sv.access_token) session=sv; }catch(e){}
+  function saveSession(s){ session=s; try{ s?localStorage.setItem(SESSKEY,JSON.stringify(s)):localStorage.removeItem(SESSKEY); }catch(e){} }
+  function signedIn(){ return !!(session&&session.access_token); }
+
+  function supaFetch(path,opts){
+    opts=opts||{};
+    var h=opts.headers||{};
+    h["apikey"]=SUPA_KEY;
+    h["Authorization"]="Bearer "+(signedIn()?session.access_token:SUPA_KEY);
+    if(opts.body&&!h["Content-Type"]) h["Content-Type"]="application/json";
+    opts.headers=h;
+    return fetch(SUPA_URL+path,opts).then(function(r){
+      return r.text().then(function(t){
+        var data=null; try{ data=t?JSON.parse(t):null; }catch(e){ data=t; }
+        if(!r.ok){ var e2=new Error((data&&(data.message||data.error_description||data.msg))||("Request failed ("+r.status+")")); e2.status=r.status; e2.data=data; throw e2; }
+        return data;
+      });
+    });
+  }
+  /* Access tokens expire (~1h) and are swapped using the refresh token.
+     Supabase refresh tokens are SINGLE-USE and rotate, so two concurrent refreshes
+     would race: the second is rejected because the first already spent the token.
+     `refreshInFlight` collapses concurrent callers onto one request. */
+  var refreshInFlight=null;
+  function ensureFreshSession(){
+    if(!signedIn()) return Promise.resolve(null);
+    if(session.expires_at && Date.now() < (session.expires_at-60)*1000) return Promise.resolve(session);
+    if(!session.refresh_token) return Promise.resolve(session);
+    if(refreshInFlight) return refreshInFlight;
+    refreshInFlight=fetch(SUPA_URL+"/auth/v1/token?grant_type=refresh_token",{
+      method:"POST", headers:{apikey:SUPA_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({refresh_token:session.refresh_token})
+    }).then(function(r){
+      return r.text().then(function(t){
+        var d=null; try{ d=t?JSON.parse(t):null; }catch(e){}
+        if(r.ok && d && d.access_token){
+          saveSession({access_token:d.access_token,refresh_token:d.refresh_token||session.refresh_token,
+            expires_at:d.expires_at||(Math.floor(Date.now()/1000)+(d.expires_in||3600)),user:d.user||session.user});
+          return session;
+        }
+        /* Only a definitive "this grant is dead" answer signs the user out. Anything
+           else (rate limit, 5xx, offline, a lost rotation race) keeps the session:
+           a stale token just makes calls fail soft, which is far better than
+           silently logging someone out of their own cookbook. */
+        var msg=((d&&(d.error_description||d.msg||d.error))||"").toLowerCase();
+        if(r.status===400 && /invalid|revoked|expired|already used/.test(msg)) saveSession(null);
+        return signedIn()?session:null;
+      });
+    }).catch(function(){ return session; })   /* offline — keep what we have */
+      .then(function(res){ refreshInFlight=null; return res; });
+    return refreshInFlight;
+  }
+
+  /* Password auth exists alongside magic links because email delivery is the single
+     most fragile part of sign-in (rate limits, spam folders, no connection). A password
+     lets someone in immediately and works forever after. */
+  function passwordSignIn(email,password){
+    return fetch(SUPA_URL+"/auth/v1/token?grant_type=password",{
+      method:"POST", headers:{apikey:SUPA_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({email:email,password:password})
+    }).then(function(r){ return r.text().then(function(t){
+      var d=null; try{ d=t?JSON.parse(t):null }catch(e){}
+      if(!r.ok||!d||!d.access_token) throw new Error((d&&(d.error_description||d.msg||d.message))||"Could not sign in");
+      saveSession({access_token:d.access_token,refresh_token:d.refresh_token,
+        expires_at:d.expires_at||(Math.floor(Date.now()/1000)+(d.expires_in||3600)),
+        user:d.user?{id:d.user.id,email:d.user.email}:null});
+      return true;
+    })});
+  }
+  function passwordSignUp(email,password){
+    return fetch(SUPA_URL+"/auth/v1/signup",{
+      method:"POST", headers:{apikey:SUPA_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({email:email,password:password})
+    }).then(function(r){ return r.text().then(function(t){
+      var d=null; try{ d=t?JSON.parse(t):null }catch(e){}
+      if(!r.ok) throw new Error((d&&(d.error_description||d.msg||d.message))||"Could not create account");
+      if(d&&d.access_token){
+        saveSession({access_token:d.access_token,refresh_token:d.refresh_token,
+          expires_at:d.expires_at||(Math.floor(Date.now()/1000)+(d.expires_in||3600)),
+          user:d.user?{id:d.user.id,email:d.user.email}:null});
+        return {signedIn:true};
+      }
+      return {signedIn:false};   /* project requires email confirmation first */
+    })});
+  }
+  function sendMagicLink(email){
+    /* redirect_to goes on the QUERY STRING — the REST endpoint ignores an `options`
+       body field (that shape belongs to supabase-js), so links bounced to the Site URL */
+    var redirect=location.origin+location.pathname;
+    return fetch(SUPA_URL+"/auth/v1/otp?redirect_to="+encodeURIComponent(redirect),{
+      method:"POST", headers:{apikey:SUPA_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({email:email,create_user:true})
+    }).then(function(r){ return r.text().then(function(t){
+      var d=null; try{ d=t?JSON.parse(t):null }catch(e){}
+      if(!r.ok) throw new Error((d&&(d.msg||d.message||d.error_description))||"Could not send the link");
+      return true;
+    })});
+  }
+  /* the magic link returns to the app with tokens in the URL fragment */
+  function consumeAuthRedirect(){
+    if(!location.hash || location.hash.indexOf("access_token")<0) return false;
+    var p={}; location.hash.replace(/^#/,"").split("&").forEach(function(kv){
+      var i=kv.indexOf("="); if(i>0) p[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1));
+    });
+    if(!p.access_token) return false;
+    saveSession({access_token:p.access_token,refresh_token:p.refresh_token||"",expires_at:Math.floor(Date.now()/1000)+(+p.expires_in||3600),user:null});
+    try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){}
+    return true;
+  }
+  function fetchUser(){
+    if(!signedIn()) return Promise.resolve(null);
+    return supaFetch("/auth/v1/user").then(function(u){
+      if(u&&u.id){ session.user={id:u.id,email:u.email}; saveSession(session); }
+      return u;
+    }).catch(function(){ return null; });
+  }
+  function fetchProfile(){
+    if(!signedIn()||!session.user) return Promise.resolve(null);
+    return supaFetch("/rest/v1/profiles?select=*&id=eq."+encodeURIComponent(session.user.id))
+      .then(function(rows){ profile=(rows&&rows[0])||null; return profile; })
+      .catch(function(){ return null; });
+  }
+  function createProfile(username,displayName){
+    return supaFetch("/rest/v1/profiles",{
+      method:"POST", headers:{Prefer:"return=representation"},
+      body:JSON.stringify({id:session.user.id,username:username,display_name:displayName||username})
+    }).then(function(rows){ profile=(rows&&rows[0])||null; return profile; });
+  }
+  function signOut(){
+    var tok=signedIn()?session.access_token:null;
+    saveSession(null); profile=null;
+    pubIds={}; exploreLoaded=false;      /* the next account must not inherit publish state */
+    if(tok){ fetch(SUPA_URL+"/auth/v1/logout",{method:"POST",headers:{apikey:SUPA_KEY,Authorization:"Bearer "+tok}}).catch(function(){}); }
+    try{ renderFilterBar(); renderLib($("#searchIn").value); }catch(e){}
+  }
+
+  /* ---- account UI (lives in Settings) ---- */
+  function renderAccountBody(){
+    var el=$("#acctBody"); if(!el)return;
+    if(!signedIn()){
+      el.innerHTML='<p class="acct-note">Sign in to back up your cookbook and share recipes. Your recipes stay on this device either way.</p>'+
+        '<div class="field"><label for="acctEmail">Email</label><input class="in" type="email" id="acctEmail" placeholder="you@example.com" autocomplete="email"></div>'+
+        '<div class="field"><label for="acctPass">Password</label><input class="in" type="password" id="acctPass" placeholder="At least 6 characters" autocomplete="current-password"></div>'+
+        '<button class="btn-primary" id="acctSignIn" style="width:100%">Sign in</button>'+
+        '<button class="btn-quiet" id="acctSignUp" style="width:100%">Create an account</button>'+
+        '<div class="acct-or"><span>or</span></div>'+
+        '<button class="btn-quiet" id="acctSend" style="width:100%">Email me a sign-in link instead</button>';
+      var readCreds=function(){
+        var em=$("#acctEmail").value.trim(), pw=$("#acctPass").value;
+        if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast("Enter a valid email"); return null; }
+        if(!pw||pw.length<6){ toast("Password must be at least 6 characters"); return null; }
+        return {em:em,pw:pw};
+      };
+      var afterAuth=function(){
+        return fetchUser().then(fetchProfile).then(function(){ return syncCookbook(); })
+          .then(loadPublishedIds)
+          .then(function(){ renderAccountBody(); renderFilterBar(); renderLib($("#searchIn").value); toast("Signed in"); });
+      };
+      $("#acctSignIn").onclick=function(){
+        var c=readCreds(); if(!c) return;
+        var b=this; b.disabled=true; b.textContent="Signing in…";
+        passwordSignIn(c.em,c.pw).then(afterAuth)
+          .catch(function(err){
+            var m=(err.message||"").toLowerCase();
+            toast(/invalid login/.test(m)?"Wrong email or password — or tap Create an account":(err.message||"Could not sign in"));
+            b.disabled=false; b.textContent="Sign in";
+          });
+      };
+      $("#acctSignUp").onclick=function(){
+        var c=readCreds(); if(!c) return;
+        var b=this; b.disabled=true; b.textContent="Creating…";
+        passwordSignUp(c.em,c.pw).then(function(res){
+          if(res.signedIn) return afterAuth();
+          el.innerHTML='<p class="acct-note"><b>Almost there.</b><br>Confirm your email at '+esc(c.em)+', then come back and sign in.</p>';
+        }).catch(function(err){
+          var m=(err.message||"").toLowerCase();
+          toast(/already regist|already been/.test(m)?"That email already has an account — tap Sign in":(err.message||"Could not create account"));
+          b.disabled=false; b.textContent="Create an account";
+        });
+      };
+      $("#acctSend").onclick=function(){
+        var em=$("#acctEmail").value.trim();
+        if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast("Enter a valid email"); return; }
+        var b=this; b.disabled=true; b.textContent="Sending…";
+        sendMagicLink(em).then(function(){
+          el.innerHTML='<p class="acct-note"><b>Check your email.</b><br>We sent a sign-in link to '+esc(em)+'. Open it on this device and you\'ll be signed in.</p>';
+        }).catch(function(err){
+          var m=(err.message||"").toLowerCase();
+          toast(/rate limit/.test(m)?"Too many emails just now — use a password instead":(err.message||"Could not send the link"));
+          b.disabled=false; b.textContent="Email me a sign-in link instead";
+        });
+      };
+      return;
+    }
+    if(!profile){
+      el.innerHTML='<p class="acct-note">Pick a username — this is your public handle, e.g. cookingcards.app/@yourname</p>'+
+        '<div class="field"><label for="acctUser">Username</label><input class="in" id="acctUser" placeholder="yourname" autocomplete="off" maxlength="20"></div>'+
+        '<div class="field"><label for="acctName">Display name</label><input class="in" id="acctName" placeholder="Your name" autocomplete="name" maxlength="40"></div>'+
+        '<button class="btn-primary" id="acctCreate" style="width:100%">Create my profile</button>'+
+        '<button class="btn-quiet" id="acctOut" style="width:100%;margin-top:8px">Sign out</button>';
+      $("#acctCreate").onclick=function(){
+        var u=$("#acctUser").value.trim(), n=$("#acctName").value.trim();
+        if(!/^[a-zA-Z0-9_]{3,20}$/.test(u)){ toast("3-20 letters, numbers or underscores"); return; }
+        var b=this; b.disabled=true; b.textContent="Creating…";
+        createProfile(u,n).then(function(){ renderAccountBody(); toast("Profile created"); })
+          .catch(function(err){ toast(/duplicate|unique/i.test(err.message||"")?"That username is taken":(err.message||"Could not create profile")); b.disabled=false; b.textContent="Create my profile"; });
+      };
+      $("#acctOut").onclick=function(){ signOut(); renderAccountBody(); toast("Signed out"); };
+      return;
+    }
+    el.innerHTML='<div class="acct-card"><div class="acct-av">'+esc((profile.display_name||profile.username).charAt(0).toUpperCase())+'</div>'+
+        '<div class="acct-who"><b>'+esc(profile.display_name||profile.username)+'</b><span>@'+esc(profile.username)+'</span></div></div>'+
+      '<p class="acct-note">'+esc(session.user&&session.user.email||"")+'</p>'+
+      '<button class="set-btn" id="acctSetPass"><div><b>Set a password</b><span>Sign in without waiting for email links</span></div>'+
+        '<svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></button>'+
+      '<div class="field hidden" id="passRow"><label for="newPass">New password</label>'+
+        '<input class="in" type="password" id="newPass" placeholder="At least 6 characters" autocomplete="new-password">'+
+        '<button class="btn-primary" id="savePass" style="width:100%;margin-top:8px">Save password</button></div>'+
+      '<button class="set-btn" id="acctSync"><div><b>Sync now</b><span>'+ownRecipes(recipes).length+' recipe'+(ownRecipes(recipes).length===1?"":"s")+' backed up to your account</span></div>'+
+        '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8M20 4v4h-4M20 12a8 8 0 0 1-13.7 5.7L4 16M4 20v-4h4"/></svg></button>'+
+      '<button class="btn-quiet" id="acctOut" style="width:100%;margin-top:8px">Sign out</button>';
+    $("#acctSetPass").onclick=function(){ var row=$("#passRow"); row.classList.toggle("hidden"); if(!row.classList.contains("hidden")) $("#newPass").focus(); };
+    $("#savePass").onclick=function(){
+      var pw=$("#newPass").value;
+      if(!pw||pw.length<6){ toast("At least 6 characters"); return; }
+      var b=this; b.disabled=true; b.textContent="Saving…";
+      ensureFreshSession().then(function(){
+        return supaFetch("/auth/v1/user",{method:"PUT",body:JSON.stringify({password:pw})});
+      }).then(function(){ toast("Password set — you can sign in with it from now on"); $("#passRow").classList.add("hidden"); $("#newPass").value=""; b.disabled=false; b.textContent="Save password"; })
+        .catch(function(e){ toast(e.message||"Could not set the password"); b.disabled=false; b.textContent="Save password"; });
+    };
+    $("#acctSync").onclick=function(){
+      var b=this.querySelector("span"); var old=b.textContent; b.textContent="Syncing…";
+      syncCookbook().then(function(ok){ b.textContent=ok?(recipes.length+" recipe"+(recipes.length===1?"":"s")+" backed up to your account"):"Couldn't sync — check your connection"; if(ok) toast("Synced"); });
+    };
+    $("#acctOut").onclick=function(){
+      if(!window.confirm("Sign out?\n\nYour recipes stay on this device and are backed up to your account.")) return;
+      signOut(); renderAccountBody(); toast("Signed out");
+    };
+  }
+  function openAccount(){ navOpened(); _return=document.activeElement; renderAccountBody(); $("#scrim").classList.add("on"); $("#account").classList.add("on"); refreshInert(); focusFirst($("#account"));
+    /* refresh identity in the background so a stale profile doesn't linger */
+    ensureFreshSession().then(function(){ if(!signedIn())return null; return (session.user?Promise.resolve(session.user):fetchUser()).then(fetchProfile); })
+      .then(function(){ if($("#account").classList.contains("on")) renderAccountBody(); }).catch(function(){});
+  }
+  function closeAccount(){ $("#account").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); if(backToSettings){ backToSettings=false; openSettings(); } }
+  $("#btnAcctClose").onclick=closeAccount;
+
+  /* ================= cookbook cloud sync =================
+     Local-first: localStorage stays the source of truth the app reads from, and every
+     sync step fails soft (offline, signed out, server down => app works unchanged).
+     Conflict rule is last-edit-wins per recipe, compared on `updatedAt` (ms).
+     Deletions travel as tombstones — an absent row can't distinguish "deleted here"
+     from "not yet uploaded", so deletes would resurrect without them. */
+  var TOMBKEY="kitchencards.tombstones.v1";
+  function readTombs(){ try{ return JSON.parse(localStorage.getItem(TOMBKEY))||{}; }catch(e){ return {}; } }
+  function writeTombs(t){ try{ localStorage.setItem(TOMBKEY,JSON.stringify(t)); }catch(e){} }
+  function addTomb(id){ var t=readTombs(); t[id]=Date.now(); writeTombs(t); syncSoon(); }
+  function touchRecipe(r){ if(r) r.updatedAt=Date.now(); }
+  function ts(r){ return (r&&+r.updatedAt)||0; }
+
+  var syncing=false, syncTimer=null, syncPending=false;
+  function syncSoon(){ if(!signedIn())return; clearTimeout(syncTimer); syncTimer=setTimeout(syncCookbook,1200); }
+
+  function syncCookbook(){
+    if(!signedIn()||!session.user) return Promise.resolve(false);
+    if(syncing){ syncPending=true; return Promise.resolve(false); }
+    syncing=true;
+    var uid=session.user.id;
+    return ensureFreshSession().then(function(){
+      if(!signedIn()) return false;
+      /* tombstones belong to ONE account. If this device last synced as a different
+         user, its leftover tombstones would DELETE the new account's cloud recipes. */
+      var OWNERKEY="kitchencards.syncowner.v1", prevOwner=null;
+      try{ prevOwner=localStorage.getItem(OWNERKEY); }catch(e){}
+      if(prevOwner && prevOwner!==uid) writeTombs({});
+      try{ localStorage.setItem(OWNERKEY,uid); }catch(e){}
+      return supaFetch("/rest/v1/user_recipes?select=local_id,recipe,deleted,updated_at").then(function(rows){
+        rows=rows||[];
+        var remote={}; rows.forEach(function(row){ remote[row.local_id]={ts:Date.parse(row.updated_at)||0,row:row}; });
+        var tombs=readTombs(), changed=false, push=[];
+
+        /* Pre-sync recipes (from before this feature) carry no updatedAt. Stamp them
+           NOW, before any comparison — otherwise ts=0 loses every conflict and an old
+           cloud copy silently overwrites edits made on this device (e.g. a phone that
+           renamed a recipe before its first sign-in). Device-wins for legacy data. */
+        ownRecipes(recipes).forEach(function(r){ if(!r.updatedAt){ r.updatedAt=Date.now(); changed=true; } });
+
+        /* ---- remote -> local ---- */
+        rows.forEach(function(row){
+          var lid=row.local_id, rts=Date.parse(row.updated_at)||0;
+          /* never yank the recipe that is open in the editor out from under the user */
+          if(editId && lid===editId) return;
+          var lr=recipes.filter(function(x){return x.id===lid})[0];
+          if(row.deleted){
+            if(lr && rts>ts(lr)){
+              trashRecipe(lr);                          /* remote deletes still get an undo */
+              recipes=recipes.filter(function(x){return x.id!==lid}); changed=true;
+              var t=readTombs(); t[lid]=rts; writeTombs(t); }
+            return;
+          }
+          if(!lr){
+            if((tombs[lid]||0)>rts) return;             /* deleted here more recently — push tombstone below */
+            var nr=normalizeRecipe(row.recipe);
+            if(nr){ nr.id=lid; nr.updatedAt=rts; recipes.push(nr); changed=true; }
+            return;
+          }
+          if(rts>ts(lr)){
+            var nr2=normalizeRecipe(row.recipe);
+            if(nr2){ nr2.id=lid; nr2.updatedAt=rts;
+              recipes=recipes.map(function(x){return x.id===lid?nr2:x}); changed=true; }
+          }
+        });
+
+        /* ---- local -> remote ---- */
+        ownRecipes(recipes).forEach(function(r){
+          if(!r.updatedAt){ r.updatedAt=Date.now(); changed=true; }   /* first upload of a pre-sync recipe */
+          var rm=remote[r.id];
+          if(!rm || ts(r)>rm.ts){
+            push.push({user_id:uid,local_id:r.id,recipe:r,deleted:false,updated_at:new Date(ts(r)).toISOString()});
+          }
+        });
+        var MONTH=30*24*3600*1000, tombsChanged=false;
+        Object.keys(tombs).forEach(function(lid){
+          var rm=remote[lid];
+          if(!rm || (tombs[lid]>rm.ts && !rm.row.deleted)){
+            push.push({user_id:uid,local_id:lid,recipe:null,deleted:true,updated_at:new Date(tombs[lid]).toISOString()});
+          }
+          /* prune: once the cloud row is a settled deletion and a month has passed,
+             the tombstone has done its job — without this both sides grow forever */
+          else if(rm && rm.row.deleted && Date.now()-tombs[lid]>MONTH){ delete tombs[lid]; tombsChanged=true; }
+        });
+        if(tombsChanged) writeTombs(tombs);
+
+        if(changed){ save(recipes); try{ renderFilterBar(); renderLib($("#searchIn").value); }catch(e){} }
+        if(!push.length) return true;
+        return supaFetch("/rest/v1/user_recipes",{
+          method:"POST",
+          headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+          body:JSON.stringify(push)
+        }).then(function(){ return true; });
+      });
+    }).catch(function(){ return false; })
+      .then(function(res){
+        syncing=false;
+        if(syncPending){ syncPending=false; syncSoon(); }
+        return res;
+      });
+  }
+  /* sync on returning to the app, and once on boot */
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") syncSoon(); });
+
+  /* ================= publish / explore / profiles =================
+     `public_recipes` is world-readable, so Explore works signed OUT — someone who just
+     downloaded the app lands on a shelf full of food instead of an empty room. Saving
+     and publishing are the parts that need an account. */
+  var pubIds={};        /* local_id -> true for recipes this user has published */
+  var exploreRows=[], exploreLoaded=false;
+
+  function loadPublishedIds(){
+    if(!signedIn()||!session.user) { pubIds={}; return Promise.resolve({}); }
+    return supaFetch("/rest/v1/public_recipes?select=local_id&user_id=eq."+encodeURIComponent(session.user.id))
+      .then(function(rows){ pubIds={}; (rows||[]).forEach(function(r){ pubIds[r.local_id]=true; }); return pubIds; })
+      .catch(function(){ return pubIds; });
+  }
+  function isPublished(id){ return !!pubIds[id]; }
+
+  function publishRecipe(r){
+    if(!signedIn()||!session.user){ toast("Sign in to publish"); openAccount(); return Promise.resolve(false); }
+    if(!profile){ toast("Pick a username first"); openAccount(); return Promise.resolve(false); }
+    return supaFetch("/rest/v1/public_recipes",{
+      method:"POST",
+      headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+      body:JSON.stringify([{user_id:session.user.id,local_id:r.id,title:r.title,category:r.category||"",recipe:r}])
+    }).then(function(){ pubIds[r.id]=true; exploreLoaded=false; toast("Published to Explore"); return true; })
+      .catch(function(e){ toast(e.message||"Could not publish"); return false; });
+  }
+  function unpublishRecipe(id){
+    if(!signedIn()||!session.user) return Promise.resolve(false);
+    return supaFetch("/rest/v1/public_recipes?user_id=eq."+encodeURIComponent(session.user.id)+"&local_id=eq."+encodeURIComponent(id),{method:"DELETE"})
+      .then(function(){ delete pubIds[id]; exploreLoaded=false; toast("Removed from Explore"); return true; })
+      .catch(function(e){ toast(e.message||"Could not unpublish"); return false; });
+  }
+  /* a published recipe follows its local edits, per the auto-update rule */
+  function syncPublishedCopy(r){ if(r&&isPublished(r.id)) publishRecipe(r); }
+
+  var exploreError=false;
+  function fetchExplore(){
+    /* embed the author's profile so each card can show "from @handle" */
+    return supaFetch("/rest/v1/public_recipes?select=id,user_id,local_id,title,category,recipe,created_at,profiles!inner(username,display_name)&order=created_at.desc&limit=100")
+      .then(function(rows){ exploreRows=rows||[]; exploreLoaded=true; exploreError=false; return exploreRows; })
+      .catch(function(){
+        /* the embed needs a FK relationship; fall back to a plain list if it isn't there */
+        return supaFetch("/rest/v1/public_recipes?select=id,user_id,local_id,title,category,recipe,created_at&order=created_at.desc&limit=100")
+          .then(function(rows){ exploreRows=rows||[]; exploreLoaded=true; exploreError=false; return exploreRows; })
+          .catch(function(){ exploreError=true; return exploreRows; });   /* keep whatever we had; never hang on Loading… */
+      });
+  }
+  function authorOf(row){
+    var p=row.profiles;
+    if(Array.isArray(p)) p=p[0];
+    return p||null;
+  }
+  function renderExplore(filter){
+    var el=$("#exploreList"); if(!el)return;
+    var terms=(filter||"").toLowerCase().split(/\s+/).filter(Boolean);
+    var rows=exploreRows.filter(function(row){
+      if(!terms.length) return true;
+      var r=row.recipe||{};
+      var hay=(row.title+" "+(row.category||"")+" "+(r.ingredients||[]).join(" ")+" "+
+        (r.steps||[]).map(function(s){return (s.heading||"")+" "+(s.body||"")}).join(" ")).toLowerCase();
+      return terms.every(function(t){return hay.indexOf(t)>-1});
+    });
+    if(!rows.length){
+      if(exploreError){
+        el.innerHTML='<div class="empty"><div class="big">📡</div><b>Couldn\'t load recipes</b>'+
+          '<div>Check your connection.</div><div class="empty-acts"><button class="btn-primary" id="exploreRetry">Try again</button></div></div>';
+        var rb=$("#exploreRetry"); if(rb) rb.onclick=function(){ exploreError=false; renderExplore(""); fetchExplore().then(function(){ renderExplore($("#exploreSearch").value); }); };
+        return;
+      }
+      el.innerHTML='<div class="empty"><div class="big">'+(exploreLoaded?"🍽️":"⏳")+'</div><b>'+
+        (exploreLoaded?(terms.length?"No matches":"No recipes shared yet"):"Loading…")+'</b><div>'+
+        (exploreLoaded?(terms.length?"Try another search.":"Check back soon — new recipes land here as cooks share them."):"Fetching recipes")+'</div></div>';
+      return;
+    }
+    el.innerHTML="";
+    var myId=signedIn()&&session.user?session.user.id:null;
+    rows.forEach(function(row){
+      var r=row.recipe||{}, a=authorOf(row), mine=myId&&row.user_id===myId;
+      var wrap=document.createElement("div"); wrap.className="rcard";
+      var b=document.createElement("button"); b.className="rcard-main";
+      b.innerHTML='<span class="thumb">'+(r.photo?'<img class="thumb-img" src="'+esc(r.photo)+'" alt="">':iconVal(r.emoji||"🍽️"))+'</span>'+
+        '<span class="meta"><b>'+esc(row.title)+'</b>'+
+          '<span>'+((r.steps||[]).length)+' steps'+(r.servings?' <i>·</i> serves '+esc(r.servings):'')+'</span>'+
+          (mine?'<span class="byline mine">by you</span>':(a?'<span class="byline" data-u="'+esc(a.username)+'">from @'+esc(a.username)+'</span>':''))+
+        '</span><span class="chev"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>';
+      b.onclick=function(e){
+        /* the byline inside the card is its own target: it opens the AUTHOR, not the recipe */
+        var by=e.target&&e.target.closest?e.target.closest(".byline[data-u]"):null;
+        if(by){ openProfile(by.getAttribute("data-u")); return; }
+        openPublicRecipe(row);
+      };
+      wrap.appendChild(b);
+      el.appendChild(wrap);
+    });
+  }
+  function openExplore(){
+    navOpened();
+    $("#explore").classList.add("on");
+    $("#explore").setAttribute("aria-hidden","false");
+    updateNavActive(); refreshInert(); renderTimerStrip();
+    renderExplore($("#exploreSearch").value);
+    /* always refetch — a session-frozen Explore looked dead even after friends published */
+    fetchExplore().then(function(){ renderExplore($("#exploreSearch").value); });
+  }
+  function closeExplore(){
+    $("#explore").classList.remove("on");
+    $("#explore").setAttribute("aria-hidden","true");
+    updateNavActive(); refreshInert();
+  }
+  $("#exploreSearch").addEventListener("input",function(){ renderExplore(this.value); });
+
+  /* Opening a public recipe reuses the normal player by handing it a temporary
+     recipe object. The source row rides along on the object itself (`_pubRow`)
+     rather than in a module-level flag — a flag went stale the moment you opened
+     a different recipe, leaving the action bar stuck in "public" mode. */
+  function pubRowOf(r){ return (r&&r._pubRow)||null; }
+  function openPublicRecipe(row){
+    var r=normalizeRecipe(row.recipe); if(!r){ toast("Couldn't open that recipe"); return; }
+    r.id="pub:"+row.id;
+    r._pubRow=row;
+    recipes=recipes.filter(function(x){return String(x.id).indexOf("pub:")!==0}); /* one preview at a time */
+    recipes.push(r);                        /* transient: never saved to storage */
+    openPlayer(r.id);
+  }
+  /* reconciles the action bar for whatever `cur` is — called on EVERY player open */
+  function paintSaveBtn(){
+    var isPub=!!pubRowOf(cur);
+    var b=$("#btnSavePublic"); if(b) b.classList.toggle("hidden",!isPub);
+    var fav=$("#btnFav"); if(fav) fav.classList.toggle("hidden",isPub);
+    /* someone else's recipe is not editable — the edit would silently evaporate */
+    var ed=$("#btnEditFromPlayer"); if(ed) ed.classList.toggle("hidden",isPub);
+  }
+  function savePublicToCookbook(){
+    var row=pubRowOf(cur); if(!row) return;
+    if(!signedIn()){ toast("Sign in to save recipes"); closePlayer(); openAccount(); return; }
+    var a=authorOf(row);
+    var copy=normalizeRecipe(row.recipe); if(!copy) return;
+    copy.id=uid();
+    copy.fromUser=a?a.username:"";        /* credit line */
+    copy.fromPublicId=row.id;             /* lets us offer "author updated this" later */
+    touchRecipe(copy);
+    recipes=recipes.filter(function(x){return String(x.id).indexOf("pub:")!==0});
+    recipes.unshift(copy); save(recipes); syncSoon();
+    closePlayer(); closeExplore();
+    renderFilterBar(); renderLib("");
+    toast(a?("Saved — from @"+a.username):"Saved to your cookbook");
+  }
+
+  /* ---- public profile ---- */
+  function openProfile(username){
+    navOpened();
+    _return=document.activeElement;
+    $("#scrim").classList.add("on"); $("#profileSheet").classList.add("on"); refreshInert();
+    var el=$("#profBody"); el.innerHTML='<p class="acct-note">Loading…</p>';
+    supaFetch("/rest/v1/profiles?select=id,username,display_name&username=eq."+encodeURIComponent(username))
+      .then(function(ps){
+        var p=(ps||[])[0];
+        if(!p){ el.innerHTML='<p class="acct-note">That cook wasn\'t found.</p>'; return; }
+        return supaFetch("/rest/v1/public_recipes?select=id,user_id,local_id,title,category,recipe,created_at&user_id=eq."+encodeURIComponent(p.id)+"&order=created_at.desc")
+          .then(function(rows){
+            rows=rows||[];
+            $("#profTitle").textContent="@"+p.username;
+            el.innerHTML='<div class="prof-head"><div class="prof-av">'+esc((p.display_name||p.username).charAt(0).toUpperCase())+'</div>'+
+                '<div class="prof-who"><b>'+esc(p.display_name||p.username)+'</b><span>@'+esc(p.username)+' · '+rows.length+' recipe'+(rows.length===1?"":"s")+'</span></div></div>'+
+              (rows.length? '<div id="profList"></div>'
+                          : '<p class="acct-note">No published recipes yet.</p>');
+            var list=$("#profList"); if(!list) return;
+            rows.forEach(function(row){
+              var r=row.recipe||{};
+              var wrap=document.createElement("div"); wrap.className="rcard";
+              var b=document.createElement("button"); b.className="rcard-main";
+              b.innerHTML='<span class="thumb">'+(r.photo?'<img class="thumb-img" src="'+esc(r.photo)+'" alt="">':iconVal(r.emoji||"🍽️"))+'</span>'+
+                '<span class="meta"><b>'+esc(row.title)+'</b><span>'+((r.steps||[]).length)+' steps'+(r.servings?' <i>·</i> serves '+esc(r.servings):'')+'</span></span>'+
+                '<span class="chev"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>';
+              b.onclick=function(){ closeProfile(); openPublicRecipe(row); };
+              wrap.appendChild(b); list.appendChild(wrap);
+            });
+          });
+      }).catch(function(){ el.innerHTML='<p class="acct-note">Couldn\'t load that profile.</p>'; });
+  }
+  function closeProfile(){ $("#profileSheet").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); }
+  $("#btnProfClose").onclick=closeProfile;
+
+  /* boot: pick up a magic-link return, then load identity */
+  (function bootAuth(){
+    var justSignedIn=consumeAuthRedirect();
+    if(!signedIn()) return;
+    ensureFreshSession()
+      .then(function(){ return signedIn()?fetchUser():null; })
+      .then(function(u){ return u?fetchProfile():null; })
+      .then(function(){ if(justSignedIn){ toast("Signed in"); openAccount(); } return syncCookbook(); })
+      .then(function(){ return loadPublishedIds(); })
+      .catch(function(){});
+  })();
+
+  $("#btnBell").onclick=function(){
+    if(tState.run||tState.done){ jumpToTimer(); return; }
+    toast("No timers running. Start one on any recipe step.");
+  };
+  $("#timerStrip").onclick=jumpToTimer;
+  var tsx=$("#timerStripEx"); if(tsx) tsx.onclick=jumpToTimer;
+
   refreshInert();
+  renderTimerStrip();
   renderShopCount();
   try{ renderFilterBar(); renderLib(""); }catch(e){ $("#cardList").innerHTML=""; toast("Something went wrong loading recipes."); }
 })();

@@ -1,4 +1,4 @@
-const CACHE = "cooking-cards-v5";
+const CACHE = "cooking-cards-v6";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-180.png"];
 self.addEventListener("install", function (e) {
@@ -11,11 +11,33 @@ self.addEventListener("activate", function (e) {
 });
 self.addEventListener("fetch", function (e) {
   if (e.request.method !== "GET") return;
-  e.respondWith(caches.match(e.request).then(function (r) {
-    return r || fetch(e.request).then(function (resp) {
+  var req = e.request;
+  var url = new URL(req.url);
+  // never touch cross-origin traffic (Supabase API calls must always hit the network)
+  if (url.origin !== self.location.origin) return;
+
+  // The app shell is NETWORK-FIRST: a deployed update must appear on the next load,
+  // not after a manual cache purge. Cache is only the offline fallback.
+  var isShell = req.mode === "navigate" || url.pathname.replace(/\/$/, "").endsWith("/index.html");
+  if (isShell) {
+    e.respondWith(
+      fetch(req).then(function (resp) {
+        var cp = resp.clone();
+        caches.open(CACHE).then(function (c) { c.put("./index.html", cp); });
+        return resp;
+      }).catch(function () {
+        return caches.match("./index.html").then(function (r) { return r || caches.match("./"); });
+      })
+    );
+    return;
+  }
+
+  // Static assets (icons, manifest) stay cache-first — they're small and rarely change.
+  e.respondWith(caches.match(req).then(function (r) {
+    return r || fetch(req).then(function (resp) {
       var cp = resp.clone();
-      caches.open(CACHE).then(function (c) { c.put(e.request, cp); });
+      caches.open(CACHE).then(function (c) { c.put(req, cp); });
       return resp;
-    }).catch(function () { return caches.match("./index.html"); });
+    });
   }));
 });
