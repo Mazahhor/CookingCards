@@ -4018,27 +4018,38 @@
         window.scrollTo(0,y+1); window.scrollTo(0,y);
       }catch(e){}
     }
-    /* The bar is only ever moved when the two viewport APIs actually DISAGREE.
-       Comparing against screen.height was wrong: in standalone iOS reports
-       innerHeight as the screen MINUS the status bar (873 vs 932 on a 430pt
-       phone), so that "mismatch" is normal and pushing the bar down by it
-       drove the labels off the bottom edge. */
+    /* Every viewport-number theory failed, so this measures the BAR ITSELF.
+       Wherever its rendered bottom edge lands, nudge it back to the visible
+       bottom: sunk below (labels clipped) pulls up, floating above pushes
+       down. Cause-agnostic, and it can self-correct a mistake of its own. */
     function sync(){
-      var off=0, vv=window.visualViewport;
-      if(vv){
-        var d=Math.round(window.innerHeight-vv.height-vv.offsetTop);
-        if(d<-8&&d>-320) off=d;   /* visual taller than layout → lower the bar */
-      }
-      document.documentElement.style.setProperty("--vvoff",off?off+"px":"0px");
+      var nav=document.getElementById("botnav");
+      /* position:fixed makes offsetParent null, so measure boxes instead */
+      if(!nav||!nav.getClientRects().length) return;
+      var el=document.activeElement;
+      if(el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName||"")) return;   /* keyboard open */
+      var prev=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--vvoff"))||0;
+      /* gap > 0: the bar sits ABOVE the bottom edge, so lower `bottom`.
+         gap < 0: it hangs BELOW (labels clipped), so raise `bottom`. */
+      var gap=Math.round(window.innerHeight-nav.getBoundingClientRect().bottom);
+      if(Math.abs(gap)<2) return;                    /* already sitting right */
+      var next=prev-gap;
+      if(next<-260) next=-260;
+      if(next>260) next=260;
+      document.documentElement.style.setProperty("--vvoff",next+"px");
     }
     function both(){ nudge(); sync(); }
     if(window.visualViewport){
       visualViewport.addEventListener("resize",sync);
       visualViewport.addEventListener("scroll",sync);
     }
-    addEventListener("pageshow",function(){ setTimeout(both,80); setTimeout(both,450); });
-    addEventListener("orientationchange",function(){ setTimeout(both,150); });
-    setTimeout(both,80); setTimeout(both,450);
+    /* iOS settles its viewport late and in stages after a reload, so re-check
+       on a short ladder rather than once */
+    function ladder(){ [60,250,600,1200,2500].forEach(function(ms){ setTimeout(ms<200?both:sync,ms); }); }
+    addEventListener("pageshow",ladder);
+    addEventListener("orientationchange",function(){ setTimeout(both,150); setTimeout(sync,600); });
+    addEventListener("load",ladder);
+    ladder();
   })();
 
   /* Refresh: re-check the service worker for a new app version, then reload.
@@ -4056,7 +4067,12 @@
       var pb=nav?getComputedStyle(nav).paddingBottom:"?";
       var vo=getComputedStyle(document.documentElement).getPropertyValue("--vvoff").trim()||"0px";
       var sa=false; try{ sa=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches; }catch(e){}
-      toast("ih "+window.innerHeight+" · vv "+Math.round(vv.height||0)+"/"+Math.round(vv.offsetTop||0)+" · scr "+screen.width+"x"+screen.height+" · sa "+(sa?1:0)+" · pb "+pb+" · off "+vo);
+      var r=nav?nav.getBoundingClientRect():{top:0,bottom:0,height:0};
+      var lbl=nav?nav.querySelector(".lbl"):null, lr=lbl?lbl.getBoundingClientRect():{bottom:0,height:0};
+      toast("ih "+window.innerHeight+" · vv "+Math.round(vv.height||0)+"/"+Math.round(vv.offsetTop||0)+
+        " · sa "+(sa?1:0)+" · pb "+pb+" · off "+vo+
+        " · navB "+Math.round(r.bottom)+" h"+Math.round(r.height)+
+        " · lblB "+Math.round(lr.bottom)+" h"+Math.round(lr.height));
     }
     b.addEventListener("touchstart",function(){ clearTimeout(t); t=setTimeout(info,900); },{passive:true});
     b.addEventListener("touchend",function(){ clearTimeout(t); },{passive:true});
