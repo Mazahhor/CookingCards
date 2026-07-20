@@ -33,7 +33,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="26";</script>
+<script>window.__APPVER="27";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -3949,10 +3949,14 @@
   }
 
   /* ---- sign-in-first welcome gate ---- */
+  /* declared above showWelcome on purpose: this file has twice shipped bugs where
+     boot-time code read a var that was only assigned further down (trash, TOMBKEY) */
+  var welMode="in";
   function showWelcome(){
     var w=$("#welcome"); if(!w) return;
     var lg=$("#welLogo"); var src=document.querySelector(".brand-logo svg");
     if(lg&&src&&!lg.firstChild) lg.innerHTML=src.outerHTML;
+    welMode="in";              /* the gate always reopens on sign-in, never mid-signup */
     renderWelcomeForm();
     w.hidden=false;
   }
@@ -3961,17 +3965,33 @@
     /* now they are actually in the app, today's tip may land */
     try{ tipNotifyDaily(); }catch(e){}
   }
-  function renderWelcomeForm(){
+  /* The gate has two modes. "Create an account" used to submit the same fields
+     as Sign in, so tapping it on an empty form just scolded you for not having
+     typed a password into what looked like a sign-in screen. It now switches
+     the form into a real signup step with its own copy and button. */
+  function renderWelcomeForm(keepEmail){
     var el=$("#welForm"); if(!el) return;
+    var up=(welMode==="up");
+    var sub=$(".wel-sub");
+    if(sub) sub.textContent = up
+      ? "Pick an email and a password. That is the whole signup, and your cookbook then follows you to every device."
+      : "Your recipes, one calm step at a time. Sign in and your cookbook follows you to every device.";
     el.innerHTML=
       '<input class="in" type="email" id="welEmail" placeholder="you@example.com" autocomplete="email" aria-label="Email">'+
-      '<input class="in" type="password" id="welPass" placeholder="Password (6+ characters)" autocomplete="current-password" aria-label="Password">'+
-      '<button class="btn-primary" id="welIn">Sign in</button>'+
-      '<button class="wel-forgot" id="welForgot">Forgot your password?</button>'+
-      '<button class="btn-quiet" id="welUp">Create an account</button>'+
-      '<div class="wel-or"><span>or</span></div>'+
-      '<button class="btn-quiet" id="welLink">Email me a sign-in link instead</button>'+
-      '<p class="wel-note">Your recipes are saved to your account, so they are waiting for you on any phone or computer you sign in on.</p>';
+      '<input class="in" type="password" id="welPass" placeholder="'+(up?"Choose a password (6+ characters)":"Password (6+ characters)")+
+        '" autocomplete="'+(up?"new-password":"current-password")+'" aria-label="Password">'+
+      (up
+        ? '<button class="btn-primary" id="welUpGo">Create account</button>'+
+          '<button class="btn-quiet" id="welBack">Already have an account? Sign in</button>'
+        : '<button class="btn-primary" id="welIn">Sign in</button>'+
+          '<button class="wel-forgot" id="welForgot">Forgot your password?</button>'+
+          '<button class="btn-quiet" id="welUp">Create an account</button>'+
+          '<div class="wel-or"><span>or</span></div>'+
+          '<button class="btn-quiet" id="welLink">Email me a sign-in link instead</button>')+
+      '<p class="wel-note">'+(up
+        ? "No confirmation email to wait for. You are in as soon as you tap the button."
+        : "Your recipes are saved to your account, so they are waiting for you on any phone or computer you sign in on.")+'</p>';
+    if(keepEmail) $("#welEmail").value=keepEmail;
     var creds=function(){
       var em=$("#welEmail").value.trim(), pw=$("#welPass").value;
       if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast("Enter a valid email"); return null; }
@@ -3983,7 +4003,16 @@
         .then(loadPublishedIds)
         .then(function(){ hideWelcome(); renderFilterBar(); renderLib($("#searchIn").value); toast("Welcome in"); });
     };
-    $("#welIn").onclick=function(){
+    /* mode switches carry the typed email across so it is not retyped */
+    var swap=function(mode){
+      welMode=mode;
+      var em=$("#welEmail").value.trim();
+      renderWelcomeForm(em);
+      $("#welEmail").focus();
+    };
+    if($("#welUp")) $("#welUp").onclick=function(){ swap("up"); };
+    if($("#welBack")) $("#welBack").onclick=function(){ swap("in"); };
+    if($("#welIn")) $("#welIn").onclick=function(){
       var c=creds(); if(!c) return;
       var b=this; b.disabled=true; b.textContent="Signing in…";
       passwordSignIn(c.em,c.pw).then(enter)
@@ -3993,20 +4022,26 @@
           b.disabled=false; b.textContent="Sign in";
         });
     };
-    $("#welUp").onclick=function(){
+    if($("#welUpGo")) $("#welUpGo").onclick=function(){
       var c=creds(); if(!c) return;
       var b=this; b.disabled=true; b.textContent="Creating…";
       passwordSignUp(c.em,c.pw).then(function(res){
         if(res.signedIn) return enter();
         toast("Confirm your email at "+c.em+", then sign in");
-        b.disabled=false; b.textContent="Create an account";
+        b.disabled=false; b.textContent="Create account";
       }).catch(function(err){
         var m=(err.message||"").toLowerCase();
-        toast(/already regist|already been/.test(m)?"That email already has an account — tap Sign in":(err.message||"Could not create account"));
-        b.disabled=false; b.textContent="Create an account";
+        /* an existing email is the one error worth steering, not just reporting */
+        if(/already regist|already been/.test(m)){
+          toast("That email already has an account — signing you in instead");
+          swap("in"); $("#welEmail").value=c.em; $("#welPass").focus();
+          return;
+        }
+        toast(err.message||"Could not create account");
+        b.disabled=false; b.textContent="Create account";
       });
     };
-    $("#welLink").onclick=function(){
+    if($("#welLink")) $("#welLink").onclick=function(){
       var em=$("#welEmail").value.trim();
       if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast("Enter a valid email"); return; }
       var b=this; b.disabled=true; b.textContent="Sending…";
@@ -4019,7 +4054,7 @@
       });
     };
     /* forgot password = magic link in, then set a new password from the Account panel */
-    $("#welForgot").onclick=function(){
+    if($("#welForgot")) $("#welForgot").onclick=function(){
       var em=$("#welEmail").value.trim();
       if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast("Type your email above first"); $("#welEmail").focus(); return; }
       var b=this; b.disabled=true; b.textContent="Sending a rescue link…";
