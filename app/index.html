@@ -28,7 +28,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="20";</script>
+<script>window.__APPVER="21";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -137,8 +137,6 @@
   /* timer bell: lives in the header so a running timer is visible from anywhere,
      not just inside the recipe that started it */
   .bell{flex:none;position:relative;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:var(--surface);color:var(--ink-dim);transition:background .15s ease,color .15s ease}
-  .bell.spin svg{animation:refresh-spin .9s linear infinite}
-  @keyframes refresh-spin{to{transform:rotate(360deg)}}
   .bell:hover{background:var(--surface-2);color:var(--ink)}
   .bell svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .bell.live{color:var(--saffron)}
@@ -711,9 +709,6 @@
         </g>
       </svg></span>
       <div class="brand"><b>Cooking Steps</b><span>Your interactive cookbook</span></div>
-      <button class="bell" id="btnRefresh" aria-label="Refresh the app and pick up updates">
-        <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>
-      </button>
       <button class="bell" id="btnBell" aria-label="Timers and alerts">
         <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
         <span class="bell-dot" id="bellDot" hidden></span>
@@ -4011,63 +4006,17 @@
      flicker on open. The bar is plain bottom:0 again.) */
 
 
-  /* Refresh: re-check the service worker for a new app version, then reload.
-     The reload itself re-syncs the cookbook and refetches Explore, so one tap
-     covers both "new app build" and "new recipes from my other device". */
-  /* hidden diagnostic: hold the refresh button ~1s to see the live viewport
-     numbers as a toast (for chasing the iOS floating-tab-bar bug remotely) */
-  var refreshLpAt=0;
+  /* No refresh button: the app updates itself. Pages are network-first in the
+     service worker, so opening the app fetches the current build; when a new
+     worker takes control we reload once so the fresh shell is what you see. */
   (function(){
-    var b=$("#btnRefresh"), t=null; if(!b) return;
-    function info(){
-      refreshLpAt=Date.now();
-      var vv=window.visualViewport||{};
-      var nav=document.querySelector(".botnav");
-      var pb=nav?getComputedStyle(nav).paddingBottom:"?";
-      var vo=Math.round(window.scrollY||0)+"/"+Math.round(document.documentElement.scrollHeight||0);
-      var sa=false; try{ sa=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches; }catch(e){}
-      var r=nav?nav.getBoundingClientRect():{top:0,bottom:0,height:0};
-      var lbl=nav?nav.querySelector(".lbl"):null, lr=lbl?lbl.getBoundingClientRect():{bottom:0,height:0};
-      toast("v"+(window.__APPVER||"dev")+" · ih "+window.innerHeight+" · vv "+Math.round(vv.height||0)+"/"+Math.round(vv.offsetTop||0)+
-        " · sa "+(sa?1:0)+" · pb "+pb+" · scroll "+vo+
-        " · navB "+Math.round(r.bottom)+" h"+Math.round(r.height)+
-        " · lblB "+Math.round(lr.bottom)+" h"+Math.round(lr.height));
-    }
-    b.addEventListener("touchstart",function(){ clearTimeout(t); t=setTimeout(info,900); },{passive:true});
-    b.addEventListener("touchend",function(){ clearTimeout(t); },{passive:true});
-    b.addEventListener("touchmove",function(){ clearTimeout(t); },{passive:true});
+    if(!("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.addEventListener("controllerchange",function(){
+      try{ if(sessionStorage.getItem("kitchencards.swreload")) return;
+           sessionStorage.setItem("kitchencards.swreload","1"); }catch(e){}
+      location.reload();
+    });
   })();
-  $("#btnRefresh").onclick=function(){
-    var b=$("#btnRefresh"); if(b.classList.contains("spin")) return;
-    if(Date.now()-refreshLpAt<1200) return;   /* the tap that ended a diagnostic hold */
-    b.classList.add("spin"); toast("Updating…");
-    var done=false;
-    function go(){
-      if(done) return; done=true;
-      /* Refresh must mean REFRESH: drop the offline caches so the next load
-         cannot be served a stale shell (this is what kept an old build, and
-         its missing recipe photos, on screen after a deploy). They refill on
-         the way back in. */
-      var wipe=(window.caches&&caches.keys)
-        ? caches.keys().then(function(ks){ return Promise.all(ks.map(function(k){ return caches.delete(k); })); }).catch(function(){})
-        : Promise.resolve();
-      wipe.then(function(){ location.reload(); });
-    }
-    try{
-      if("serviceWorker" in navigator && navigator.serviceWorker.getRegistration){
-        navigator.serviceWorker.getRegistration().then(function(reg){
-          if(!reg) return go();
-          reg.update().then(function(){
-            var nw=reg.installing||reg.waiting;
-            if(!nw) return go();   /* already current — reload just re-syncs data */
-            nw.addEventListener("statechange",function(){ if(nw.state==="activated"||nw.state==="redundant") go(); });
-            setTimeout(go,5000);   /* don't hang on a stuck install */
-          }).catch(go);
-        }).catch(go);
-        setTimeout(go,8000);
-      } else go();
-    }catch(e){ go(); }
-  };
   $("#btnBell").onclick=openNotifs;
   $("#timerStrip").onclick=jumpToTimer;
   var tsx=$("#timerStripEx"); if(tsx) tsx.onclick=jumpToTimer;
