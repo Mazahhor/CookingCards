@@ -1,7 +1,8 @@
-const CACHE = "cooking-steps-v8";
+const CACHE = "cooking-steps-v9";
 const ASSETS = ["/", "/index.html", "/site.css", "/blog/",
   "/app/", "/app/index.html", "/app/manifest.webmanifest",
-  "/app/icons/icon-192.png", "/app/icons/icon-512.png", "/app/icons/icon-180.png"];
+  "/app/icons/icon-192.png", "/app/icons/icon-512.png", "/app/icons/icon-180.png",
+  "/app/icons/icon-maskable-512.png"];
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(ASSETS); }).then(function () { return self.skipWaiting(); }));
 });

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>try{var t=localStorage.getItem("cookingsteps.site.theme");if(t==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<script>try{var t=localStorage.getItem("cookingsteps.site.theme")||localStorage.getItem("kitchencards.theme.v1");if(t==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
 <title>Cooking Steps Is Live, and It Is Free · Cooking Steps</title>
 <meta name="description" content="The interactive cookbook is out of the kitchen and on the open web. Here is what it does, what it costs (nothing), and how to put it on your phone.">
 <link rel="canonical" href="https://cookingsteps.app/blog/hello-world/">
@@ -140,10 +140,28 @@
     var root=document.documentElement;
     var next=root.getAttribute("data-theme")==="dark"?"light":"dark";
     root.setAttribute("data-theme",next);
-    try{localStorage.setItem("cookingsteps.site.theme",next)}catch(e){}
+    try{localStorage.setItem("cookingsteps.site.theme",next);localStorage.setItem("kitchencards.theme.v1",next)}catch(e){}
     var m=document.querySelector('meta[name="theme-color"]');
     if(m)m.setAttribute("content",next==="dark"?"#0f0b06":"#FCFAF4");
   });
+  if(document.documentElement.getAttribute("data-theme")==="dark"){
+    var tm=document.querySelector('meta[name="theme-color"]');
+    if(tm)tm.setAttribute("content","#0f0b06");
+  }
+  var hdr=document.querySelector("header.site");
+  function closeMenu(){
+    if(hdr&&hdr.classList.contains("menu-open")){
+      hdr.classList.remove("menu-open");
+      var bb=hdr.querySelector(".nav-burger");
+      if(bb)bb.setAttribute("aria-expanded","false");
+    }
+  }
+  document.addEventListener("click",function(e){
+    if(hdr&&hdr.classList.contains("menu-open")&&!e.target.closest(".navset")&&!e.target.closest(".nav-burger"))closeMenu();
+  });
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeMenu()});
+  addEventListener("hashchange",closeMenu);
+  addEventListener("resize",closeMenu);
   if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("/service-worker.js").catch(function(){})});
 })();
 </script>
