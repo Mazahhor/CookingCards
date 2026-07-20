@@ -726,6 +726,10 @@
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       <input id="exploreSearch" placeholder="Search all recipes" aria-label="Search public recipes" autocomplete="off">
     </div>
+    <div class="filter-bar" id="exploreTabs" role="tablist">
+      <button class="chip-f on" data-x="house" role="tab" aria-selected="true">House Recipes</button>
+      <button class="chip-f" data-x="community" role="tab" aria-selected="false">From other cooks</button>
+    </div>
     <button class="timer-strip" id="timerStripEx" hidden></button>
     <div class="lib" id="exploreList"></div>
   </div>
@@ -1064,7 +1068,11 @@
       {heading:"Plate it like you mean it", body:"Twirl into a bowl, top with parsley and parmesan if you have them.\nFour ingredients, one famous Italian dinner. You just made it.", items:["Fresh parsley, a little","Grated parmesan"], timer:0}
     ]
   }];
-  var SEED=BEGINNER.concat([{
+  /* HOUSE = the owner's own recipes. They are NOT seeded into anybody's cookbook:
+     they live in Explore under "House Recipes", where a cook can open one and save
+     it deliberately. Adding one here shows it to everyone in Explore on the next
+     deploy without pushing it into a single existing cookbook. */
+  var HOUSE=[{
     id:"seed-spinach-dal", emoji:"🥘", title:"Spinach Dal",
     servings:"2-3", prepMin:5, cookMin:30, category:"Sides",
     ingredients:["16 tbsp dal (toor/pappu)","½ big onion","3 green chillies","¼ kg palak (spinach)","2 tbsp oil","1 tsp mustard & cumin seeds (jeera)","1 pinch methi (fenugreek) seeds","3 red chillies","3 garlic cloves","6 curry leaves","1 tsp ginger-garlic paste","¼ tsp turmeric","¼ tsp hing (asafoetida)","1 tsp salt","½ tsp red chilli powder","1 tsp dhaniya (coriander) powder","1 large garlic clove (for spice paste)","2 tsp tamarind paste (1 tsp + 1 tsp)","Fresh coriander, a handful"],
@@ -1224,7 +1232,11 @@
       {heading:"Bake", body:"Bake at 350°F for 33-35 minutes.", items:[], timer:2040},
       {heading:"Cool and dig in", body:"Let it cool for two or three minutes.\nThe whole batch is about 43g protein and 400 calories.", items:[], timer:180}
     ]
-  }]);
+  }];
+  /* Only the beginner trio seeds a cookbook. Everything the merge, the migration
+     and "Restore starter recipes" touch flows through SEED, so keeping HOUSE out
+     of it is what stops one person's dinners landing in a stranger's cookbook. */
+  var SEED=BEGINNER;
 
   /* Recipes retired from the starter set: they are placed straight into
      "Recently deleted" (once) rather than the library, so the bin is
@@ -1274,16 +1286,10 @@
       try{localStorage.setItem("kitchencards.retired.v1",JSON.stringify(RETIRED.map(function(x){return x.id})));}catch(e){}
       return fresh;
     }
-    /* merge only brand-new default recipes; never re-add ones already seeded once */
-    var seeded={};
-    try{(JSON.parse(localStorage.getItem(SEEDKEY))||[]).forEach(function(id){seeded[id]=1})}catch(e){}
-    var have={}; r.forEach(function(x){have[x.id]=1});
-    var known=Object.keys(seeded), changed=false;
-    for(var i=SEED.length-1;i>=0;i--){ var s=SEED[i];
-      if(!seeded[s.id]){ known.push(s.id); if(!have[s.id]){ r.unshift(JSON.parse(JSON.stringify(s))); changed=true; } }
-    }
-    try{localStorage.setItem(SEEDKEY,JSON.stringify(known));}catch(e){}
-    if(changed) save(r);
+    /* An existing cookbook is the cook's own. Nothing is ever merged into it:
+       a new app version must not deposit recipes somebody did not ask for.
+       Recipes arrive exactly two ways now — the starter trio on a brand-new
+       install above, and a deliberate save from Explore. */
     return migrate(r);
   }
   /* "pub:" entries are other people's recipes held in memory only while being previewed
@@ -3454,10 +3460,21 @@
     if(Array.isArray(p)) p=p[0];
     return p||null;
   }
+  /* House recipes ship inside the app, so they are wrapped as Explore rows and
+     travel the same open/save path as published ones. No network, no account. */
+  var exploreTab="house";
+  function houseRows(){
+    return HOUSE.map(function(r){
+      return {id:"house-"+r.id, title:r.title, category:r.category||"", user_id:null, recipe:r, _house:true};
+    });
+  }
   function renderExplore(filter){
     var el=$("#exploreList"); if(!el)return;
+    var house=exploreTab==="house";
+    var sub=$("#exploreSub");
+    if(sub) sub.textContent=house?"Recipes from the Cooking Steps kitchen":"Recipes shared by other cooks";
     var terms=(filter||"").toLowerCase().split(/\s+/).filter(Boolean);
-    var rows=exploreRows.filter(function(row){
+    var rows=(house?houseRows():exploreRows).filter(function(row){
       if(!terms.length) return true;
       var r=row.recipe||{};
       var hay=(row.title+" "+(row.category||"")+" "+(r.ingredients||[]).join(" ")+" "+
@@ -3465,6 +3482,12 @@
       return terms.every(function(t){return hay.indexOf(t)>-1});
     });
     if(!rows.length){
+      if(house){
+        el.innerHTML='<div class="empty"><div class="big">🍳</div><b>'+
+          (terms.length?"No matches":"Nothing here yet")+'</b><div>'+
+          (terms.length?"Try another search.":"House recipes arrive with app updates.")+'</div></div>';
+        return;
+      }
       if(exploreError){
         el.innerHTML='<div class="empty"><div class="big">📡</div><b>Couldn\'t load recipes</b>'+
           '<div>Check your connection.</div><div class="empty-acts"><button class="btn-primary" id="exploreRetry">Try again</button></div></div>';
@@ -3485,7 +3508,8 @@
       b.innerHTML='<span class="thumb">'+(r.photo?'<img class="thumb-img" src="'+esc(r.photo)+'" alt="">':iconVal(r.emoji||"🍽️"))+'</span>'+
         '<span class="meta"><b>'+esc(row.title)+'</b>'+
           '<span>'+((r.steps||[]).length)+' steps'+(r.servings?' <i>·</i> serves '+esc(r.servings):'')+'</span>'+
-          (mine?'<span class="byline mine">by you</span>':(a?'<span class="byline" data-u="'+esc(a.username)+'">from @'+esc(a.username)+'</span>':''))+
+          (row._house?'<span class="byline mine">House recipe</span>':
+            (mine?'<span class="byline mine">by you</span>':(a?'<span class="byline" data-u="'+esc(a.username)+'">from @'+esc(a.username)+'</span>':'')))+
         '</span><span class="chev"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>';
       b.onclick=function(e){
         /* the byline inside the card is its own target: it opens the AUTHOR, not the recipe */
@@ -3512,6 +3536,15 @@
     updateNavActive(); refreshInert();
   }
   $("#exploreSearch").addEventListener("input",function(){ renderExplore(this.value); });
+  $("#exploreTabs").addEventListener("click",function(e){
+    var c=e.target&&e.target.closest?e.target.closest(".chip-f"):null; if(!c)return;
+    exploreTab=c.getAttribute("data-x");
+    [].forEach.call(this.querySelectorAll(".chip-f"),function(b){
+      var on=b===c; b.classList.toggle("on",on); b.setAttribute("aria-selected",on?"true":"false");
+    });
+    $("#exploreList").scrollTop=0;
+    renderExplore($("#exploreSearch").value);
+  });
 
   /* Opening a public recipe reuses the normal player by handing it a temporary
      recipe object. The source row rides along on the object itself (`_pubRow`)
@@ -3536,7 +3569,9 @@
   }
   function savePublicToCookbook(){
     var row=pubRowOf(cur); if(!row) return;
-    if(!signedIn()){ toast("Sign in to save recipes"); closePlayer(); openAccount(); return; }
+    /* House recipes are bundled with the app, so saving one is a local copy and
+       needs no account. Only someone else's published recipe requires sign-in. */
+    if(!row._house&&!signedIn()){ toast("Sign in to save recipes"); closePlayer(); openAccount(); return; }
     var a=authorOf(row);
     var copy=normalizeRecipe(row.recipe); if(!copy) return;
     copy.id=uid();
