@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<!-- No viewport-fit=cover: with it, this phone reported an 873pt viewport on a
+     932pt screen while STILL exposing safe-area insets, so the fixed tab bar
+     anchored roughly a status bar above the real bottom and the insets were
+     counted twice. Without it the layout viewport IS the safe area, the insets
+     collapse to 0, and bottom:0 lands exactly above the home indicator. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#16110B">
 <title>Cooking Steps</title>
 <meta name="description" content="Cook without losing your place. Swipe through any recipe one step at a time.">
@@ -28,7 +33,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="22";</script>
+<script>window.__APPVER="23";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -564,6 +569,10 @@
   /* safe-area inset clamped: iOS has been seen reporting keyboard-sized env()
      values after a reload; the home indicator never needs more than ~34px */
   .botnav{position:fixed;left:0;right:0;bottom:0;z-index:18;max-width:var(--shell);margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--ground);border-top:1px solid var(--hairline);padding:8px 6px calc(6px + min(env(safe-area-inset-bottom, 0px), 40px))}
+  /* Insurance: if a phone ever anchors the bar above the true bottom again, this
+     carries the bar's own background down to the edge, so it reads as attached
+     rather than floating in mid-screen. Costs nothing when the gap is zero. */
+  .botnav::after{content:"";position:absolute;left:0;right:0;top:100%;height:140px;background:var(--ground);pointer-events:none}
   .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;color:var(--ink-faint);transition:color .15s ease}
   .nav-item:hover{color:var(--ink-dim)}
   .nav-item.active{color:var(--ink)}
@@ -3137,6 +3146,16 @@
     return '<div class="seg-ctrl" role="group" aria-label="'+(k==="weight"?"Weight unit":"Temperature unit")+'">'+
       opts.map(function(o){return '<button class="u-toggle'+(units[k]===o[0]?" on":"")+'" data-k="'+k+'" data-v="'+o[0]+'">'+o[1]+'</button>'}).join("")+'</div>';
   }
+  /* Visible layout stamp under the version: screen vs viewport vs where the tab
+     bar actually ends. If the bar is ever misplaced again, this one line says
+     which of those disagrees — no hidden gestures needed. */
+  function layoutStamp(){
+    try{
+      var nav=$("#botnav"), r=nav?nav.getBoundingClientRect():null;
+      var gap=r?Math.round(window.innerHeight-r.bottom):"?";
+      return "screen "+screen.width+"×"+screen.height+" · view "+window.innerWidth+"×"+window.innerHeight+" · bar gap "+gap;
+    }catch(e){ return ""; }
+  }
   function renderSettingsBody(){
     var el=$("#setBody"); if(!el)return;
     var pubCount=Object.keys(pubIds).length;
@@ -3169,7 +3188,7 @@
           '<svg viewBox="0 0 24 24"><path d="M12 3v12M8 13l4 4 4-4M5 21h14"/></svg></button>'+
         '<button class="set-btn" id="setImport"><div><b>Restore from a backup</b><span>Load recipes from a backup file</span></div>'+
           '<svg viewBox="0 0 24 24"><path d="M12 21V9M8 11l4-4 4 4M5 3h14"/></svg></button>'+
-        '<div class="set-ver">Version '+(window.__APPVER||"dev")+'</div>'+
+        '<div class="set-ver">Version '+(window.__APPVER||"dev")+'<br><span style="opacity:.75">'+layoutStamp()+'</span></div>'+
         '<button class="set-btn" id="setTrash"><div><b>Recently deleted</b><span>'+
           (trash.length? (trash.length+" recipe"+(trash.length===1?"":"s")+" you can restore") : "Deleted recipes wait here before they're gone")+
           '</span></div><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button>'+
