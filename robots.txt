@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://cookingcards.app/sitemap.xml
+Sitemap: https://cookingsteps.app/sitemap.xml

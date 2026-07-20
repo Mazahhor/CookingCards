@@ -1,6 +1,6 @@
 {
-  "name": "Cooking Cards",
-  "short_name": "Cooking Cards",
+  "name": "Cooking Steps",
+  "short_name": "Cooking Steps",
   "description": "Cook without losing your place. Swipe through any recipe one step at a time.",
   "start_url": "./",
   "scope": "./",

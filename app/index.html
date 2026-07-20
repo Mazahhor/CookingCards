@@ -4,26 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#16110B">
-<title>Cooking Cards</title>
+<title>Cooking Steps</title>
 <meta name="description" content="Cook without losing your place. Swipe through any recipe one step at a time.">
-<link rel="canonical" href="https://cookingcards.app/app/">
+<link rel="canonical" href="https://cookingsteps.app/app/">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://cookingcards.app/app/">
-<meta property="og:site_name" content="Cooking Cards">
-<meta property="og:title" content="Cooking Cards — recipes that walk you through it">
+<meta property="og:url" content="https://cookingsteps.app/app/">
+<meta property="og:site_name" content="Cooking Steps">
+<meta property="og:title" content="Cooking Steps — recipes that walk you through it">
 <meta property="og:description" content="Cook without losing your place. Swipe through any recipe one step at a time.">
-<meta property="og:image" content="https://cookingcards.app/app/icons/og-image.png">
+<meta property="og:image" content="https://cookingsteps.app/app/icons/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Cooking Cards — recipes that walk you through it">
+<meta name="twitter:title" content="Cooking Steps — recipes that walk you through it">
 <meta name="twitter:description" content="Cook without losing your place. Swipe through any recipe one step at a time.">
-<meta name="twitter:image" content="https://cookingcards.app/app/icons/og-image.png">
+<meta name="twitter:image" content="https://cookingsteps.app/app/icons/og-image.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Cooking Cards">
+<meta name="apple-mobile-web-app-title" content="Cooking Steps">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -661,7 +661,7 @@
           <path d="M20 -34 C11 -49 30 -58 20 -74" fill="none" stroke="#C7A15A" stroke-width="9" stroke-linecap="round"/>
         </g>
       </svg></span>
-      <div class="brand"><b>Cooking Cards</b><span>Your interactive cookbook</span></div>
+      <div class="brand"><b>Cooking Steps</b><span>Your interactive cookbook</span></div>
       <button class="bell" id="btnBell" aria-label="Timers and alerts">
         <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
         <span class="bell-dot" id="bellDot" hidden></span>
@@ -948,7 +948,7 @@
   /* double-tap zoom is handled by `touch-action:manipulation` on body — deliberately
      NOT preventDefault-ing touchend here, which would swallow fast repeated taps. */
 
-  /* ---------- Cooking Cards original icons (colorful, filled) — token "ic:key" ---------- */
+  /* ---------- Cooking Steps original icons (colorful, filled) — token "ic:key" ---------- */
   var CUSTOM={
     drumstick:'<circle cx="14" cy="10" r="5.4" fill="#b96b34"/><circle cx="12.4" cy="8.4" r="1.3" fill="#cf8a4f"/><path d="M10.2 13.8l-3.1 3.1" stroke="#f4ead2" stroke-width="3.2" stroke-linecap="round"/><circle cx="6.2" cy="17.6" r="1.9" fill="#f4ead2"/><circle cx="8.1" cy="19.3" r="1.5" fill="#f4ead2"/>',
     egg:'<ellipse cx="12" cy="13" rx="8.6" ry="6.6" fill="#fdfaf2" stroke="#e7dcc2" stroke-width="1"/><circle cx="12.4" cy="13" r="3.3" fill="#f6b93b"/>',
@@ -1943,7 +1943,7 @@
        ding + notify correctly) even after the user leaves the player entirely,
        where cur/idx may have moved on by the time this timer finishes */
     var ownerId=cur&&cur.id, ownerStep=idx;
-    var ownerTitle=cur&&cur.title||"Cooking Cards", ownerHeading=(st&&st.heading)||"step";
+    var ownerTitle=cur&&cur.title||"Cooking Steps", ownerHeading=(st&&st.heading)||"step";
     tState.recipeId=ownerId; tState.heading=ownerHeading; tState.title=ownerTitle;
     scheduleTimerNotif(tState.sec, ownerTitle, "Timer done: "+ownerHeading);
     clearInterval(tState.int);
@@ -2010,7 +2010,7 @@
   }
   function ding(){
     haptic();
-    try{ if(cur&&cur.steps[idx]) webNotify("Cooking Cards","Timer done: "+(cur.steps[idx].heading||"step")); }catch(e){}
+    try{ if(cur&&cur.steps[idx]) webNotify("Cooking Steps","Timer done: "+(cur.steps[idx].heading||"step")); }catch(e){}
     try{ unlockAudio(); var a=audioCtx; if(!a)return;
       [0,.16,.32].forEach(function(d){var o=a.createOscillator(),g=a.createGain();o.frequency.value=880;o.connect(g);g.connect(a.destination);
       g.gain.setValueAtTime(.0001,a.currentTime+d);g.gain.exponentialRampToValueAtTime(.3,a.currentTime+d+.02);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d+.14);
@@ -2146,7 +2146,7 @@
   function renderIconGrid(){
     var g=$("#iconGrid"); if(!g)return;
     g.innerHTML=
-      '<div class="icon-grid-label">🎨 <b>Native</b> — made just for Cooking Cards</div>'+
+      '<div class="icon-grid-label">🎨 <b>Native</b> — made just for Cooking Steps</div>'+
       CUSTOM_ORDER.map(function(k){return cellHTML("ic:"+k)}).join("")+
       '<div class="icon-grid-label">Emoji</div>'+
       EMOJI_SET.map(cellHTML).join("");
@@ -2592,12 +2592,12 @@
   function doExport(){
     var json=JSON.stringify(recipes,null,2);
     try{
-      if(navigator.canShare){ var file=new File([json],"cooking-cards-backup.json",{type:"application/json"});
-        if(navigator.canShare({files:[file]})){ navigator.share({files:[file],title:"Cooking Cards backup"}).catch(function(){}); toast("Sharing backup"); return; } }
+      if(navigator.canShare){ var file=new File([json],"cooking-steps-backup.json",{type:"application/json"});
+        if(navigator.canShare({files:[file]})){ navigator.share({files:[file],title:"Cooking Steps backup"}).catch(function(){}); toast("Sharing backup"); return; } }
     }catch(e){}
     var blob=new Blob([json],{type:"application/json"});
     var url=URL.createObjectURL(blob), a=document.createElement("a");
-    a.href=url; a.download="cooking-cards-backup.json"; a.click();
+    a.href=url; a.download="cooking-steps-backup.json"; a.click();
     setTimeout(function(){URL.revokeObjectURL(url)},2000);
     toast(recipes.length+" recipe"+(recipes.length===1?"":"s")+" backed up");
   }
@@ -2799,7 +2799,7 @@
     }
     if(r.video){ L.push(""); L.push("▶ Watch: "+r.video); }
     if(r.source){ L.push((r.video?"":""),"Source: "+r.source); }
-    L.push(""); L.push("Shared from Cooking Cards");
+    L.push(""); L.push("Shared from Cooking Steps");
     return L.join("\n").replace(/\n{3,}/g,"\n\n").replace(/\n+$/,"");
   }
   var shareBuf={title:"",text:""};
@@ -3213,7 +3213,7 @@
       return;
     }
     if(!profile){
-      el.innerHTML='<p class="acct-note">Pick a username — this is your public handle, e.g. cookingcards.app/@yourname</p>'+
+      el.innerHTML='<p class="acct-note">Pick a username — this is your public handle, e.g. cookingsteps.app/@yourname</p>'+
         '<div class="field"><label for="acctUser">Username</label><input class="in" id="acctUser" placeholder="yourname" autocomplete="off" maxlength="20"></div>'+
         '<div class="field"><label for="acctName">Display name</label><input class="in" id="acctName" placeholder="Your name" autocomplete="name" maxlength="40"></div>'+
         '<button class="btn-primary" id="acctCreate" style="width:100%">Create my profile</button>'+
