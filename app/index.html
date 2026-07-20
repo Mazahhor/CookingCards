@@ -28,7 +28,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="21";</script>
+<script>window.__APPVER="22";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -3045,7 +3045,14 @@
       return true;
     }catch(e){ return false; }
   }
+  /* Nothing notifies a signed-out visitor: the sign-in screen is not the app,
+     and a tip arriving before you have an account is just noise. */
+  function tipReady(){
+    var w=$("#welcome");
+    return signedIn() && !(w && !w.hidden);
+  }
   function tipNotifyDaily(){
+    if(!tipReady()) return;
     var today=new Date().toDateString(), last=null;
     try{ last=localStorage.getItem("kitchencards.tipnotified.v1"); }catch(e){}
     if(last===today) return;
@@ -3060,6 +3067,8 @@
       var asked=null; try{ asked=localStorage.getItem("kitchencards.tipnotifask.v1"); }catch(e){}
       if(asked) return;
       document.addEventListener("click",function once(){
+        /* don't prompt on the sign-in screen — wait until they are actually in */
+        if(!tipReady()) return;
         document.removeEventListener("click",once,true);
         try{ localStorage.setItem("kitchencards.tipnotifask.v1","1"); }catch(e){}
         try{
@@ -3073,6 +3082,7 @@
      In a plain browser or PWA this is a silent no-op (no push server involved). */
   (function scheduleTipNotifs(){
     try{
+      if(!tipReady()) return;                    /* signed-out phones get nothing */
       var LN=capPlugin("LocalNotifications"); if(!LN||!LN.schedule) return;
       var list=[];
       for(var i=0;i<30;i++){
@@ -3913,7 +3923,11 @@
     renderWelcomeForm();
     w.hidden=false;
   }
-  function hideWelcome(){ var w=$("#welcome"); if(w) w.hidden=true; }
+  function hideWelcome(){
+    var w=$("#welcome"); if(w) w.hidden=true;
+    /* now they are actually in the app, today's tip may land */
+    try{ tipNotifyDaily(); }catch(e){}
+  }
   function renderWelcomeForm(){
     var el=$("#welForm"); if(!el) return;
     el.innerHTML=
