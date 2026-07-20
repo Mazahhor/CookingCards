@@ -19,7 +19,7 @@
 <link rel="apple-touch-icon" href="/app/icons/icon-180.png">
 <link rel="preload" href="/assets/fonts/fraunces-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/site.css?v=9f3efb19">
+<link rel="stylesheet" href="/site.css?v=ebb48fe3">
 <link rel="alternate" type="application/rss+xml" title="The Cooking Steps blog" href="/feed.xml">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Recipe", "name": "Tandoori Chicken in the Air Fryer, Step by Step", "description": "The recipe that started the whole app, served the way the app serves it. Tap through the actual steps, timers and all.", "datePublished": "2026-07-19", "url": "https://cookingsteps.app/blog/tandoori-chicken/", "recipeIngredient": ["2 lb chicken drumsticks", "2 tbsp lemon juice (first marinade)", "1 tsp salt (first marinade)", "8 tbsp yogurt", "2 tbsp ginger-garlic paste", "1½ tbsp Kashmiri chilli powder", "½ tbsp tandoori masala", "½ tbsp garam masala", "½ tbsp coriander powder", "½ tsp cumin powder", "½ tsp chaat masala", "½ tsp salt (second marinade)", "1 pinch nutmeg powder", "1 tbsp kasoori methi", "½ tbsp corn flour", "1½ tbsp oil"], "recipeInstructions": [{"@type": "HowToStep", "text": "Prep the chicken. Clean the drumsticks, discard the fat and pat dry. Make small gashes so the marinade soaks in."}, {"@type": "HowToStep", "text": "First marinade. Coat the drumsticks with the lemon juice and salt. Soak 15 to 20 minutes, then strain off the excess liquid."}, {"@type": "HowToStep", "text": "Make the tandoori marinade. Whisk the yogurt, ginger-garlic paste, Kashmiri chilli powder, tandoori masala, garam masala, coriander powder, cumin powder, chaat masala, salt, a pinch of nutmeg, kasoori methi, corn flour and oil into a smooth paste. Yes, all thirteen. Yes, including the corn flour."}, {"@type": "HowToStep", "text": "Second marinade. Coat the drumsticks with the marinade, filling the gashes. Cover and refrigerate at least 4 to 6 hours, ideally 12 to 24."}, {"@type": "HowToStep", "text": "Air fry. Preheat the air fryer to 400°F and grease the basket. Air fry 18 to 20 minutes, flipping once halfway, until charred at the edges and 165°F inside."}, {"@type": "HowToStep", "text": "Rest and serve. Rest a couple of minutes so it stays crisp outside and juicy inside. Serve with sliced onion, lemon and mint chutney."}], "recipeCategory": "Main course", "image": ["https://cookingsteps.app/assets/tandoori.jpg"], "recipeYield": "4 servings", "prepTime": "PT15M", "cookTime": "PT20M"}</script>
 </head>
@@ -40,10 +40,13 @@
 </svg></a>
     <a href="/" class="name">Cooking Steps</a>
     <nav class="links">
+      <div class="navset">
       <a href="/start/" class="navblog">“I can’t cook”</a>
       <a href="/blog/" class="navblog on">Blog</a>
       <a href="/tips/" class="navblog">Tips</a>
       <a href="/experiments/" class="navblog">Experiments</a>
+      </div>
+      <button class="nav-burger" aria-label="Open menu" onclick="this.closest('header').classList.toggle('menu-open')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <button class="theme-btn" id="themeBtn" aria-label="Switch between day and night theme">
         <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
         <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
