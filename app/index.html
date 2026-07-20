@@ -28,6 +28,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
+<script>window.__APPVER="19";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -187,6 +188,7 @@
   .nt-txt b{display:block;font-size:15px;margin-bottom:2px}
   .nt-txt span{display:block;font-size:13.5px;color:var(--ink-dim);line-height:1.5}
   .nt-empty{padding:18px 4px;text-align:center;color:var(--ink-faint);font-size:13.5px;line-height:1.6}
+  .set-ver{padding:10px 2px 0;text-align:center;font-size:12px;color:var(--ink-faint)}
   .rcard{
     display:flex;align-items:center;width:100%;overflow:hidden;
     background:var(--surface);border-radius:16px;
@@ -3162,6 +3164,7 @@
           '<svg viewBox="0 0 24 24"><path d="M12 3v12M8 13l4 4 4-4M5 21h14"/></svg></button>'+
         '<button class="set-btn" id="setImport"><div><b>Restore from a backup</b><span>Load recipes from a backup file</span></div>'+
           '<svg viewBox="0 0 24 24"><path d="M12 21V9M8 11l4-4 4 4M5 3h14"/></svg></button>'+
+        '<div class="set-ver">Version '+(window.__APPVER||"dev")+'</div>'+
         '<button class="set-btn" id="setTrash"><div><b>Recently deleted</b><span>'+
           (trash.length? (trash.length+" recipe"+(trash.length===1?"":"s")+" you can restore") : "Deleted recipes wait here before they're gone")+
           '</span></div><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button>'+
@@ -4069,7 +4072,7 @@
       var sa=false; try{ sa=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches; }catch(e){}
       var r=nav?nav.getBoundingClientRect():{top:0,bottom:0,height:0};
       var lbl=nav?nav.querySelector(".lbl"):null, lr=lbl?lbl.getBoundingClientRect():{bottom:0,height:0};
-      toast("ih "+window.innerHeight+" · vv "+Math.round(vv.height||0)+"/"+Math.round(vv.offsetTop||0)+
+      toast("v"+(window.__APPVER||"dev")+" · ih "+window.innerHeight+" · vv "+Math.round(vv.height||0)+"/"+Math.round(vv.offsetTop||0)+
         " · sa "+(sa?1:0)+" · pb "+pb+" · off "+vo+
         " · navB "+Math.round(r.bottom)+" h"+Math.round(r.height)+
         " · lblB "+Math.round(lr.bottom)+" h"+Math.round(lr.height));
@@ -4082,7 +4085,18 @@
     var b=$("#btnRefresh"); if(b.classList.contains("spin")) return;
     if(Date.now()-refreshLpAt<1200) return;   /* the tap that ended a diagnostic hold */
     b.classList.add("spin"); toast("Updating…");
-    var done=false; function go(){ if(done) return; done=true; location.reload(); }
+    var done=false;
+    function go(){
+      if(done) return; done=true;
+      /* Refresh must mean REFRESH: drop the offline caches so the next load
+         cannot be served a stale shell (this is what kept an old build, and
+         its missing recipe photos, on screen after a deploy). They refill on
+         the way back in. */
+      var wipe=(window.caches&&caches.keys)
+        ? caches.keys().then(function(ks){ return Promise.all(ks.map(function(k){ return caches.delete(k); })); }).catch(function(){})
+        : Promise.resolve();
+      wipe.then(function(){ location.reload(); });
+    }
     try{
       if("serviceWorker" in navigator && navigator.serviceWorker.getRegistration){
         navigator.serviceWorker.getRegistration().then(function(reg){
