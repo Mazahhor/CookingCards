@@ -28,7 +28,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="19";</script>
+<script>window.__APPVER="20";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -565,7 +565,7 @@
      which deliberately takes over the whole screen while cooking */
   /* safe-area inset clamped: iOS has been seen reporting keyboard-sized env()
      values after a reload; the home indicator never needs more than ~34px */
-  .botnav{position:fixed;left:0;right:0;bottom:var(--vvoff,0px);z-index:18;max-width:var(--shell);margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--ground);border-top:1px solid var(--hairline);padding:8px 6px calc(6px + min(env(safe-area-inset-bottom, 0px), 40px))}
+  .botnav{position:fixed;left:0;right:0;bottom:0;z-index:18;max-width:var(--shell);margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--ground);border-top:1px solid var(--hairline);padding:8px 6px calc(6px + min(env(safe-area-inset-bottom, 0px), 40px))}
   .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;color:var(--ink-faint);transition:color .15s ease}
   .nav-item:hover{color:var(--ink-dim)}
   .nav-item.active{color:var(--ink)}
@@ -4006,54 +4006,10 @@
       .catch(function(){});
   })();
 
-  /* iOS can restore a reload with a stale, too-short viewport, which leaves the
-     fixed tab bar floating above the real bottom edge until something forces a
-     re-layout. Three defenses, none able to LIFT the bar:
-     1. a scroll nudge on load/pageshow makes Safari recompute its viewports;
-     2. if the visual viewport proves taller than the layout one, the bar is
-        LOWERED by the difference (never raised — keyboards produce the
-        opposite sign and must keep the default);
-     3. the safe-area padding is clamped in CSS above. */
-  (function pinBotnav(){
-    function nudge(){
-      try{
-        var y=window.scrollY||document.documentElement.scrollTop||0;
-        window.scrollTo(0,y+1); window.scrollTo(0,y);
-      }catch(e){}
-    }
-    /* Every viewport-number theory failed, so this measures the BAR ITSELF.
-       Wherever its rendered bottom edge lands, nudge it back to the visible
-       bottom: sunk below (labels clipped) pulls up, floating above pushes
-       down. Cause-agnostic, and it can self-correct a mistake of its own. */
-    function sync(){
-      var nav=document.getElementById("botnav");
-      /* position:fixed makes offsetParent null, so measure boxes instead */
-      if(!nav||!nav.getClientRects().length) return;
-      var el=document.activeElement;
-      if(el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName||"")) return;   /* keyboard open */
-      var prev=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--vvoff"))||0;
-      /* gap > 0: the bar sits ABOVE the bottom edge, so lower `bottom`.
-         gap < 0: it hangs BELOW (labels clipped), so raise `bottom`. */
-      var gap=Math.round(window.innerHeight-nav.getBoundingClientRect().bottom);
-      if(Math.abs(gap)<2) return;                    /* already sitting right */
-      var next=prev-gap;
-      if(next<-260) next=-260;
-      if(next>260) next=260;
-      document.documentElement.style.setProperty("--vvoff",next+"px");
-    }
-    function both(){ nudge(); sync(); }
-    if(window.visualViewport){
-      visualViewport.addEventListener("resize",sync);
-      visualViewport.addEventListener("scroll",sync);
-    }
-    /* iOS settles its viewport late and in stages after a reload, so re-check
-       on a short ladder rather than once */
-    function ladder(){ [60,250,600,1200,2500].forEach(function(ms){ setTimeout(ms<200?both:sync,ms); }); }
-    addEventListener("pageshow",ladder);
-    addEventListener("orientationchange",function(){ setTimeout(both,150); setTimeout(sync,600); });
-    addEventListener("load",ladder);
-    ladder();
-  })();
+  /* (The viewport-correction watcher was removed: on iOS it could lift the
+     tab bar during rubber-band scrolling and its scroll nudge caused a visible
+     flicker on open. The bar is plain bottom:0 again.) */
+
 
   /* Refresh: re-check the service worker for a new app version, then reload.
      The reload itself re-syncs the cookbook and refetches Explore, so one tap
@@ -4068,12 +4024,12 @@
       var vv=window.visualViewport||{};
       var nav=document.querySelector(".botnav");
       var pb=nav?getComputedStyle(nav).paddingBottom:"?";
-      var vo=getComputedStyle(document.documentElement).getPropertyValue("--vvoff").trim()||"0px";
+      var vo=Math.round(window.scrollY||0)+"/"+Math.round(document.documentElement.scrollHeight||0);
       var sa=false; try{ sa=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches; }catch(e){}
       var r=nav?nav.getBoundingClientRect():{top:0,bottom:0,height:0};
       var lbl=nav?nav.querySelector(".lbl"):null, lr=lbl?lbl.getBoundingClientRect():{bottom:0,height:0};
       toast("v"+(window.__APPVER||"dev")+" · ih "+window.innerHeight+" · vv "+Math.round(vv.height||0)+"/"+Math.round(vv.offsetTop||0)+
-        " · sa "+(sa?1:0)+" · pb "+pb+" · off "+vo+
+        " · sa "+(sa?1:0)+" · pb "+pb+" · scroll "+vo+
         " · navB "+Math.round(r.bottom)+" h"+Math.round(r.height)+
         " · lblB "+Math.round(lr.bottom)+" h"+Math.round(lr.height));
     }
