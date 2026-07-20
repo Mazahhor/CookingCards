@@ -93,8 +93,11 @@ header.site{
 .nav .name{font-family:"Fraunces",serif;font-weight:700;font-size:20px;letter-spacing:-.01em;color:var(--ink)}
 .nav .name:hover{text-decoration:none}
 .nav .links{margin-left:auto;display:flex;align-items:center;gap:22px}
-.nav .links a{color:var(--ink-2);font-weight:500;font-size:15px}
-.nav .links a:hover{color:var(--ink);text-decoration:none}
+/* :not(.btn) — this rule outranks .btn on specificity, and without the guard the
+   header's "Open the app" pill rendered muted dark text while the identical hero
+   button rendered white. Same button, two colors. */
+.nav .links a:not(.btn){color:var(--ink-2);font-weight:500;font-size:15px}
+.nav .links a:not(.btn):hover{color:var(--ink);text-decoration:none}
 .nav .links a.on{color:var(--brass-ink);font-weight:600}
 /* nav: “I can’t cook” / Install / Open the app stay visible; everything else
    lives in a dropdown panel behind the burger, at every width */
@@ -821,11 +824,12 @@ article.post .rmeta b{color:var(--ink)}
 @media (max-width:620px){
   .wrap{padding:0 16px}
   .nav{gap:7px}
-  .nav .mark{width:30px;height:30px}
-  .nav .name{font-size:15.5px;white-space:nowrap}
+  /* the brand is the identity — it should outweigh a nav button, not sit under it */
+  .nav .mark{width:36px;height:36px}
+  .nav .name{font-size:18px;white-space:nowrap}
   .nav .links{gap:6px}
   .btn{padding:9px 15px;font-size:14px}
-  .nav .btn{padding:9px 12px;font-size:13.5px}
+  .nav .btn{padding:8px 13px;font-size:13px}
   .hero{padding:48px 0 24px}
   .hero .sub{font-size:17px}
   .feats,.how,.postgrid,.install .cols{grid-template-columns:1fr}
