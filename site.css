@@ -311,11 +311,16 @@ section.band{padding:88px 0}
   78%{stroke-dashoffset:0;opacity:1}
   90%,100%{stroke-dashoffset:0;opacity:0}
 }
-.fanL,.fanR{transform-box:fill-box;transform-origin:center bottom}
-.fanL{animation:fanl 5.4s ease-in-out infinite}
-.fanR{animation:fanr 5.4s ease-in-out infinite}
-@keyframes fanl{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(-12deg)}}
-@keyframes fanr{0%,100%{transform:rotate(5deg)}50%{transform:rotate(11deg)}}
+/* "Steps appear": three steps arriving one after another. Was two fanned
+   card shapes, which contradicted the heading once the wording moved to steps. */
+.stepA,.stepB,.stepC{transform-box:fill-box;transform-origin:left center}
+.stepA{animation:stepin 4.2s ease-in-out infinite}
+.stepB{animation:stepin 4.2s ease-in-out .35s infinite}
+.stepC{animation:stepin 4.2s ease-in-out .7s infinite}
+@keyframes stepin{
+  0%,55%,100%{opacity:1;transform:translateX(0)}
+  20%{opacity:.35;transform:translateX(-3px)}
+}
 
 /* community band */
 .community{background:var(--card);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
@@ -384,12 +389,24 @@ section.band{padding:88px 0}
   .dishgrid{grid-template-columns:1fr 1fr;grid-auto-rows:210px}
   .dish.big{grid-column:span 2}
 }
+/* the gallery collapses to the first two dishes on phones only: eleven
+   full-width photos is a long scroll on a small screen. Desktop and tablet
+   keep the whole grid, so this button never appears there. */
+.dishmore{display:none}
 @media (max-width:620px){
   .dishgrid{grid-template-columns:1fr;grid-auto-rows:auto;gap:16px}
   .dish.big,.dish.wide{grid-column:span 1;grid-row:span 1}
   .dish{height:235px}
   .dish.big{height:300px}
   .dish.big .dlabel b{font-size:23px}
+  .dishgrid:not(.all) .dish-more{display:none}
+  .dishmore{
+    display:block;width:100%;margin-top:16px;padding:14px 20px;
+    background:var(--card);border:1px solid var(--hairline);border-radius:999px;
+    font-family:inherit;font-size:15px;font-weight:600;color:var(--brass-ink);
+    cursor:pointer;
+  }
+  .dishmore:active{background:var(--paper-2)}
 }
 
 /* ---------- interactive recipe deck (blog embed) ---------- */
@@ -621,7 +638,7 @@ article.post .rmeta b{color:var(--ink)}
 @media (prefers-reduced-motion:reduce){
   .jart::before,.jstop:not(:last-child)::after,.jsteam,
   .jrock,.jyolk,.jpot,.jhat,.jspark,
-  .spark,.fan,.msteam,.feat .ic svg,.art-paste svg,.wline,.fanL,.fanR,.pubcard,
+  .spark,.fan,.msteam,.feat .ic svg,.art-paste svg,.wline,.stepA,.stepB,.stepC,.pubcard,
   .boilart .lid,.boilart .bub,.boilart .drip{animation:none}
 }
 @media (max-width:860px){

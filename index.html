@@ -22,7 +22,7 @@
 <link rel="apple-touch-icon" href="/app/icons/icon-180.png">
 <link rel="preload" href="/assets/fonts/fraunces-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/site.css?v=f60e35b0">
+<link rel="stylesheet" href="/site.css?v=00c5639f">
 <link rel="alternate" type="application/rss+xml" title="The Cooking Steps blog" href="/feed.xml">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Cooking Steps","url":"https://cookingsteps.app/app/","applicationCategory":"LifestyleApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"An interactive cookbook that turns any recipe into swipeable steps with timers, a smart shopping list and cross-device sync."}
@@ -140,7 +140,7 @@
       <h2>Food first. Obviously.</h2>
       <p>Real recipes living in the app right now, steps, timers, shopping list and all. One of them started the whole thing.</p>
     </div>
-    <div class="dishgrid">
+    <div class="dishgrid" id="dishGrid">
       <a class="dish big" href="/blog/tandoori-chicken/">
         <img src="/assets/tandoori.jpg" alt="Tandoori chicken drumsticks, steaming on a dark plate">
         <span class="dlabel"><b>Tandoori Chicken (Air Fryer)</b><span>The one that started it all. Cook it step by step ›</span></span>
@@ -149,43 +149,44 @@
         <img src="/assets/chicken-curry.jpg" alt="Chicken curry with rice and naan">
         <span class="dlabel"><b>Chicken Curry</b><span>In the app ›</span></span>
       </a>
-      <a class="dish" href="/app/">
+      <a class="dish dish-more" href="/app/">
         <img src="/assets/prawn-curry.jpg" alt="Prawn curry in a kadai">
         <span class="dlabel"><b>Prawn Curry</b><span>In the app ›</span></span>
       </a>
-      <a class="dish" href="/app/">
+      <a class="dish dish-more" href="/app/">
         <img src="/assets/chicken-wings.jpg" alt="Indian style chicken wings with masala glaze">
         <span class="dlabel"><b>Chicken Wings (Indian Style)</b><span>In the app ›</span></span>
       </a>
-      <a class="dish" href="/app/">
+      <a class="dish dish-more" href="/app/">
         <img src="/assets/chipotle-tenders.jpg" alt="Cornflake-crusted chicken tenders with chipotle honey dip">
         <span class="dlabel"><b>Chipotle Honey Tenders</b><span>In the app ›</span></span>
       </a>
-      <a class="dish" href="/app/">
+      <a class="dish dish-more" href="/app/">
         <img src="/assets/cheesy-tandoori.jpg" alt="Tandoori chicken under melted cheese in a skillet">
         <span class="dlabel"><b>Cheesy Honey Tandoori</b><span>In the app ›</span></span>
       </a>
-      <a class="dish wide" href="/app/">
+      <a class="dish wide dish-more" href="/app/">
         <img src="/assets/fries.jpg" alt="Golden air fryer french fries with ketchup">
         <span class="dlabel"><b>Air Fryer French Fries</b><span>In the app ›</span></span>
       </a>
-      <a class="dish" href="/app/">
+      <a class="dish dish-more" href="/app/">
         <img src="/assets/dal-fry.jpg" alt="Yellow dal tadka with sizzling tempering">
         <span class="dlabel"><b>Dal Fry (Dal Tadka)</b><span>In the app ›</span></span>
       </a>
-      <a class="dish" href="/app/">
+      <a class="dish dish-more" href="/app/">
         <img src="/assets/choc-cake.jpg" alt="Chocolate crunch cake squares">
         <span class="dlabel"><b>Crunch Chocolate Cake</b><span>In the app ›</span></span>
       </a>
-      <a class="dish" href="/app/">
+      <a class="dish dish-more" href="/app/">
         <img src="/assets/choc-mousse.jpg" alt="Chocolate mousse in a glass jar dusted with cocoa">
         <span class="dlabel"><b>Protein Chocolate Mousse</b><span>In the app ›</span></span>
       </a>
-      <a class="dish" href="/app/">
+      <a class="dish dish-more" href="/app/">
         <img src="/assets/salmon-salad.jpg" alt="Pepper-crusted salmon on a salad in a red bowl">
         <span class="dlabel"><b>Salmon Salad Bowl</b><span>In the app ›</span></span>
       </a>
     </div>
+    <button class="dishmore" id="dishMore" aria-expanded="false" aria-controls="dishGrid">See more recipes ›</button>
   </div>
 </section>
 
@@ -255,7 +256,7 @@
         <p>Drop in the whole recipe text. The app finds the servings, times, ingredients and steps on its own.</p>
       </div>
       <div class="step">
-        <div class="art"><svg viewBox="0 0 64 64"><rect class="fanL" x="12" y="14" width="26" height="36" rx="4"/><rect class="fanR" x="26" y="14" width="26" height="36" rx="4"/><path class="jspark" d="M50 8l1.2 3.8L55 13l-3.8 1.2L50 18l-1.2-3.8L45 13l3.8-1.2z" fill="currentColor" stroke="none"/></svg></div>
+        <div class="art"><svg viewBox="0 0 64 64"><g class="stepA"><circle cx="14" cy="20" r="5"/><path d="M25 20h26"/></g><g class="stepB"><circle cx="14" cy="34" r="5"/><path d="M25 34h22"/></g><g class="stepC"><circle cx="14" cy="48" r="5"/><path d="M25 48h17"/></g><path class="jspark" d="M54 8l1.2 3.8L59 13l-3.8 1.2L54 18l-1.2-3.8L49 13l3.8-1.2z" fill="currentColor" stroke="none"/></svg></div>
         <h3>Steps appear</h3>
         <p>One step per screen, with its own ingredients and a timer already attached. Neat as a well-kept recipe box.</p>
       </div>
@@ -398,6 +399,16 @@
 </footer>
 
 <script>
+/* ---- dish gallery: expand the rest (phone only, button is hidden elsewhere) ---- */
+(function(){
+  var btn=document.getElementById("dishMore"),grid=document.getElementById("dishGrid");
+  if(!btn||!grid)return;
+  btn.addEventListener("click",function(){
+    var open=grid.classList.toggle("all");
+    btn.setAttribute("aria-expanded",open?"true":"false");
+    btn.textContent=open?"Show fewer ‹":"See more recipes ›";
+  });
+})();
 /* ---- live phone demo: a tiny real step-player ---- */
 (function(){
   var DEMO=[
