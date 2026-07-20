@@ -118,18 +118,18 @@ header.site.menu-open .navset .theme-btn{
 }
 header.site.menu-open .navset .theme-btn:hover{background:var(--card)}
 header.site.menu-open .navset .tb-label{display:block;font-size:16.5px;color:var(--ink-2);font-weight:500}
+/* “I can’t cook” + Install ride inside the burger panel on phones only */
+@media (min-width:761px){
+  header.site.menu-open .navset .m-only{display:none}
+}
 @media (max-width:760px){
   .nav-burger{width:34px;height:34px}
   .nav{gap:8px}
   .nav .links{gap:10px}
   .nav .name{font-size:16px}
-  .nav .navtop{font-size:13.5px}
+  .nav .navtop{display:none}
   .nav .btn{padding:9px 12px;font-size:13.5px}
   header.site.menu-open .navset{left:14px;right:14px}
-}
-@media (max-width:560px){
-  .nav .name{display:none}
-  .nav .links{gap:8px}
 }
 .btn{
   display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
@@ -531,6 +531,12 @@ article.post .rmeta b{color:var(--ink)}
 .prose a{text-decoration:underline;text-underline-offset:3px}
 
 /* ---------- about page ---------- */
+/* one voice, one size — no oversized lede paragraph on the About story */
+.post.about .prose>p:first-of-type{font-size:17.5px;color:var(--ink-2);line-height:inherit}
+@media (max-width:760px){
+  .post.about .prose p{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+  .post.about .prose .about-cta{text-align:left}
+}
 .about-hero{margin:26px 0 4px}
 .about-hero img{
   display:block;width:100%;height:auto;border-radius:22px;
