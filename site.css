@@ -117,6 +117,13 @@ header.site{
   }
   header.site.menu-open .navset a{display:block;padding:13px 14px;font-size:16.5px;border-radius:11px}
   header.site.menu-open .navset a:hover{background:var(--card);text-decoration:none}
+  header.site.menu-open .navset .theme-btn{
+    width:100%;height:auto;display:flex;align-items:center;gap:12px;
+    padding:13px 14px;border-radius:11px;justify-content:flex-start;
+    border-top:1px solid var(--hairline);border-radius:0 0 11px 11px;margin-top:4px;padding-top:15px;
+  }
+  header.site.menu-open .navset .theme-btn:hover{background:var(--card)}
+  header.site.menu-open .navset .tb-label{display:block;font-size:16.5px;color:var(--ink-2);font-weight:500}
 }
 .btn{
   display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
@@ -129,6 +136,7 @@ header.site{
 .btn.ghost{background:transparent;color:var(--ink-2);box-shadow:inset 0 0 0 1.5px var(--hairline)}
 .btn.ghost:hover{background:var(--card);color:var(--ink);transform:translateY(-1px)}
 .theme-btn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2)}
+.tb-label{display:none}
 .theme-btn:hover{background:var(--card);color:var(--ink)}
 .theme-btn svg{width:19px;height:19px}
 .theme-btn .moon{display:none}
