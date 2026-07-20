@@ -96,34 +96,40 @@ header.site{
 .nav .links a{color:var(--ink-2);font-weight:500;font-size:15px}
 .nav .links a:hover{color:var(--ink);text-decoration:none}
 .nav .links a.on{color:var(--brass-ink);font-weight:600}
-/* nav link group: inline on desktop, dropdown panel behind the burger on phones */
-.navset{display:contents}
-.nav-burger{display:none;width:38px;height:38px;border-radius:10px;place-items:center;color:var(--ink-2)}
+/* nav: “I can’t cook” / Install / Open the app stay visible; everything else
+   lives in a dropdown panel behind the burger, at every width */
+.navset{display:none}
+.nav .navtop{white-space:nowrap}
+.nav-burger{display:grid;width:38px;height:38px;border-radius:10px;place-items:center;color:var(--ink-2)}
 .nav-burger:hover{background:var(--card);color:var(--ink)}
 .nav-burger svg{width:22px;height:22px}
+header.site.menu-open .navset{
+  display:flex;flex-direction:column;gap:2px;
+  position:absolute;top:70px;right:24px;min-width:240px;
+  background:var(--paper);border:1px solid var(--hairline);border-radius:16px;
+  box-shadow:0 20px 46px var(--shadow);padding:10px;z-index:60;
+}
+header.site.menu-open .navset a{display:block;padding:13px 14px;font-size:16.5px;border-radius:11px}
+header.site.menu-open .navset a:hover{background:var(--card);text-decoration:none}
+header.site.menu-open .navset .theme-btn{
+  width:100%;height:auto;display:flex;align-items:center;gap:12px;
+  padding:13px 14px;justify-content:flex-start;
+  border-top:1px solid var(--hairline);border-radius:0 0 11px 11px;margin-top:4px;padding-top:15px;
+}
+header.site.menu-open .navset .theme-btn:hover{background:var(--card)}
+header.site.menu-open .navset .tb-label{display:block;font-size:16.5px;color:var(--ink-2);font-weight:500}
 @media (max-width:760px){
-  .nav-burger{display:grid;width:34px;height:34px}
-  .nav .theme-btn{width:34px;height:34px}
+  .nav-burger{width:34px;height:34px}
   .nav{gap:8px}
-  .nav .links{gap:6px}
+  .nav .links{gap:10px}
   .nav .name{font-size:16px}
+  .nav .navtop{font-size:13.5px}
   .nav .btn{padding:9px 12px;font-size:13.5px}
-  .navset{display:none}
-  header.site.menu-open .navset{
-    display:flex;flex-direction:column;gap:2px;
-    position:absolute;top:70px;left:14px;right:14px;
-    background:var(--paper);border:1px solid var(--hairline);border-radius:16px;
-    box-shadow:0 20px 46px var(--shadow);padding:10px;z-index:60;
-  }
-  header.site.menu-open .navset a{display:block;padding:13px 14px;font-size:16.5px;border-radius:11px}
-  header.site.menu-open .navset a:hover{background:var(--card);text-decoration:none}
-  header.site.menu-open .navset .theme-btn{
-    width:100%;height:auto;display:flex;align-items:center;gap:12px;
-    padding:13px 14px;border-radius:11px;justify-content:flex-start;
-    border-top:1px solid var(--hairline);border-radius:0 0 11px 11px;margin-top:4px;padding-top:15px;
-  }
-  header.site.menu-open .navset .theme-btn:hover{background:var(--card)}
-  header.site.menu-open .navset .tb-label{display:block;font-size:16.5px;color:var(--ink-2);font-weight:500}
+  header.site.menu-open .navset{left:14px;right:14px}
+}
+@media (max-width:560px){
+  .nav .name{display:none}
+  .nav .links{gap:8px}
 }
 .btn{
   display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
@@ -523,6 +529,15 @@ article.post .rmeta b{color:var(--ink)}
 .prose hr{border:0;border-top:1px dashed var(--brass-2);margin:36px auto;width:120px}
 .prose strong{color:var(--ink)}
 .prose a{text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- about page ---------- */
+.about-hero{margin:26px 0 4px}
+.about-hero img{
+  display:block;width:100%;height:auto;border-radius:22px;
+  border:1px solid var(--hairline);box-shadow:0 18px 40px var(--shadow);
+}
+.about-cta{margin-top:30px}
+.prose .about-cta a{text-decoration:none}
 .cookband{
   max-width:700px;margin:20px auto 90px;padding:0 24px;
 }
