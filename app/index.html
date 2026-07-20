@@ -175,13 +175,6 @@
   .cards{display:flex;flex-direction:column;gap:11px;flex:1}
   /* Explore rows share .rcard but sit directly in .lib, which has no gap of its own */
   #exploreList{gap:11px}
-  .tip-card{display:flex;align-items:flex-start;gap:11px;background:var(--surface);border-radius:16px;padding:13px 14px;margin-bottom:11px}
-  .tip-ic{font-size:20px;line-height:1.2}
-  .tip-card b{display:block;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--saffron);margin-bottom:3px}
-  .tip-card .tip-t{display:block;font-size:14.5px;color:var(--text-body);line-height:1.5}
-  .tip-x{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:var(--ink-faint)}
-  .tip-x:hover{background:var(--surface-2);color:var(--ink)}
-  .tip-x svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
   .rcard{
     display:flex;align-items:center;width:100%;overflow:hidden;
     background:var(--surface);border-radius:16px;
@@ -718,7 +711,6 @@
     </label>
     <button class="timer-strip" id="timerStrip" hidden></button>
     <div class="filter-bar" id="filterBar"></div>
-    <div id="tipCard" hidden></div>
     <div class="cards" id="cardList"></div>
   </section>
   <div class="reorder-bar" id="reorderBar"><span>Drag the recipes to reorder</span><button class="btn-primary" id="btnReorderDone">Done</button></div>
@@ -2963,21 +2955,48 @@
      never repeats within a year, and everyone sees the same tip on the same day. */
   function dayOfYear(){ var n=new Date(), s=new Date(n.getFullYear(),0,0); return Math.floor((n-s)/864e5); }
   function tipForOffset(off){ var L=TIPS365.length; return TIPS365[(((dayOfYear()-1+off)%L)+L)%L]; }
-  function renderTipCard(){
-    var el=$("#tipCard"); if(!el) return;
-    var today=new Date().toDateString(), dis=null;
-    try{ dis=localStorage.getItem("kitchencards.tipdismiss.v1"); }catch(e){}
-    if(dis===today){ el.hidden=true; return; }
-    el.hidden=false;
-    el.innerHTML='<div class="tip-card"><span class="tip-ic">💡</span>'+
-      '<div style="flex:1;min-width:0"><b>Tip of the day</b><span class="tip-t">'+esc(tipForOffset(0))+'</span></div>'+
-      '<button class="tip-x" aria-label="Hide the tip for today"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>';
-    el.querySelector(".tip-x").onclick=function(){
-      try{ localStorage.setItem("kitchencards.tipdismiss.v1",today); }catch(e){}
-      el.hidden=true;
-    };
+  /* The tip arrives as a system NOTIFICATION (user-directed), not an in-app
+     card: once per day, on the first open of the day, if permission allows.
+     iOS shows notifications only for the installed (Home Screen) app and only
+     via the service worker's showNotification — new Notification() throws there. */
+  function showTipNotification(){
+    try{
+      if(!("Notification" in window)||Notification.permission!=="granted") return false;
+      var title="Tip of the day 💡", body=tipForOffset(0);
+      if(navigator.serviceWorker&&navigator.serviceWorker.ready){
+        navigator.serviceWorker.ready.then(function(reg){
+          if(reg&&reg.showNotification) reg.showNotification(title,{body:body,tag:"cs-tip",icon:"/app/icons/icon-192.png",badge:"/app/icons/icon-192.png"});
+          else try{ new Notification(title,{body:body,icon:"/app/icons/icon-192.png"}); }catch(e){}
+        }).catch(function(){});
+      } else {
+        try{ new Notification(title,{body:body}); }catch(e){ return false; }
+      }
+      return true;
+    }catch(e){ return false; }
   }
-  renderTipCard();
+  function tipNotifyDaily(){
+    var today=new Date().toDateString(), last=null;
+    try{ last=localStorage.getItem("kitchencards.tipnotified.v1"); }catch(e){}
+    if(last===today) return;
+    if(showTipNotification()){ try{ localStorage.setItem("kitchencards.tipnotified.v1",today); }catch(e){} }
+  }
+  tipNotifyDaily();
+  /* permission still undecided: ask once, on the user's first tap (browsers
+     demand a gesture), and deliver today's tip immediately if granted */
+  (function askTipPermission(){
+    try{
+      if(!("Notification" in window)||Notification.permission!=="default") return;
+      var asked=null; try{ asked=localStorage.getItem("kitchencards.tipnotifask.v1"); }catch(e){}
+      if(asked) return;
+      document.addEventListener("click",function once(){
+        document.removeEventListener("click",once,true);
+        try{ localStorage.setItem("kitchencards.tipnotifask.v1","1"); }catch(e){}
+        try{
+          Notification.requestPermission().then(function(p){ if(p==="granted") tipNotifyDaily(); }).catch(function(){});
+        }catch(e){}
+      },true);
+    }catch(e){}
+  })();
   /* Native builds get real daily notifications: schedule the next 30 tips at 9am
      via Capacitor LocalNotifications, re-sliding the window on every boot.
      In a plain browser or PWA this is a silent no-op (no push server involved). */
@@ -3539,7 +3558,7 @@
       });
   }
   /* sync on returning to the app, and once on boot */
-  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible"){ syncSoon(); renderTipCard(); } });
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible"){ syncSoon(); tipNotifyDaily(); } });
 
   /* ================= publish / explore / profiles =================
      `public_recipes` is world-readable, so Explore works signed OUT — someone who just
