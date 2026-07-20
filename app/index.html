@@ -556,7 +556,7 @@
   body.reordering .botnav{display:none}
   /* above Explore (16) so the tab bar stays reachable, below the player (20)
      which deliberately takes over the whole screen while cooking */
-  .botnav{position:fixed;left:0;right:0;bottom:0;z-index:18;max-width:var(--shell);margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--ground);border-top:1px solid var(--hairline);padding:8px 6px calc(6px + env(safe-area-inset-bottom))}
+  .botnav{position:fixed;left:0;right:0;bottom:var(--vvoff,0px);z-index:18;max-width:var(--shell);margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--ground);border-top:1px solid var(--hairline);padding:8px 6px calc(6px + env(safe-area-inset-bottom))}
   .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;color:var(--ink-faint);transition:color .15s ease}
   .nav-item:hover{color:var(--ink-dim)}
   .nav-item.active{color:var(--ink)}
@@ -3905,6 +3905,25 @@
       .then(function(){ if(justSignedIn){ toast("Signed in"); openAccount(); } return syncCookbook(); })
       .then(function(){ return loadPublishedIds(); })
       .catch(function(){});
+  })();
+
+  /* iOS Safari can restore a reload with the layout and visual viewports out of
+     sync, leaving the fixed tab bar floating above (or sunk below) the real
+     bottom edge until the next scroll. Measure the mismatch and pin the bar to
+     the visual bottom; large offsets mean the keyboard, which keeps default. */
+  (function pinBotnav(){
+    var vv=window.visualViewport; if(!vv) return;
+    function sync(){
+      var el=document.activeElement, kb=el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName||"");
+      var off=Math.round(window.innerHeight-vv.height-vv.offsetTop);
+      if(kb||Math.abs(off)<2||Math.abs(off)>220) off=0;
+      document.documentElement.style.setProperty("--vvoff",off+"px");
+    }
+    vv.addEventListener("resize",sync);
+    vv.addEventListener("scroll",sync);
+    addEventListener("pageshow",function(){ setTimeout(sync,80); setTimeout(sync,400); });
+    addEventListener("orientationchange",function(){ setTimeout(sync,150); });
+    setTimeout(sync,80); setTimeout(sync,400);
   })();
 
   /* Refresh: re-check the service worker for a new app version, then reload.
