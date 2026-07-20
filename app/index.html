@@ -652,6 +652,8 @@
   .wel-or{display:flex;align-items:center;gap:10px;color:var(--ink-faint);font-size:12px;margin:4px 0}
   .wel-or::before,.wel-or::after{content:"";flex:1;border-top:1px solid var(--hairline)}
   .wel-note{font-size:12.5px;color:var(--ink-faint);text-align:center;line-height:1.5;margin-top:10px}
+  .wel-forgot{font-size:13px;color:var(--ink-dim);text-align:center;padding:2px 0 6px;text-decoration:underline;text-underline-offset:3px}
+  .wel-forgot:disabled{opacity:.6;text-decoration:none}
   .toast.on{opacity:1;transform:translate(-50%,0)}
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.001ms!important;transition-duration:.05ms!important}
@@ -3591,6 +3593,7 @@
       '<input class="in" type="email" id="welEmail" placeholder="you@example.com" autocomplete="email" aria-label="Email">'+
       '<input class="in" type="password" id="welPass" placeholder="Password (6+ characters)" autocomplete="current-password" aria-label="Password">'+
       '<button class="btn-primary" id="welIn">Sign in</button>'+
+      '<button class="wel-forgot" id="welForgot">Forgot your password?</button>'+
       '<button class="btn-quiet" id="welUp">Create an account</button>'+
       '<div class="wel-or"><span>or</span></div>'+
       '<button class="btn-quiet" id="welLink">Email me a sign-in link instead</button>'+
@@ -3639,6 +3642,21 @@
         var m=(err.message||"").toLowerCase();
         toast(/rate limit/.test(m)?"Too many emails just now — use a password instead":(err.message||"Could not send the link"));
         b.disabled=false; b.textContent="Email me a sign-in link instead";
+      });
+    };
+    /* forgot password = magic link in, then set a new password from the Account panel */
+    $("#welForgot").onclick=function(){
+      var em=$("#welEmail").value.trim();
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast("Type your email above first"); $("#welEmail").focus(); return; }
+      var b=this; b.disabled=true; b.textContent="Sending a rescue link…";
+      sendMagicLink(em).then(function(){
+        el.innerHTML='<p class="wel-note" style="font-size:14px;color:var(--ink-dim)"><b style="color:var(--ink)">Check your email.</b><br><br>'+
+          'We sent a sign-in link to '+esc(em)+'. Open it and you are back in — no password needed.<br><br>'+
+          'Then set a new password under <b>Profile → Account → Set a password</b> so next time you can just type it.</p>';
+      }).catch(function(err){
+        var m=(err.message||"").toLowerCase();
+        toast(/rate limit/.test(m)?"Too many emails just now — try again in an hour":(err.message||"Could not send the link"));
+        b.disabled=false; b.textContent="Forgot your password?";
       });
     };
   }
