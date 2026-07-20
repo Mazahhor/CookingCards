@@ -175,6 +175,18 @@
   .cards{display:flex;flex-direction:column;gap:11px;flex:1}
   /* Explore rows share .rcard but sit directly in .lib, which has no gap of its own */
   #exploreList{gap:11px}
+  /* notification centre rows (behind the bell) */
+  .nt-row{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;background:var(--surface);border-radius:14px;padding:13px 14px}
+  .nt-row.static{cursor:default}
+  .nt-ic{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--surface-2);font-size:17px}
+  .nt-ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+  .nt-ic.timer{background:var(--saffron);color:#1a1206}
+  .nt-ic.bell{color:var(--saffron)}
+  .nt-ic.off{color:var(--ink-faint)}
+  .nt-txt{flex:1;min-width:0}
+  .nt-txt b{display:block;font-size:15px;margin-bottom:2px}
+  .nt-txt span{display:block;font-size:13.5px;color:var(--ink-dim);line-height:1.5}
+  .nt-empty{padding:18px 4px;text-align:center;color:var(--ink-faint);font-size:13.5px;line-height:1.6}
   .rcard{
     display:flex;align-items:center;width:100%;overflow:hidden;
     background:var(--surface);border-radius:16px;
@@ -948,6 +960,15 @@
 </section>
 
 <!-- TRASH / RECENTLY DELETED SHEET -->
+<section class="sheet" id="notifSheet" role="dialog" aria-modal="true" aria-labelledby="notifTitle" aria-hidden="true">
+  <div class="sheet-grip"></div>
+  <div class="sheet-head">
+    <h2 id="notifTitle">Notifications</h2>
+  </div>
+  <div class="sheet-body" id="notifBody"></div>
+  <div class="sheet-foot"><button class="btn-quiet" id="btnNotifClose" style="flex:1">Done</button></div>
+</section>
+
 <section class="sheet" id="trashSheet" role="dialog" aria-modal="true" aria-labelledby="trashTitle" aria-hidden="true">
   <div class="sheet-grip"></div>
   <div class="sheet-head">
@@ -1053,7 +1074,7 @@
      one Indian, one American, one Italian, so the app doesn't assume one kitchen.
      Unlike the personal SEED recipes below, these DO ship to every fresh install. */
   var BEGINNER=[{
-    id:"seed-grilled-cheese", emoji:"🧀", title:"Grilled Cheese",
+    id:"seed-grilled-cheese", photo:"/assets/grilled-cheese.jpg", emoji:"🧀", title:"Grilled Cheese",
     servings:"1", prepMin:2, cookMin:8, category:"Mains",
     ingredients:["2 slices sandwich bread","2 slices cheese (American or cheddar)","1 tbsp butter, softened"],
     steps:[
@@ -1063,7 +1084,7 @@
       {heading:"Rest, cut, admire", body:"Give it one minute so the cheese settles instead of escaping.\nCut diagonally. That part is not optional, it genuinely tastes better.", items:[], timer:60}
     ]
   },{
-    id:"seed-anda-bhurji", emoji:"🍳", title:"Anda Bhurji (Masala Scrambled Eggs)",
+    id:"seed-anda-bhurji", photo:"/assets/anda-bhurji.jpg", emoji:"🍳", title:"Anda Bhurji (Masala Scrambled Eggs)",
     servings:"1-2", prepMin:5, cookMin:10, category:"Breakfast",
     ingredients:["3 eggs","1 small onion","1 small tomato","1 green chilli (optional)","¼ tsp turmeric","½ tsp salt","2 tbsp oil or butter","Fresh coriander, a little (optional)","2 slices bread or 2 rotis, to serve"],
     steps:[
@@ -1074,7 +1095,7 @@
       {heading:"Serve hot", body:"Scatter the coriander on top.\nPile onto toast or scoop up with roti. Breakfast, done properly.", items:["Fresh coriander, a little","2 slices bread or 2 rotis"], timer:0}
     ]
   },{
-    id:"seed-aglio-olio", emoji:"🍝", title:"Spaghetti Aglio e Olio",
+    id:"seed-aglio-olio", photo:"/assets/aglio-olio.jpg", emoji:"🍝", title:"Spaghetti Aglio e Olio",
     servings:"1-2", prepMin:5, cookMin:15, category:"Mains",
     ingredients:["4 oz spaghetti (about a fistful)","4 garlic cloves","4 tbsp olive oil","¼ tsp chilli flakes","1 tsp salt (for the pasta water)","Fresh parsley, a little (optional)","Grated parmesan (optional)"],
     steps:[
@@ -1090,7 +1111,7 @@
      it deliberately. Adding one here shows it to everyone in Explore on the next
      deploy without pushing it into a single existing cookbook. */
   var HOUSE=[{
-    id:"seed-spinach-dal", emoji:"🥘", title:"Spinach Dal",
+    id:"seed-spinach-dal", photo:"/assets/spinach-dal.jpg", emoji:"🥘", title:"Spinach Dal",
     servings:"2-3", prepMin:5, cookMin:30, category:"Sides",
     ingredients:["16 tbsp dal (toor/pappu)","½ big onion","3 green chillies","¼ kg palak (spinach)","2 tbsp oil","1 tsp mustard & cumin seeds (jeera)","1 pinch methi (fenugreek) seeds","3 red chillies","3 garlic cloves","6 curry leaves","1 tsp ginger-garlic paste","¼ tsp turmeric","¼ tsp hing (asafoetida)","1 tsp salt","½ tsp red chilli powder","1 tsp dhaniya (coriander) powder","1 large garlic clove (for spice paste)","2 tsp tamarind paste (1 tsp + 1 tsp)","Fresh coriander, a handful"],
     steps:[
@@ -1101,7 +1122,7 @@
       {heading:"Combine & serve", body:"Add the mashed dal to the tadka, close the lid a minute.\nStir in the spice paste, then the tamarind and coriander.\nServe hot.", items:["1 tsp tamarind paste","Fresh coriander"], timer:0}
     ]
   },{
-    id:"seed-tandoori", emoji:"ic:drumstick", title:"Tandoori Chicken (Air Fryer)",
+    id:"seed-tandoori", photo:"/assets/tandoori.jpg", emoji:"ic:drumstick", title:"Tandoori Chicken (Air Fryer)",
     servings:"4", prepMin:15, cookMin:20, category:"Mains",
     source:"theloveofspice.com",
     ingredients:["2 lb chicken drumsticks","2 tbsp lemon juice (first marinade)","1 tsp salt (first marinade)","8 tbsp yogurt","2 tbsp ginger-garlic paste","1½ tbsp Kashmiri chilli powder","½ tbsp tandoori masala","½ tbsp garam masala","½ tbsp coriander powder","½ tsp cumin powder","½ tsp chaat masala","½ tsp salt (second marinade)","1 pinch nutmeg powder","1 tbsp kasoori methi","½ tbsp corn flour","1½ tbsp oil"],
@@ -1114,7 +1135,7 @@
       {heading:"Rest & serve", body:"Rest a couple of minutes so it stays crisp outside and juicy inside.\nServe with sliced onion, lemon and mint chutney.", items:[], timer:0}
     ]
   },{
-    id:"seed-chipotle-tenders", emoji:"🍗", title:"Chipotle Honey Chicken Tenders (Air Fryer)",
+    id:"seed-chipotle-tenders", photo:"/assets/chipotle-tenders.jpg", emoji:"🍗", title:"Chipotle Honey Chicken Tenders (Air Fryer)",
     servings:"4", prepMin:15, cookMin:15, category:"Mains",
     ingredients:["1½ lb chicken tenderloins","Salt & pepper, to taste","1 tsp garlic powder","Flour, for dredging","2 eggs, beaten","Crushed cornflakes, for coating","Cooking spray","Greek yogurt","Light mayo","Pickle juice","Ranch seasoning","Fresh dill","Minced chipotle pepper","Fresh garlic","Apple cider vinegar","Honey","Hot sauce (optional)","Broth, a splash"],
     steps:[
@@ -1126,7 +1147,7 @@
       {heading:"Toss & serve", body:"Toss the crispy tenders in the sauce until well coated and glossy.\nServe immediately with the high-protein ranch.", items:[], timer:0}
     ]
   },{
-    id:"seed-cheesy-tandoori", emoji:"🧀", title:"Cheesy Honey Tandoori Chicken",
+    id:"seed-cheesy-tandoori", photo:"/assets/cheesy-tandoori.jpg", emoji:"🧀", title:"Cheesy Honey Tandoori Chicken",
     servings:"3", prepMin:10, cookMin:22, category:"Mains",
     source:"ral.fitness",
     ingredients:["500 g chicken thighs","2 tbsp curd (Greek yogurt)","1 tbsp honey","1 tbsp ginger-garlic paste","2 tsp tandoori powder","½ tsp chilli powder","Salt","Pepper","Mozzarella cheese","Lime"],
@@ -1138,7 +1159,7 @@
       {heading:"Finish & serve", body:"Squeeze over fresh lime and serve hot.", items:["Lime"], timer:0}
     ]
   },{
-    id:"seed-dal-fry", emoji:"🍲", title:"Dal Fry (Dal Tadka)",
+    id:"seed-dal-fry", photo:"/assets/dal-fry.jpg", emoji:"🍲", title:"Dal Fry (Dal Tadka)",
     servings:"4", prepMin:10, cookMin:10, category:"Sides",
     source:"theloveofspice.com",
     ingredients:["4 tbsp toor dal","4 tbsp yellow moong dal","1½ cups water (for pressure cooking)","1 cup water (for boiling)","1 tsp salt","¼ tsp turmeric powder","4 tbsp chopped coriander leaves","2 tbsp ghee","1 tsp cumin seeds","½ tsp black mustard seeds","10 curry leaves","8 garlic cloves, chopped","1 byadagi chilli","1 tsp asafoetida (hing) powder","8 tbsp chopped onions","4 tbsp chopped tomatoes"],
@@ -1151,7 +1172,7 @@
       {heading:"Combine and serve", body:"Add the tadka and coriander leaves to the boiled dal.\nMix well and serve hot.", items:["4 tbsp chopped coriander leaves"], timer:0}
     ]
   },{
-    id:"seed-prawn-curry", emoji:"🍤", title:"Prawn Curry (Mangalorean Prawns Masala)",
+    id:"seed-prawn-curry", photo:"/assets/prawn-curry.jpg", emoji:"🍤", title:"Prawn Curry (Mangalorean Prawns Masala)",
     servings:"6", prepMin:10, cookMin:40, category:"Mains",
     source:"theloveofspice.com",
     ingredients:["1½ lb prawns (raw, de-veined, tail off)","1½ tsp salt (for the marinade)","¾ tsp turmeric powder","4 tbsp oil","4 cups finely chopped onion","½ tsp salt (for the curry)","1½ tbsp Kashmiri chilli powder","1 tsp red chilli powder","1 tbsp tamarind extract","1 cup water"],
@@ -1164,7 +1185,7 @@
       {heading:"Serve", body:"Serve once the prawns are cooked through and the curry is the consistency you like.", items:[], timer:0}
     ]
   },{
-    id:"seed-chicken-wings", emoji:"🍗", title:"Chicken Wings (Indian Style)",
+    id:"seed-chicken-wings", photo:"/assets/chicken-wings.jpg", emoji:"🍗", title:"Chicken Wings (Indian Style)",
     servings:"15", prepMin:10, cookMin:20, category:"Mains",
     source:"theloveofspice.com",
     ingredients:["15 chicken wings","2 tbsp red chilli paste","2 tbsp ginger-garlic paste","1 tsp soy sauce","½ tsp chilli vinegar","1 tsp salt","2 tbsp corn flour","2 tbsp rice flour","2 tbsp all-purpose flour (maida)","1 tbsp Kashmiri chilli powder","1 tsp red chilli powder","½ tsp black pepper powder","⅛ tsp salt (for the coating)","3 tbsp water","Oil, for frying"],
@@ -1177,7 +1198,7 @@
       {heading:"Serve", body:"Serve with a dip of your choice — schezwan chutney or ranch both work well.", items:[], timer:0}
     ]
   },{
-    id:"seed-air-fryer-fries", emoji:"🍟", title:"Air Fryer French Fries",
+    id:"seed-air-fryer-fries", photo:"/assets/fries.jpg", emoji:"🍟", title:"Air Fryer French Fries",
     servings:"2", prepMin:10, cookMin:25, category:"Sides",
     source:"theloveofspice.com",
     ingredients:["2 medium potatoes (about 1 lb)","1 tbsp oil","½ tsp salt"],
@@ -1189,7 +1210,7 @@
       {heading:"Serve", body:"Serve hot with your favourite dipping sauce.", items:[], timer:0}
     ]
   },{
-    id:"seed-crunch-choc-cake", emoji:"🍰", title:"Crunch Chocolate Cake",
+    id:"seed-crunch-choc-cake", photo:"/assets/choc-cake.jpg", emoji:"🍰", title:"Crunch Chocolate Cake",
     servings:"", prepMin:0, cookMin:30, category:"Desserts",
     ingredients:["3 cups crushed chocolate chip cookies","2 tsp baking powder","1½ cups milk","1 cup chocolate chips","1 cup hot heavy cream","Cornflakes, for the topping"],
     steps:[
@@ -1201,7 +1222,7 @@
       {heading:"Add the crunch and serve", body:"Mix the cornflakes with the remaining ganache until well coated.\nSpread the crunchy mixture evenly over the top of the cake.\nServe.", items:["Cornflakes, for the topping"], timer:0}
     ]
   },{
-    id:"seed-protein-mousse", emoji:"🍫", title:"High Protein Chocolate Mousse",
+    id:"seed-protein-mousse", photo:"/assets/choc-mousse.jpg", emoji:"🍫", title:"High Protein Chocolate Mousse",
     servings:"2", prepMin:10, cookMin:0, category:"Desserts",
     source:"ral.fitness",
     ingredients:["1 cup low fat paneer (or tofu)","4 tbsp cocoa powder","1 pinch salt (Himalayan pink)","1 tbsp + 1 tsp honey","1 tsp vanilla extract","⅓ cup melted dark chocolate","½ cup skimmed milk"],
@@ -1212,7 +1233,7 @@
       {heading:"Chill until set", body:"Transfer the mousse to a serving bowl and cover tightly with cling wrap.\nRefrigerate at least 2 hours, until set.", items:[], timer:7200}
     ]
   },{
-    id:"seed-chicken-curry", emoji:"🍛", title:"Chicken Curry",
+    id:"seed-chicken-curry", photo:"/assets/chicken-curry.jpg", emoji:"🍛", title:"Chicken Curry",
     servings:"", prepMin:0, cookMin:0, category:"Mains",
     ingredients:["500 g chicken, cut into pieces","2 medium onions, finely chopped","2 medium tomatoes, chopped or pureed","1 tbsp ginger garlic paste","2 green chillies, slit","3 tbsp oil","1 tsp cumin seeds","1 tsp turmeric powder","1½ tsp red chilli powder","1 tbsp coriander powder","1 tsp garam masala","1 tsp salt (adjust to taste)","1 cup water","2 tbsp coriander leaves, chopped (garnish)"],
     steps:[
@@ -1226,7 +1247,7 @@
       {heading:"Finish and serve", body:"Sprinkle over the garam masala.\nGarnish with the coriander leaves and serve hot with rice or roti.", items:["1 tsp garam masala","2 tbsp coriander leaves, chopped"], timer:0}
     ]
   },{
-    id:"seed-salmon-salad", emoji:"🥗", title:"Salmon Salad Bowl",
+    id:"seed-salmon-salad", photo:"/assets/salmon-salad.jpg", emoji:"🥗", title:"Salmon Salad Bowl",
     servings:"1-2", prepMin:10, cookMin:10, category:"Mains",
     ingredients:["2 salmon fillets (about ½ lb)","1 tbsp olive oil","½ tsp salt","1 tsp black pepper, coarsely ground","4 cups mixed salad greens (spinach, romaine, radicchio)","½ cucumber, chopped","1 cup cherry tomatoes, halved","1 handful alfalfa or broccoli sprouts","1 tbsp olive oil (for the dressing)","1 tbsp lemon juice","1 pinch salt (for the dressing)","¼ tsp black pepper (for the dressing)"],
     steps:[
@@ -1237,7 +1258,7 @@
       {heading:"Top and serve", body:"Rest the salmon a minute, then set it on top.\nShower with the sprouts and a last grind of pepper.", items:["1 handful alfalfa or broccoli sprouts"], timer:0}
     ]
   },{
-    id:"seed-lava-cake", emoji:"🧁", title:"Healthy Chocolate Lava Cake",
+    id:"seed-lava-cake", photo:"/assets/lava-cake.jpg", emoji:"🧁", title:"Healthy Chocolate Lava Cake",
     servings:"2-3", prepMin:10, cookMin:35, category:"Desserts",
     source:"shredhappens",
     ingredients:["1 cup cottage cheese (half a standard tub)","2 eggs","4 tbsp powdered monkfruit (or sweetener of choice)","3 tbsp cacao powder (2½ tbsp for less rich)","1 splash vanilla extract","Chocolate chips (optional, as many as you like)"],
@@ -1359,7 +1380,9 @@
     return {
       id:(typeof r.id==="string"&&r.id)?r.id:uid(),
       emoji:(typeof r.emoji==="string"&&r.emoji)?(r.emoji.indexOf("ic:")===0?r.emoji.slice(0,24):r.emoji.slice(0,8)):"🍽️",
-      photo:(typeof r.photo==="string"&&/^data:image\//.test(r.photo)&&r.photo.length<3000000)?r.photo:"",
+      /* a user photo is an embedded data URL; bundled recipes instead point at a
+         hosted file under /assets/ (kept strict so nothing else can slip in) */
+      photo:(typeof r.photo==="string"&&((/^data:image\//.test(r.photo)&&r.photo.length<3000000)||/^\/assets\/[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp)$/.test(r.photo)))?r.photo:"",
       title:r.title.trim().slice(0,120),
       servings:(typeof r.servings==="string")?r.servings.slice(0,40):"",
       prepMin:num(r.prepMin), cookMin:num(r.cookMin),
@@ -2031,8 +2054,8 @@
     var live=tState.run&&tState.sec>0, done=tState.done;
     if(!live&&!done){
       strip.hidden=true; if(stripEx) stripEx.hidden=true;
-      if(bell) bell.classList.remove("live");
-      if(dot) dot.hidden=true;
+      paintBell();
+      if($("#notifSheet").classList.contains("on")) renderNotifBody();
       return;
     }
     var html='<span class="ts-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></span>'+
@@ -2043,8 +2066,59 @@
       if(!s) return;
       s.hidden=false; s.classList.toggle("done",!!done); s.innerHTML=html;
     });
-    if(bell) bell.classList.add("live");
-    if(dot) dot.hidden=false;
+    paintBell();
+    if($("#notifSheet").classList.contains("on")) renderNotifBody();
+  }
+  /* ---------- notification centre ----------
+     The bell is the one place every alert lands: the running timer, the daily
+     tip, and whether system notifications are switched on. */
+  function notifSeenTip(){ try{ return localStorage.getItem("kitchencards.tipseen.v1"); }catch(e){ return null; } }
+  function renderNotifBody(){
+    var el=$("#notifBody"); if(!el) return;
+    var rows="";
+    var live=tState.run&&tState.sec>0, done=tState.done;
+    if(live||done){
+      rows+='<button class="nt-row" id="ntTimer"><span class="nt-ic timer"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></span>'+
+        '<span class="nt-txt"><b>'+esc(done?"Timer done":(tState.heading||"Timer running"))+'</b>'+
+        '<span>'+esc(tState.title||"")+' · '+(done?"tap to open":fmtClock(Math.max(tState.sec,0))+" left")+'</span></span></button>';
+    }
+    rows+='<div class="nt-row static"><span class="nt-ic tip">💡</span>'+
+      '<span class="nt-txt"><b>Tip of the day</b><span>'+esc(tipForOffset(0))+'</span></span></div>';
+    var perm=("Notification" in window)?Notification.permission:"unsupported";
+    if(perm==="default"){
+      rows+='<button class="nt-row" id="ntEnable"><span class="nt-ic bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span>'+
+        '<span class="nt-txt"><b>Turn on notifications</b><span>Get the daily tip and timer alerts on your phone</span></span></button>';
+    }else if(perm==="denied"){
+      rows+='<div class="nt-row static"><span class="nt-ic off"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M4 4l16 16"/></svg></span>'+
+        '<span class="nt-txt"><b>Notifications are blocked</b><span>Turn them on for Cooking Steps in your phone settings</span></span></div>';
+    }
+    if(!live&&!done) rows+='<div class="nt-empty">No timers running. Start one on any recipe step.</div>';
+    el.innerHTML=rows;
+    var t=$("#ntTimer"); if(t) t.onclick=function(){ closeNotifs(); jumpToTimer(); };
+    var en=$("#ntEnable"); if(en) en.onclick=function(){
+      try{ Notification.requestPermission().then(function(p){ if(p==="granted") tipNotifyDaily(); renderNotifBody(); paintBell(); }).catch(function(){}); }catch(e){}
+    };
+  }
+  function openNotifs(){
+    navOpened(); _return=document.activeElement;
+    try{ localStorage.setItem("kitchencards.tipseen.v1",new Date().toDateString()); }catch(e){}
+    renderNotifBody();
+    $("#scrim").classList.add("on"); $("#notifSheet").classList.add("on");
+    refreshInert(); focusFirst($("#notifSheet")); paintBell();
+  }
+  function closeNotifs(){
+    $("#notifSheet").classList.remove("on");
+    if(!anySheetOpen()) $("#scrim").classList.remove("on");
+    refreshInert(); restoreFocus();
+  }
+  /* the dot means "something you have not looked at": a live timer, or a tip
+     you have not opened the bell for today */
+  function paintBell(){
+    var bell=$("#btnBell"), dot=$("#bellDot"); if(!dot) return;
+    var live=tState.run&&tState.sec>0, done=tState.done;
+    var freshTip=notifSeenTip()!==new Date().toDateString();
+    dot.hidden=!(live||done||freshTip);
+    if(bell) bell.classList.toggle("live",!!(live||done));
   }
   function jumpToTimer(){
     var id=tState.recipeId, step=tState.stepIdx, wasDone=tState.done;
@@ -2689,7 +2763,7 @@
   /* sheet open/close */
   function openSheet(){ navOpened(); _return=document.activeElement; $("#scrim").classList.add("on"); $("#sheet").classList.add("on"); refreshInert(); focusFirst($("#sheet")); }
   function closeSheet(){ $("#scrim").classList.remove("on"); $("#sheet").classList.remove("on"); editId=null; refreshInert(); restoreFocus(); }
-  $("#scrim").onclick=function(){ if($("#cardMenu").classList.contains("on")) closeCardMenu(); if($("#settings").classList.contains("on")) closeSettings(); if($("#shopping").classList.contains("on")) closeShopping(); if($("#shareSheet").classList.contains("on")) closeShareSheet(); if($("#trashSheet").classList.contains("on")) closeTrash(); if($("#account").classList.contains("on")) closeAccount(); if($("#sheet").classList.contains("on")) closeSheet(); };
+  $("#scrim").onclick=function(){ if($("#cardMenu").classList.contains("on")) closeCardMenu(); if($("#settings").classList.contains("on")) closeSettings(); if($("#shopping").classList.contains("on")) closeShopping(); if($("#shareSheet").classList.contains("on")) closeShareSheet(); if($("#notifSheet").classList.contains("on")) closeNotifs(); if($("#trashSheet").classList.contains("on")) closeTrash(); if($("#account").classList.contains("on")) closeAccount(); if($("#sheet").classList.contains("on")) closeSheet(); };
 
   /* ---------- shopping list ---------- */
   /* ---------- trash (recently deleted recipes) ---------- */
@@ -3127,6 +3201,7 @@
   var backToSettings=false;
   function closeTrash(){ $("#trashSheet").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); if(backToSettings){ backToSettings=false; openSettings(); } }
   $("#btnTrashClose").onclick=closeTrash;
+  $("#btnNotifClose").onclick=closeNotifs;
   $("#btnTrashEmpty").onclick=function(){
     if(!trash.length){ toast("Nothing to empty"); return; }
     if(!window.confirm("Permanently delete all "+trash.length+" recipe"+(trash.length===1?"":"s")+" in Recently deleted?\n\nThis cannot be undone.")) return;
@@ -3943,29 +4018,16 @@
         window.scrollTo(0,y+1); window.scrollTo(0,y);
       }catch(e){}
     }
+    /* The bar is only ever moved when the two viewport APIs actually DISAGREE.
+       Comparing against screen.height was wrong: in standalone iOS reports
+       innerHeight as the screen MINUS the status bar (873 vs 932 on a 430pt
+       phone), so that "mismatch" is normal and pushing the bar down by it
+       drove the labels off the bottom edge. */
     function sync(){
-      var off=0;
-      var vv=window.visualViewport;
+      var off=0, vv=window.visualViewport;
       if(vv){
         var d=Math.round(window.innerHeight-vv.height-vv.offsetTop);
         if(d<-8&&d>-320) off=d;   /* visual taller than layout → lower the bar */
-      }
-      if(!off){
-        /* worst iOS case: a reload restored with BOTH viewport APIs stuck at a
-           too-short height, so they agree with each other and lie together.
-           In the installed app the physical screen is the only honest
-           reference: if the layout viewport is far shorter than the screen
-           (and no keyboard shrinks innerHeight in standalone), push the bar
-           down by the difference. */
-        var standalone=false;
-        try{ standalone=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches; }catch(e){}
-        if(standalone){
-          var portrait=true;
-          try{ portrait=matchMedia("(orientation: portrait)").matches; }catch(e){}
-          var expect=portrait?Math.max(screen.height,screen.width):Math.min(screen.height,screen.width);
-          var delta=expect-window.innerHeight;
-          if(delta>40&&delta<420) off=-delta;
-        }
       }
       document.documentElement.style.setProperty("--vvoff",off?off+"px":"0px");
     }
@@ -4020,10 +4082,7 @@
       } else go();
     }catch(e){ go(); }
   };
-  $("#btnBell").onclick=function(){
-    if(tState.run||tState.done){ jumpToTimer(); return; }
-    toast("No timers running. Start one on any recipe step.");
-  };
+  $("#btnBell").onclick=openNotifs;
   $("#timerStrip").onclick=jumpToTimer;
   var tsx=$("#timerStripEx"); if(tsx) tsx.onclick=jumpToTimer;
 
