@@ -556,7 +556,9 @@
   body.reordering .botnav{display:none}
   /* above Explore (16) so the tab bar stays reachable, below the player (20)
      which deliberately takes over the whole screen while cooking */
-  .botnav{position:fixed;left:0;right:0;bottom:var(--vvoff,0px);z-index:18;max-width:var(--shell);margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--ground);border-top:1px solid var(--hairline);padding:8px 6px calc(6px + env(safe-area-inset-bottom))}
+  /* safe-area inset clamped: iOS has been seen reporting keyboard-sized env()
+     values after a reload; the home indicator never needs more than ~34px */
+  .botnav{position:fixed;left:0;right:0;bottom:var(--vvoff,0px);z-index:18;max-width:var(--shell);margin:0 auto;display:flex;align-items:flex-end;justify-content:space-around;background:var(--ground);border-top:1px solid var(--hairline);padding:8px 6px calc(6px + min(env(safe-area-inset-bottom, 0px), 40px))}
   .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;color:var(--ink-faint);transition:color .15s ease}
   .nav-item:hover{color:var(--ink-dim)}
   .nav-item.active{color:var(--ink)}
@@ -3907,30 +3909,60 @@
       .catch(function(){});
   })();
 
-  /* iOS Safari can restore a reload with the layout and visual viewports out of
-     sync, leaving the fixed tab bar floating above (or sunk below) the real
-     bottom edge until the next scroll. Measure the mismatch and pin the bar to
-     the visual bottom; large offsets mean the keyboard, which keeps default. */
+  /* iOS can restore a reload with a stale, too-short viewport, which leaves the
+     fixed tab bar floating above the real bottom edge until something forces a
+     re-layout. Three defenses, none able to LIFT the bar:
+     1. a scroll nudge on load/pageshow makes Safari recompute its viewports;
+     2. if the visual viewport proves taller than the layout one, the bar is
+        LOWERED by the difference (never raised — keyboards produce the
+        opposite sign and must keep the default);
+     3. the safe-area padding is clamped in CSS above. */
   (function pinBotnav(){
-    var vv=window.visualViewport; if(!vv) return;
-    function sync(){
-      var el=document.activeElement, kb=el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName||"");
-      var off=Math.round(window.innerHeight-vv.height-vv.offsetTop);
-      if(kb||Math.abs(off)<2||Math.abs(off)>220) off=0;
-      document.documentElement.style.setProperty("--vvoff",off+"px");
+    function nudge(){
+      try{
+        var y=window.scrollY||document.documentElement.scrollTop||0;
+        window.scrollTo(0,y+1); window.scrollTo(0,y);
+      }catch(e){}
     }
-    vv.addEventListener("resize",sync);
-    vv.addEventListener("scroll",sync);
-    addEventListener("pageshow",function(){ setTimeout(sync,80); setTimeout(sync,400); });
-    addEventListener("orientationchange",function(){ setTimeout(sync,150); });
-    setTimeout(sync,80); setTimeout(sync,400);
+    function sync(){
+      var vv=window.visualViewport;
+      if(!vv) return;
+      var off=Math.round(window.innerHeight-vv.height-vv.offsetTop);
+      document.documentElement.style.setProperty("--vvoff",(off<-8&&off>-200)?off+"px":"0px");
+    }
+    function both(){ nudge(); sync(); }
+    if(window.visualViewport){
+      visualViewport.addEventListener("resize",sync);
+      visualViewport.addEventListener("scroll",sync);
+    }
+    addEventListener("pageshow",function(){ setTimeout(both,80); setTimeout(both,450); });
+    addEventListener("orientationchange",function(){ setTimeout(both,150); });
+    setTimeout(both,80); setTimeout(both,450);
   })();
 
   /* Refresh: re-check the service worker for a new app version, then reload.
      The reload itself re-syncs the cookbook and refetches Explore, so one tap
      covers both "new app build" and "new recipes from my other device". */
+  /* hidden diagnostic: hold the refresh button ~1s to see the live viewport
+     numbers as a toast (for chasing the iOS floating-tab-bar bug remotely) */
+  var refreshLpAt=0;
+  (function(){
+    var b=$("#btnRefresh"), t=null; if(!b) return;
+    function info(){
+      refreshLpAt=Date.now();
+      var vv=window.visualViewport||{};
+      var nav=document.querySelector(".botnav");
+      var pb=nav?getComputedStyle(nav).paddingBottom:"?";
+      var vo=getComputedStyle(document.documentElement).getPropertyValue("--vvoff").trim()||"0px";
+      toast("ih "+window.innerHeight+" · vv "+Math.round(vv.height||0)+"/"+Math.round(vv.offsetTop||0)+" · scr "+screen.height+" · pb "+pb+" · off "+vo);
+    }
+    b.addEventListener("touchstart",function(){ clearTimeout(t); t=setTimeout(info,900); },{passive:true});
+    b.addEventListener("touchend",function(){ clearTimeout(t); },{passive:true});
+    b.addEventListener("touchmove",function(){ clearTimeout(t); },{passive:true});
+  })();
   $("#btnRefresh").onclick=function(){
     var b=$("#btnRefresh"); if(b.classList.contains("spin")) return;
+    if(Date.now()-refreshLpAt<1200) return;   /* the tap that ended a diagnostic hold */
     b.classList.add("spin"); toast("Updating…");
     var done=false; function go(){ if(done) return; done=true; location.reload(); }
     try{
