@@ -1256,6 +1256,12 @@
     ]
   }];
 
+  /* Every id that ever shipped inside the app (beginners, house recipes, retired).
+     These are PUBLIC recipes now: they belong in Explore, never in a cookbook.
+     Copies saved from Explore get a fresh uid(), so they never match this set. */
+  var LEGACY={};
+  BEGINNER.concat(HOUSE).concat(RETIRED).forEach(function(r){ LEGACY[r.id]=1; });
+
   /* ---------- store ---------- */
   function load(){
     var raw=null, r=null, parsed=true;
@@ -1269,22 +1275,16 @@
       return [];
     }
     if(!Array.isArray(r)){
-      /* A brand-new cookbook starts with ONLY the three BEGINNER recipes — tiny
-         confidence-builders written for the public. The personal SEED recipes are
-         one person's dinners and stay out of strangers' cookbooks; they live on
-         the public side (Explore) where anyone can save them deliberately.
-         All SEED ids (incl. beginners) are marked seeded so the merge below never
-         re-adds anything the user later deletes.
-         Existing installs are untouched: this branch only runs when nothing is stored. */
-      var fresh=JSON.parse(JSON.stringify(BEGINNER));
-      save(fresh);
+      /* A brand-new cookbook starts EMPTY. It is the cook's own space — every
+         built-in recipe (beginner trio included) lives on the public side
+         (Explore → House Recipes) where anyone can save one deliberately.
+         The seeded/migver/retired marks are still written so none of the legacy
+         merge machinery ever deposits anything into this cookbook. */
+      save([]);
       try{localStorage.setItem(SEEDKEY,JSON.stringify(SEED.map(function(s){return s.id})));}catch(e){}
       try{localStorage.setItem("kitchencards.migver",String(MIGVER));}catch(e){}
-      /* mark retired starters as handled too — the cookbook is no longer empty at
-         boot, so without this retireOnce would drop a stranger's retired recipe
-         into a brand-new user's bin */
       try{localStorage.setItem("kitchencards.retired.v1",JSON.stringify(RETIRED.map(function(x){return x.id})));}catch(e){}
-      return fresh;
+      return [];
     }
     /* An existing cookbook is the cook's own. Nothing is ever merged into it:
        a new app version must not deposit recipes somebody did not ask for.
@@ -1541,10 +1541,10 @@
         /* a genuinely empty cookbook (new account) — offer the two ways forward
            rather than leaving someone staring at nothing */
         list.innerHTML='<div class="empty"><div class="big">🍳</div><b>Your cookbook is empty</b>'+
-          '<div>Add a recipe of your own, or find one from another cook.</div>'+
+          '<div>Add a recipe of your own, or find one in Explore. House recipes and dishes published by other cooks live there.</div>'+
           '<div class="empty-acts">'+
             '<button class="btn-primary" id="emptyAdd">Add a recipe</button>'+
-            '<button class="btn-quiet" id="emptyExplore">Explore recipes from other cooks</button>'+
+            '<button class="btn-quiet" id="emptyExplore">Browse recipes</button>'+
             (signedIn()?'':'<button class="btn-quiet" id="emptySignIn">Sign in to restore a backed-up cookbook</button>')+
           '</div></div>';
         var ea=$("#emptyAdd"); if(ea) ea.onclick=function(){ openEditor(null) };
@@ -2966,8 +2966,6 @@
           '<svg viewBox="0 0 24 24"><path d="M12 3v12M8 13l4 4 4-4M5 21h14"/></svg></button>'+
         '<button class="set-btn" id="setImport"><div><b>Restore from a backup</b><span>Load recipes from a backup file</span></div>'+
           '<svg viewBox="0 0 24 24"><path d="M12 21V9M8 11l4-4 4 4M5 3h14"/></svg></button>'+
-        '<button class="set-btn" id="setReseed"><div><b>Restore starter recipes</b><span>Bring back any built-in recipe you removed</span></div>'+
-          '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M6 2v4h4"/></svg></button>'+
         '<button class="set-btn" id="setTrash"><div><b>Recently deleted</b><span>'+
           (trash.length? (trash.length+" recipe"+(trash.length===1?"":"s")+" you can restore") : "Deleted recipes wait here before they're gone")+
           '</span></div><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button>'+
@@ -2975,7 +2973,6 @@
     $("#setAccount").onclick=function(){ closeSettings(); backToSettings=true; openAccount(); };
     $("#setExport").onclick=doExport;
     $("#setImport").onclick=doImport;
-    $("#setReseed").onclick=reseedStarters;
     $("#setTrash").onclick=function(){ closeSettings(); backToSettings=true; openTrash(); };
   }
   /* ---------- recently deleted UI ---------- */
@@ -3012,23 +3009,8 @@
     if(!window.confirm("Permanently delete all "+trash.length+" recipe"+(trash.length===1?"":"s")+" in Recently deleted?\n\nThis cannot be undone.")) return;
     trash=[]; saveTrash(); renderTrashBody(); renderSettingsBody(); toast("Recently deleted emptied");
   };
-  /* re-add any built-in starter recipe the user deleted */
-  function reseedStarters(){
-    var have={}; recipes.forEach(function(x){have[x.id]=1});
-    var added=0;
-    var tb=readTombs();
-    for(var i=SEED.length-1;i>=0;i--){ if(!have[SEED[i].id]){
-      var s=JSON.parse(JSON.stringify(SEED[i])); touchRecipe(s); delete tb[s.id];
-      recipes.unshift(s); added++; } }
-    if(!added){ toast("All starter recipes are already here"); return; }
-    /* persist the cookbook BEFORE touching tombstones — if the write fails,
-       dropping the tombstone would let sync treat the missing recipe as settled */
-    if(!save(recipes)){ recipes=recipes.slice(added); return; }
-    writeTombs(tb); syncSoon();
-    try{ localStorage.setItem(SEEDKEY,JSON.stringify(SEED.map(function(s){return s.id}))); }catch(e){}
-    renderFilterBar(); renderLib($("#searchIn").value); renderSettingsBody();
-    toast(added+" starter recipe"+(added===1?"":"s")+" restored");
-  }
+  /* "Restore starter recipes" is gone: built-ins live in Explore now, and saving
+     one from there is the restore path. */
   function openSettings(){ navOpened(); _return=document.activeElement; renderSettingsBody(); $("#scrim").classList.add("on"); $("#settings").classList.add("on"); refreshInert(); focusFirst($("#settings")); }
   function closeSettings(){ $("#settings").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); }
   $("#btnSettings").onclick=openSettings;
@@ -3055,6 +3037,32 @@
       marked.push(rec.id); changed=true;
     });
     if(changed){ try{ localStorage.setItem(K,JSON.stringify(marked)); }catch(e){} }
+  })();
+
+  /* One-way move of the built-in recipes out of cookbooks (2026-07-20): they now
+     live ONLY in Explore. Any bundled copy still sitting in this cookbook is
+     removed and tombstoned so the deletion also clears the cloud row and every
+     other signed-in device. Runs every boot; a clean cookbook makes it a no-op. */
+  (function purgeBundledCopies(){
+    /* rescue tombstones an older build misfiled under the key "undefined"
+       (TOMBKEY hoisting bug), then drop the junk key */
+    try{
+      var stray=JSON.parse(localStorage.getItem("undefined"));
+      if(stray && typeof stray==="object" && !Array.isArray(stray)){
+        var real=readTombs(), moved=false;
+        Object.keys(stray).forEach(function(k){ if(/^[a-z0-9-]+$/i.test(k) && !real[k]){ real[k]=stray[k]; moved=true; } });
+        if(moved) writeTombs(real);
+        localStorage.removeItem("undefined");
+      }
+    }catch(e){}
+    var mine=ownRecipes(recipes).filter(function(r){ return LEGACY[r.id]; });
+    if(!mine.length) return;
+    var kept=recipes.filter(function(r){ return !LEGACY[r.id]; });
+    var prev=recipes;
+    recipes=kept;
+    if(!save(recipes)){ recipes=prev; return; }   /* quota failure: leave things as they were */
+    var t=readTombs(); mine.forEach(function(r){ t[r.id]=Date.now(); }); writeTombs(t);
+    syncSoon();
   })();
 
   /* ================= accounts (Supabase) =================
@@ -3325,9 +3333,12 @@
      Conflict rule is last-edit-wins per recipe, compared on `updatedAt` (ms).
      Deletions travel as tombstones — an absent row can't distinguish "deleted here"
      from "not yet uploaded", so deletes would resurrect without them. */
-  var TOMBKEY="kitchencards.tombstones.v1";
-  function readTombs(){ try{ return JSON.parse(localStorage.getItem(TOMBKEY))||{}; }catch(e){ return {}; } }
-  function writeTombs(t){ try{ localStorage.setItem(TOMBKEY,JSON.stringify(t)); }catch(e){} }
+  /* literal key, NOT a var: these hoisted functions are called by boot-time IIFEs
+     (purgeBundledCopies, retireOnce→addTomb) that run before this line — a var
+     would still be undefined there and the tombstones would land in a key
+     literally named "undefined" (that happened; the purge below cleans it up) */
+  function readTombs(){ try{ return JSON.parse(localStorage.getItem("kitchencards.tombstones.v1"))||{}; }catch(e){ return {}; } }
+  function writeTombs(t){ try{ localStorage.setItem("kitchencards.tombstones.v1",JSON.stringify(t)); }catch(e){} }
   function addTomb(id){ var t=readTombs(); t[id]=Date.now(); writeTombs(t); syncSoon(); }
   function touchRecipe(r){ if(r) r.updatedAt=Date.now(); }
   function ts(r){ return (r&&+r.updatedAt)||0; }
@@ -3374,6 +3385,9 @@
           }
           if(!lr){
             if((tombs[lid]||0)>rts) return;             /* deleted here more recently — push tombstone below */
+            /* a bundled recipe coming back from an old cloud copy: refuse it and
+               tombstone the row so the cloud gets cleaned instead of resurrecting */
+            if(LEGACY[lid]){ tombs[lid]=Date.now(); writeTombs(tombs); return; }
             var nr=normalizeRecipe(row.recipe);
             if(nr){ nr.id=lid; nr.updatedAt=rts; recipes.push(nr); changed=true; }
             return;
@@ -3478,7 +3492,8 @@
      travel the same open/save path as published ones. No network, no account. */
   var exploreTab="house";
   function houseRows(){
-    return HOUSE.map(function(r){
+    /* beginner trio first (the on-ramp), then the house dinners */
+    return BEGINNER.concat(HOUSE).map(function(r){
       return {id:"house-"+r.id, title:r.title, category:r.category||"", user_id:null, recipe:r, _house:true};
     });
   }
