@@ -536,10 +536,6 @@ article.post .rmeta b{color:var(--ink)}
 /* ---------- about page ---------- */
 /* one voice, one size — no oversized lede paragraph on the About story */
 .post.about .prose>p:first-of-type{font-size:17.5px;color:var(--ink-2);line-height:inherit}
-@media (max-width:760px){
-  .post.about .prose p{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
-  .post.about .prose .about-cta{text-align:left}
-}
 .about-hero{margin:26px 0 4px}
 .about-hero img{
   display:block;width:100%;height:auto;border-radius:22px;
