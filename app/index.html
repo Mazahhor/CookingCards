@@ -3944,10 +3944,30 @@
       }catch(e){}
     }
     function sync(){
+      var off=0;
       var vv=window.visualViewport;
-      if(!vv) return;
-      var off=Math.round(window.innerHeight-vv.height-vv.offsetTop);
-      document.documentElement.style.setProperty("--vvoff",(off<-8&&off>-200)?off+"px":"0px");
+      if(vv){
+        var d=Math.round(window.innerHeight-vv.height-vv.offsetTop);
+        if(d<-8&&d>-320) off=d;   /* visual taller than layout → lower the bar */
+      }
+      if(!off){
+        /* worst iOS case: a reload restored with BOTH viewport APIs stuck at a
+           too-short height, so they agree with each other and lie together.
+           In the installed app the physical screen is the only honest
+           reference: if the layout viewport is far shorter than the screen
+           (and no keyboard shrinks innerHeight in standalone), push the bar
+           down by the difference. */
+        var standalone=false;
+        try{ standalone=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches; }catch(e){}
+        if(standalone){
+          var portrait=true;
+          try{ portrait=matchMedia("(orientation: portrait)").matches; }catch(e){}
+          var expect=portrait?Math.max(screen.height,screen.width):Math.min(screen.height,screen.width);
+          var delta=expect-window.innerHeight;
+          if(delta>40&&delta<420) off=-delta;
+        }
+      }
+      document.documentElement.style.setProperty("--vvoff",off?off+"px":"0px");
     }
     function both(){ nudge(); sync(); }
     if(window.visualViewport){
@@ -3973,7 +3993,8 @@
       var nav=document.querySelector(".botnav");
       var pb=nav?getComputedStyle(nav).paddingBottom:"?";
       var vo=getComputedStyle(document.documentElement).getPropertyValue("--vvoff").trim()||"0px";
-      toast("ih "+window.innerHeight+" · vv "+Math.round(vv.height||0)+"/"+Math.round(vv.offsetTop||0)+" · scr "+screen.height+" · pb "+pb+" · off "+vo);
+      var sa=false; try{ sa=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches; }catch(e){}
+      toast("ih "+window.innerHeight+" · vv "+Math.round(vv.height||0)+"/"+Math.round(vv.offsetTop||0)+" · scr "+screen.width+"x"+screen.height+" · sa "+(sa?1:0)+" · pb "+pb+" · off "+vo);
     }
     b.addEventListener("touchstart",function(){ clearTimeout(t); t=setTimeout(info,900); },{passive:true});
     b.addEventListener("touchend",function(){ clearTimeout(t); },{passive:true});
