@@ -638,6 +638,20 @@
   .meta-strip .chip b{font-family:var(--serif);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
   .hidden{display:none!important}
   .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--btn-bg);color:var(--btn-ink);padding:11px 18px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:80;max-width:88vw;text-align:center}
+  /* sign-in-first welcome gate */
+  .welcome{position:fixed;inset:0;z-index:60;background:var(--ground);display:flex;align-items:center;justify-content:center;padding:28px 22px;overflow-y:auto}
+  .welcome[hidden]{display:none}
+  .wel-inner{width:100%;max-width:340px;text-align:center;margin:auto}
+  .wel-logo{display:block;width:76px;height:76px;margin:0 auto 18px}
+  .wel-logo svg{width:100%;height:100%;display:block}
+  .welcome h1{font-family:"Fraunces",Georgia,serif;font-size:30px;letter-spacing:-.01em;margin-bottom:8px;color:var(--ink)}
+  .wel-sub{font-size:14.5px;color:var(--ink-dim);line-height:1.55;margin-bottom:26px}
+  .wel-form{display:flex;flex-direction:column;gap:10px;text-align:left}
+  .wel-form .in{width:100%}
+  .wel-form .btn-primary,.wel-form .btn-quiet{width:100%;flex:none}
+  .wel-or{display:flex;align-items:center;gap:10px;color:var(--ink-faint);font-size:12px;margin:4px 0}
+  .wel-or::before,.wel-or::after{content:"";flex:1;border-top:1px solid var(--hairline)}
+  .wel-note{font-size:12.5px;color:var(--ink-faint);text-align:center;line-height:1.5;margin-top:10px}
   .toast.on{opacity:1;transform:translate(-50%,0)}
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.001ms!important;transition-duration:.05ms!important}
@@ -925,6 +939,15 @@
   <div class="sheet-body" id="acctBody"></div>
   <div class="sheet-foot"><button class="btn-quiet" id="btnAcctClose" style="flex:1">Done</button></div>
 </section>
+
+<div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welTitle" hidden>
+  <div class="wel-inner">
+    <span class="wel-logo" id="welLogo" aria-hidden="true"></span>
+    <h1 id="welTitle">Cooking Steps</h1>
+    <p class="wel-sub">Your recipes, one calm step at a time. Sign in and your cookbook follows you to every device.</p>
+    <div class="wel-form" id="welForm"></div>
+  </div>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
@@ -3152,6 +3175,7 @@
     pubIds={}; exploreLoaded=false;      /* the next account must not inherit publish state */
     if(tok){ fetch(SUPA_URL+"/auth/v1/logout",{method:"POST",headers:{apikey:SUPA_KEY,Authorization:"Bearer "+tok}}).catch(function(){}); }
     try{ renderFilterBar(); renderLib($("#searchIn").value); }catch(e){}
+    try{ showWelcome(); }catch(e){}
   }
 
   /* ---- account UI (lives in Settings) ---- */
@@ -3552,10 +3576,77 @@
   function closeProfile(){ $("#profileSheet").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); }
   $("#btnProfClose").onclick=closeProfile;
 
+  /* ---- sign-in-first welcome gate ---- */
+  function showWelcome(){
+    var w=$("#welcome"); if(!w) return;
+    var lg=$("#welLogo"); var src=document.querySelector(".brand-logo svg");
+    if(lg&&src&&!lg.firstChild) lg.innerHTML=src.outerHTML;
+    renderWelcomeForm();
+    w.hidden=false;
+  }
+  function hideWelcome(){ var w=$("#welcome"); if(w) w.hidden=true; }
+  function renderWelcomeForm(){
+    var el=$("#welForm"); if(!el) return;
+    el.innerHTML=
+      '<input class="in" type="email" id="welEmail" placeholder="you@example.com" autocomplete="email" aria-label="Email">'+
+      '<input class="in" type="password" id="welPass" placeholder="Password (6+ characters)" autocomplete="current-password" aria-label="Password">'+
+      '<button class="btn-primary" id="welIn">Sign in</button>'+
+      '<button class="btn-quiet" id="welUp">Create an account</button>'+
+      '<div class="wel-or"><span>or</span></div>'+
+      '<button class="btn-quiet" id="welLink">Email me a sign-in link instead</button>'+
+      '<p class="wel-note">Your recipes are saved to your account, so they are waiting for you on any phone or computer you sign in on.</p>';
+    var creds=function(){
+      var em=$("#welEmail").value.trim(), pw=$("#welPass").value;
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast("Enter a valid email"); return null; }
+      if(!pw||pw.length<6){ toast("Password must be at least 6 characters"); return null; }
+      return {em:em,pw:pw};
+    };
+    var enter=function(){
+      return fetchUser().then(fetchProfile).then(function(){ return syncCookbook(); })
+        .then(loadPublishedIds)
+        .then(function(){ hideWelcome(); renderFilterBar(); renderLib($("#searchIn").value); toast("Welcome in"); });
+    };
+    $("#welIn").onclick=function(){
+      var c=creds(); if(!c) return;
+      var b=this; b.disabled=true; b.textContent="Signing in…";
+      passwordSignIn(c.em,c.pw).then(enter)
+        .catch(function(err){
+          var m=(err.message||"").toLowerCase();
+          toast(/invalid login/.test(m)?"Wrong email or password — new here? Tap Create an account":(err.message||"Could not sign in"));
+          b.disabled=false; b.textContent="Sign in";
+        });
+    };
+    $("#welUp").onclick=function(){
+      var c=creds(); if(!c) return;
+      var b=this; b.disabled=true; b.textContent="Creating…";
+      passwordSignUp(c.em,c.pw).then(function(res){
+        if(res.signedIn) return enter();
+        toast("Confirm your email at "+c.em+", then sign in");
+        b.disabled=false; b.textContent="Create an account";
+      }).catch(function(err){
+        var m=(err.message||"").toLowerCase();
+        toast(/already regist|already been/.test(m)?"That email already has an account — tap Sign in":(err.message||"Could not create account"));
+        b.disabled=false; b.textContent="Create an account";
+      });
+    };
+    $("#welLink").onclick=function(){
+      var em=$("#welEmail").value.trim();
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast("Enter a valid email"); return; }
+      var b=this; b.disabled=true; b.textContent="Sending…";
+      sendMagicLink(em).then(function(){
+        b.textContent="Link sent — check your email";
+      }).catch(function(err){
+        var m=(err.message||"").toLowerCase();
+        toast(/rate limit/.test(m)?"Too many emails just now — use a password instead":(err.message||"Could not send the link"));
+        b.disabled=false; b.textContent="Email me a sign-in link instead";
+      });
+    };
+  }
+
   /* boot: pick up a magic-link return, then load identity */
   (function bootAuth(){
     var justSignedIn=consumeAuthRedirect();
-    if(!signedIn()) return;
+    if(!signedIn()){ showWelcome(); return; }
     ensureFreshSession()
       .then(function(){ return signedIn()?fetchUser():null; })
       .then(function(u){ return u?fetchProfile():null; })
