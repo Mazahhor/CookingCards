@@ -33,7 +33,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="25";</script>
+<script>window.__APPVER="26";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -3194,8 +3194,20 @@
         '<button class="set-btn" id="setTrash"><div><b>Recently deleted</b><span>'+
           (trash.length? (trash.length+" recipe"+(trash.length===1?"":"s")+" you can restore") : "Deleted recipes wait here before they're gone")+
           '</span></div><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button>'+
-      '</div>';
+      '</div>'+
+      /* sign out belongs on this page too — it was reachable only one level
+         down inside Account, which is not where anyone looks for it */
+      (signedIn()
+        ? '<div class="set-group"><button class="set-btn" id="setOut"><div><b>Sign out</b>'+
+            '<span>Your recipes stay on this device and in your account</span></div>'+
+            '<svg viewBox="0 0 24 24"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/></svg></button></div>'
+        : '');
     $("#setAccount").onclick=function(){ closeSettings(); backToSettings=true; openAccount(); };
+    var so=$("#setOut");
+    if(so) so.onclick=function(){
+      if(!window.confirm("Sign out?\n\nYour recipes stay on this device and are backed up to your account.")) return;
+      signOut(); closeSettings(); toast("Signed out");
+    };
     var pav=$("#profAvBtn"); if(pav) pav.onclick=pickAvatar;
     $("#setExport").onclick=doExport;
     $("#setImport").onclick=doImport;
