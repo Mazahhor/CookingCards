@@ -33,7 +33,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="27";</script>
+<script>window.__APPVER="28";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -3981,7 +3981,8 @@
       '<input class="in" type="password" id="welPass" placeholder="'+(up?"Choose a password (6+ characters)":"Password (6+ characters)")+
         '" autocomplete="'+(up?"new-password":"current-password")+'" aria-label="Password">'+
       (up
-        ? '<button class="btn-primary" id="welUpGo">Create account</button>'+
+        ? '<input class="in" type="password" id="welPass2" placeholder="Repeat the password" autocomplete="new-password" aria-label="Repeat the password">'+
+          '<button class="btn-primary" id="welUpGo">Create account</button>'+
           '<button class="btn-quiet" id="welBack">Already have an account? Sign in</button>'
         : '<button class="btn-primary" id="welIn">Sign in</button>'+
           '<button class="wel-forgot" id="welForgot">Forgot your password?</button>'+
@@ -4024,6 +4025,8 @@
     };
     if($("#welUpGo")) $("#welUpGo").onclick=function(){
       var c=creds(); if(!c) return;
+      /* signup asks for the password twice — catch a typo before the account exists */
+      if($("#welPass2").value!==c.pw){ toast("The two passwords do not match"); $("#welPass2").focus(); return; }
       var b=this; b.disabled=true; b.textContent="Creating…";
       passwordSignUp(c.em,c.pw).then(function(res){
         if(res.signedIn) return enter();
@@ -4069,6 +4072,7 @@
       });
     };
     addEye($("#welPass"));
+    if($("#welPass2")) addEye($("#welPass2"));
   }
 
   /* boot: pick up a magic-link return, then load identity */
