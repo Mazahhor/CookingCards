@@ -33,7 +33,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="28";</script>
+<script>window.__APPVER="29";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -1432,6 +1432,32 @@
       (added?'<svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>':'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>')+'</button>';
     return base.replace('</li>', btn+'</li>');
   }
+
+  /* House recipes list their ingredients grouped by unit — the main/weighed
+     items, then all the tablespoons together, then teaspoons, then pinches,
+     then the "to taste" stragglers — instead of the units jumping around.
+     Runs once at load over BEGINNER + HOUSE only, so a person's own recipes
+     keep whatever order they typed. Stable within each group (the index
+     tiebreak) so the original sequence is preserved inside a unit.
+     Placed AFTER ING_UNITS/ingParts on purpose — this file has shipped bugs
+     from boot code reading a var assigned further down. */
+  function ingUnitRank(line){
+    var p=ingParts(line), u=p.u;
+    if(u==="tbsp") return 3;
+    if(u==="tsp")  return 4;
+    if(u==="pinch")return 5;
+    if(u==="cup")  return 2;
+    if(u==="lb"||u==="kg"||u==="g"||u==="oz"||u==="ml"||u==="l"||u==="clove") return 1;
+    return p.q?1:6;   /* "3 eggs" leads with the mains; bare "Salt" sinks last */
+  }
+  function sortIngsByUnit(arr){
+    return arr.map(function(x,i){return {x:x,i:i,r:ingUnitRank(x)};})
+              .sort(function(a,b){return (a.r-b.r)||(a.i-b.i);})
+              .map(function(o){return o.x;});
+  }
+  [BEGINNER,HOUSE].forEach(function(set){ set.forEach(function(r){
+    if(Array.isArray(r.ingredients)) r.ingredients=sortIngsByUnit(r.ingredients);
+  });});
 
   /* ---------- unit conversion (display-time) ---------- */
   var FRAC={"½":.5,"¼":.25,"¾":.75,"⅓":1/3,"⅔":2/3,"⅛":.125,"⅜":.375,"⅝":.625,"⅞":.875};
