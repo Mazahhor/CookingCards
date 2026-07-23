@@ -33,7 +33,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="30";</script>
+<script>window.__APPVER="31";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -479,6 +479,14 @@
   .send-chip{display:inline-flex;align-items:center;gap:2px;background:var(--surface);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;font-weight:600;color:var(--ink)}
   .send-x{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:var(--ink-faint);font-size:15px;line-height:1}
   .send-x:hover{background:var(--surface-2);color:var(--ink)}
+  .send-sug{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+  .send-sug:empty{display:none}
+  .sug-row{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:var(--surface);border-radius:12px;padding:9px 12px}
+  .sug-row:hover{background:var(--surface-2)}
+  .sug-av{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--saffron-soft);color:var(--saffron);font-weight:700;font-size:15px}
+  .sug-who{display:flex;flex-direction:column;min-width:0}
+  .sug-who b{font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sug-who span{font-size:12px;color:var(--ink-faint)}
   .share-or{display:flex;align-items:center;gap:10px;margin:16px 0 2px;color:var(--ink-faint);font-size:12px}
   .share-or::before,.share-or::after{content:"";flex:1;height:1px;background:var(--hairline)}
   .send-signin{display:block;width:100%;text-align:center;background:var(--surface);border-radius:12px;padding:12px;margin-bottom:12px;font-size:13.5px;font-weight:600;color:var(--saffron)}
@@ -977,9 +985,10 @@
   <div class="sheet-body">
     <div class="send-cook hidden" id="sendCook">
       <div class="send-row">
-        <input class="in" id="sendUser" placeholder="@username" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Send to a cook by username">
+        <input class="in" id="sendUser" placeholder="Search cooks by name" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Search for a cook to send this recipe to">
         <button class="btn-primary" id="sendGo">Send</button>
       </div>
+      <div class="send-sug" id="sendSug" role="listbox" aria-label="Matching cooks"></div>
       <p class="send-note">They get it in their cookbook, and it stays up to date whenever you change your recipe.</p>
       <div class="send-list" id="sendList"></div>
       <div class="share-or"><span>or share it outside the app</span></div>
@@ -3097,7 +3106,7 @@
       si.textContent=signedIn()?"Pick a username first, then you can send recipes to friends":"Sign in to send recipes to friends inside the app";
       si.onclick=function(){ closeShareSheet(); openAccount(); };
     }
-    if(canSend){ var su=$("#sendUser"); if(su) su.value=""; renderSendList(); }
+    if(canSend){ var su=$("#sendUser"); if(su) su.value=""; sendSel=null; clearSendSug(); renderSendList(); }
     $("#scrim").classList.add("on"); $("#shareSheet").classList.add("on"); refreshInert();
     /* focus the grid, not the username input — auto-focusing the input would
        throw the phone keyboard over the sheet before anyone chose to type */
@@ -4239,32 +4248,73 @@
       .then(function(){ toast("They no longer have it"); renderSendList(); })
       .catch(function(){ b.disabled=false; toast("Couldn't stop the share — try again"); });
   });
+  /* ---- find-a-cook typeahead: type a few letters, matching profiles appear,
+     tap one, Send. The reels-share pattern — nobody memorizes exact handles. ---- */
+  var sendSel=null, sugTimer=null, sugSeq=0;
+  function clearSendSug(){ var el=$("#sendSug"); if(el) el.innerHTML=""; }
+  function renderSendSug(list){
+    var el=$("#sendSug"); if(!el) return;
+    el.innerHTML="";
+    list.forEach(function(p){
+      var b=document.createElement("button");
+      b.className="sug-row"; b.type="button"; b.setAttribute("role","option");
+      b.innerHTML='<span class="sug-av">'+esc((p.display_name||p.username).charAt(0).toUpperCase())+'</span>'+
+        '<span class="sug-who"><b>'+esc(p.display_name||p.username)+'</b><span>@'+esc(p.username)+'</span></span>';
+      b.onclick=function(){
+        sendSel={id:p.id,username:p.username};
+        $("#sendUser").value="@"+p.username;
+        clearSendSug();
+        var go=$("#sendGo"); if(go) go.focus();
+      };
+      el.appendChild(b);
+    });
+  }
+  $("#sendUser").addEventListener("input",function(){
+    sendSel=null;                                  /* typing again = new search */
+    var term=this.value.trim().replace(/^@/,"").replace(/[^a-zA-Z0-9_ ]/g,"");
+    clearTimeout(sugTimer);
+    if(term.length<2){ clearSendSug(); return; }
+    sugTimer=setTimeout(function(){
+      var seq=++sugSeq;
+      var t=encodeURIComponent("*"+term+"*");
+      supaFetch("/rest/v1/profiles?select=id,username,display_name&or=(username.ilike."+t+",display_name.ilike."+t+")&limit=8")
+        .then(function(ps){
+          if(seq!==sugSeq) return;                 /* a newer keystroke owns the box */
+          var mine=profile?String(profile.username||"").toLowerCase():"";
+          renderSendSug((ps||[]).filter(function(p){ return p.username.toLowerCase()!==mine; }));
+        }).catch(function(){});
+    },250);
+  });
   $("#sendGo").onclick=function(){
     if(!shareId) return;
     if(!signedIn()||!session.user||!profile){ toast("Sign in first"); return; }
-    var raw=$("#sendUser").value.trim().replace(/^@/,"");
-    if(!/^[a-zA-Z0-9_]{3,20}$/.test(raw)){ toast("Type their username, like @maza"); return; }
-    if(raw.toLowerCase()===String(profile.username||"").toLowerCase()){ toast("That's you — this one is already yours"); return; }
     var btn=this, lid=shareId;
-    btn.disabled=true; btn.textContent="Sending…";
     var done=function(msg){ btn.disabled=false; btn.textContent="Send"; if(msg) toast(msg); };
-    /* ilike with no wildcard = case-insensitive exact match */
+    var sendTo=function(p){
+      if(p.username.toLowerCase()===String(profile.username||"").toLowerCase()){ done("That's you — this one is already yours"); return; }
+      /* the recipe row must exist in the cloud before the grant means anything */
+      return syncCookbook().then(function(){
+        return supaFetch("/rest/v1/recipe_shares",{
+          method:"POST",
+          headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+          body:JSON.stringify([{owner:session.user.id,local_id:lid,to_user:p.id}])
+        });
+      }).then(function(){
+        done("Sent — @"+p.username+" has it now");
+        sendSel=null; $("#sendUser").value=""; clearSendSug();
+        renderSendList();
+      }).catch(function(e){ done((e&&e.message)||"Couldn't send it — try again"); });
+    };
+    btn.disabled=true; btn.textContent="Sending…";
+    if(sendSel){ sendTo(sendSel); return; }
+    /* no tap-selection: fall back to treating the text as an exact username */
+    var raw=$("#sendUser").value.trim().replace(/^@/,"");
+    if(!/^[a-zA-Z0-9_]{3,20}$/.test(raw)){ done("Start typing and pick a cook from the list"); return; }
     supaFetch("/rest/v1/profiles?select=id,username&username=ilike."+encodeURIComponent(raw))
       .then(function(ps){
         var p=(ps||[])[0];
-        if(!p){ done('No cook named "@'+raw+'" — check the spelling'); return; }
-        /* the recipe row must exist in the cloud before the grant means anything */
-        return syncCookbook().then(function(){
-          return supaFetch("/rest/v1/recipe_shares",{
-            method:"POST",
-            headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
-            body:JSON.stringify([{owner:session.user.id,local_id:lid,to_user:p.id}])
-          });
-        }).then(function(){
-          done("Sent — @"+p.username+" has it now");
-          $("#sendUser").value="";
-          renderSendList();
-        });
+        if(!p){ done('No cook named "@'+raw+'" — try searching part of the name'); return; }
+        sendTo(p);
       })
       .catch(function(e){ done((e&&e.message)||"Couldn't send it — try again"); });
   };
