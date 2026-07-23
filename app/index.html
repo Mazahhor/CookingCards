@@ -33,7 +33,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="29";</script>
+<script>window.__APPVER="30";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -464,6 +464,25 @@
   .pub-pill{background:var(--surface);color:var(--ink-dim)}
   .pub-pill.on{background:var(--good);color:#0d2f16}
   .pub-pill:disabled{opacity:.6}
+  .sh-pill{background:var(--tsp-bg);color:var(--tsp)}
+  /* ---- direct sharing ---- */
+  .shared-div{display:flex;align-items:center;gap:10px;margin:16px 2px 4px;color:var(--ink-faint);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+  .shared-div::before,.shared-div::after{content:"";flex:1;height:1px;background:var(--hairline)}
+  .send-cook{margin-bottom:4px}
+  .send-row{display:flex;gap:8px}
+  .send-row .in{flex:1;min-width:0}
+  .send-row .btn-primary{flex:none;padding:0 20px;min-height:44px}
+  .send-note{margin:8px 2px 0;font-size:12.5px;line-height:1.5;color:var(--ink-faint)}
+  .send-list{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:10px}
+  .send-list:empty{display:none}
+  .send-with{font-size:12px;color:var(--ink-faint);font-weight:600}
+  .send-chip{display:inline-flex;align-items:center;gap:2px;background:var(--surface);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;font-weight:600;color:var(--ink)}
+  .send-x{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:var(--ink-faint);font-size:15px;line-height:1}
+  .send-x:hover{background:var(--surface-2);color:var(--ink)}
+  .share-or{display:flex;align-items:center;gap:10px;margin:16px 0 2px;color:var(--ink-faint);font-size:12px}
+  .share-or::before,.share-or::after{content:"";flex:1;height:1px;background:var(--hairline)}
+  .send-signin{display:block;width:100%;text-align:center;background:var(--surface);border-radius:12px;padding:12px;margin-bottom:12px;font-size:13.5px;font-weight:600;color:var(--saffron)}
+  .send-signin.hidden{display:none}
   .prof-head{display:flex;align-items:center;gap:13px;margin-bottom:4px}
   .prof-av{width:52px;height:52px;flex:none;border-radius:999px;background:var(--saffron);color:#1a1206;display:grid;place-items:center;font-family:var(--serif);font-size:24px;font-weight:600;overflow:hidden;padding:0;border:0}
   .prof-av img,.acct-av img{width:100%;height:100%;object-fit:cover;border-radius:999px;display:block}
@@ -942,6 +961,8 @@
     <button class="cm-item" id="cmShare"><svg viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="M8.1 10.8l7.8-4.6M8.1 13.2l7.8 4.6"/></svg><span class="cm-label">Share recipe</span></button>
     <button class="cm-item" id="cmShop"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6h15l-1.6 9H7.5z"/><path d="M6 6L5 3H2"/><circle cx="9" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg><span class="cm-label">Add ingredients to shopping list</span></button>
     <button class="cm-item" id="cmFav"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span class="cm-label">Add to favorites</span></button>
+    <button class="cm-item hidden" id="cmImport"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3h9a2 2 0 0 1 2 2v11h-2V5H9V3zM5 7h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/></svg><span class="cm-label">Import an editable copy</span></button>
+    <button class="cm-item cm-danger hidden" id="cmRemoveShare"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg><span class="cm-label">Remove from my cookbook</span></button>
     <button class="cm-item cm-danger" id="cmDelete"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg><span class="cm-label">Delete recipe</span></button>
   </div>
   <div class="sheet-foot"><button class="btn-quiet" id="cmClose" style="flex:1">Cancel</button></div>
@@ -954,6 +975,16 @@
     <h2 id="shareTitle">Share recipe</h2>
   </div>
   <div class="sheet-body">
+    <div class="send-cook hidden" id="sendCook">
+      <div class="send-row">
+        <input class="in" id="sendUser" placeholder="@username" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Send to a cook by username">
+        <button class="btn-primary" id="sendGo">Send</button>
+      </div>
+      <p class="send-note">They get it in their cookbook, and it stays up to date whenever you change your recipe.</p>
+      <div class="send-list" id="sendList"></div>
+      <div class="share-or"><span>or share it outside the app</span></div>
+    </div>
+    <button class="send-signin hidden" id="sendSignIn">Sign in to send recipes to friends inside the app</button>
     <div class="share-grid" id="shareGrid">
       <button class="share-opt" data-net="whatsapp"><span class="share-ic wa"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2zm5.6 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .3-3.3-.7-2.8-1.2-4.5-4-4.6-4.2-.2-.2-1.2-1.5-1.2-2.9s.7-2 1-2.3c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6c-.1.2-.3.3-.1.6.1.3.7 1.1 1.5 1.8 1 .9 1.8 1.1 2.1 1.3.2.1.4.1.6-.1l.7-.9c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.9-.1 1.4z"/></svg></span>WhatsApp</button>
       <button class="share-opt" data-net="telegram"><span class="share-ic tg"><svg viewBox="0 0 24 24"><path d="M21.8 4.3l-3.3 15.6c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-4.9 9-8.1c.4-.3-.1-.5-.6-.2L6 12.8l-4.7-1.5c-1-.3-1-1 .2-1.5l18.4-7.1c.8-.3 1.6.2 1.3 1.6z"/></svg></span>Telegram</button>
@@ -1339,9 +1370,16 @@
     return migrate(r);
   }
   /* "pub:" entries are other people's recipes held in memory only while being previewed
-     from Explore — they must never reach storage or the sync engine. */
-  function ownRecipes(r){ return (r||[]).filter(function(x){ return String(x.id).indexOf("pub:")!==0 }); }
-  function save(r){try{localStorage.setItem(KEY,JSON.stringify(ownRecipes(r)));return true;}catch(e){toast("Storage full. Export a backup.");return false;}}
+     from Explore — they must never reach storage or the sync engine.
+     "sh:" entries are recipes other cooks SHARED with this account (live-linked):
+     they render in the cookbook but are read-only, cached under their own key,
+     and the sync engine must never push them as if they were the user's own. */
+  function ownRecipes(r){ return (r||[]).filter(function(x){ var s=String(x.id); return s.indexOf("pub:")!==0 && s.indexOf("sh:")!==0 }); }
+  function sharedOnes(r){ return (r||[]).filter(function(x){ return String(x.id).indexOf("sh:")===0 }); }
+  function save(r){
+    /* linked recipes persist separately so the own-cookbook bytes never change shape */
+    try{ localStorage.setItem("kitchencards.shared.v1",JSON.stringify(sharedOnes(r))); }catch(e){}
+    try{localStorage.setItem(KEY,JSON.stringify(ownRecipes(r)));return true;}catch(e){toast("Storage full. Export a backup.");return false;}}
   /* refresh starter-recipe content to the latest SEED, once per MIGVER.
      Skips any recipe the user has hand-edited (userEdited flag). */
   function migrate(r){
@@ -1358,6 +1396,14 @@
     return r;
   }
   var recipes=load();
+  /* re-attach the cached linked recipes (shared by other cooks) — they live outside
+     the own-cookbook store so load()/migrate() never touch them */
+  (function(){
+    try{
+      var s=JSON.parse(localStorage.getItem("kitchencards.shared.v1"))||[];
+      if(Array.isArray(s)) recipes=recipes.concat(s.filter(function(x){ return x&&typeof x==="object"&&String(x.id).indexOf("sh:")===0 }));
+    }catch(e){}
+  })();
 
   /* ---------- helpers ---------- */
   /* ids must be unique ACROSS devices now that cookbooks sync — performance.now()
@@ -1560,12 +1606,12 @@
     var cats={};
     recipes.forEach(function(r){ if(r.category) cats[r.category]=1; });
     var catKeys=Object.keys(cats).sort();
-    var favCount=ownRecipes(recipes).filter(function(r){return r.fav}).length;
+    var favCount=ownRecipes(recipes).concat(sharedOnes(recipes)).filter(function(r){return r.fav}).length;
     if(curFilter.mode==="cat"&&!cats[curFilter.cat]) curFilter={mode:"all",cat:""};
     /* Favorites lost its nav tab, so this chip is now its ONLY home — it must be
        permanently visible (not conditional on having favorites) or the feature
        silently disappears for anyone who hasn't starred something yet. */
-    if(!ownRecipes(recipes).length) return "";
+    if(!ownRecipes(recipes).length&&!sharedOnes(recipes).length) return "";
     var h='<button class="chip-f'+(curFilter.mode==="all"?" on":"")+'" data-f="all">All</button>';
     h+='<button class="chip-f'+(curFilter.mode==="fav"?" on":"")+'" data-f="fav">★ Favorites'+(favCount?" "+favCount:"")+'</button>';
     catKeys.forEach(function(c){
@@ -1601,14 +1647,18 @@
     var list=$("#cardList"); list.innerHTML="";
     if(typeof updateNavActive==="function") updateNavActive();
     var terms=filter?filter.split(/\s+/).filter(Boolean):[];
-    var shown=ownRecipes(recipes).filter(function(r){
+    var passes=function(r){
       if(curFilter.mode==="fav"&&!r.fav) return false;
       if(curFilter.mode==="cat"&&r.category!==curFilter.cat) return false;
       if(!terms.length) return true;
       var hay=searchText(r);
       return terms.every(function(t){return hay.indexOf(t)>-1});
-    });
-    if(!shown.length){
+    };
+    var shown=ownRecipes(recipes).filter(passes);
+    /* recipes other cooks shared, live-linked — hidden while reordering (they keep
+       their own section and have no position of their own to drag) */
+    var linked=reordering?[]:sharedOnes(recipes).filter(passes);
+    if(!shown.length&&!linked.length){
       var big="🔍", head="No matches", sub="Try another search or filter";
       if(curFilter.mode==="fav"&&!filter){ big="⭐"; head="No favorites yet"; sub="Tap the star on any recipe to save it here."; }
       else if(curFilter.mode==="all"&&!filter&&!recipes.length){
@@ -1631,14 +1681,15 @@
       return;
     }
     var STAR='<svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>';
-    shown.forEach(function(r){
+    var makeCard=function(r,isLinked){
       var wrap=document.createElement("div"); wrap.className="rcard"; wrap.dataset.id=r.id;
       var b=document.createElement("button"); b.className="rcard-main";
       b.innerHTML='<div class="thumb">'+thumbInner(r)+
           (r.video?'<span class="vid-badge" title="Has a cooking video"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>':'')+'</div>'+
         '<div class="meta"><b>'+esc(r.title)+'</b><span>'+metaLine(r)+
           (isPublished(r.id)?' <i>·</i> <span class="pub-badge">Published</span>':'')+
-          (r.fromUser?' <i>·</i> <span class="byline" style="display:inline">@'+esc(r.fromUser)+'</span>':'')+
+          (isLinked?' <i>·</i> <span class="byline" style="display:inline">from @'+esc(r._shFrom||"?")+'</span>':
+            (r.fromUser?' <i>·</i> <span class="byline" style="display:inline">@'+esc(r.fromUser)+'</span>':''))+
         '</span></div>'+
         '<span class="chev"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>';
       b.onclick=function(){ if(reordering) return; if(Date.now()-lpFiredAt<700) return; openPlayer(r.id); };
@@ -1647,11 +1698,20 @@
       st.setAttribute("aria-pressed",r.fav?"true":"false");
       st.innerHTML=STAR;
       st.onclick=function(e){ e.stopPropagation(); toggleFav(r.id); };
-      var gp=document.createElement("span"); gp.className="grip"; gp.setAttribute("aria-hidden","true");
-      gp.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 9h16M4 15h16"/></svg>';
-      wrap.appendChild(b); wrap.appendChild(st); wrap.appendChild(gp);
+      if(!isLinked){
+        var gp=document.createElement("span"); gp.className="grip"; gp.setAttribute("aria-hidden","true");
+        gp.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 9h16M4 15h16"/></svg>';
+      }
+      wrap.appendChild(b); wrap.appendChild(st); if(!isLinked) wrap.appendChild(gp);
       list.appendChild(wrap);
-    });
+    };
+    shown.forEach(function(r){ makeCard(r,false); });
+    if(linked.length){
+      var dv=document.createElement("div"); dv.className="shared-div";
+      dv.innerHTML='<span>Shared with you</span>';
+      list.appendChild(dv);
+      linked.forEach(function(r){ makeCard(r,true); });
+    }
   }
   /* ---------- reorder mode: press a card and drag it up or down ---------- */
   var reordering=false, drag=null;
@@ -1785,6 +1845,14 @@
     $("#cmThumb").innerHTML=thumbInner(r);
     $("#cmFav .cm-label").textContent=r.fav?"Remove from favorites":"Add to favorites";
     $("#cmPublish .cm-label").textContent=isPublished(id)?"Remove from Explore":"Publish to Explore";
+    /* a linked recipe belongs to another cook: no edit/publish/delete —
+       instead offer an editable copy, and leaving the share */
+    var shared=String(id).indexOf("sh:")===0;
+    $("#cmEdit").classList.toggle("hidden",shared);
+    $("#cmPublish").classList.toggle("hidden",shared);
+    $("#cmDelete").classList.toggle("hidden",shared);
+    $("#cmImport").classList.toggle("hidden",!shared);
+    $("#cmRemoveShare").classList.toggle("hidden",!shared);
     $("#scrim").classList.add("on"); $("#cardMenu").classList.add("on"); refreshInert(); focusFirst($("#cardMenu"));
   }
   function closeCardMenu(){ $("#cardMenu").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); }
@@ -1800,6 +1868,12 @@
   };
   $("#cmShop").onclick=function(){ var r=recipes.filter(function(x){return x.id===cmId})[0]; if(r){ addAll(r); toast("Added to shopping list"); } closeCardMenu(); };
   $("#cmFav").onclick=function(){ if(cmId) toggleFav(cmId); closeCardMenu(); };
+  $("#cmImport").onclick=function(){ var id=cmId; closeCardMenu(); importSharedCopy(id); };
+  $("#cmRemoveShare").onclick=function(){
+    var r=recipes.filter(function(x){return x.id===cmId})[0]; if(!r){ closeCardMenu(); return; }
+    if(!window.confirm('Remove "'+r.title+'" from your cookbook?\n\nOnly @'+(r._shFrom||"the cook")+' can share it with you again.')) return;
+    closeCardMenu(); removeShare(r.id);
+  };
   $("#cmDelete").onclick=function(){
     var r=recipes.filter(function(x){return x.id===cmId})[0]; if(!r){ closeCardMenu(); return; }
     if(!window.confirm('Delete "'+r.title+'"?\n\nIt goes to Recently deleted in Settings, where you can restore it.')) return;
@@ -1958,6 +2032,9 @@
     releaseWake(); cur=null;
     renderLib($("#searchIn").value);
     restoreFocus();
+    /* a shares update arrived while this recipe was open and was held back —
+       apply it now that nothing is being read */
+    if(typeof shSkipped!=="undefined"&&shSkipped){ shSkipped=false; syncShares(); }
   }
   /* segment 0 is the overview card; segments 1..N are the steps */
   function buildSegs(){
@@ -2116,6 +2193,12 @@
         '<span class="nt-txt"><b>'+esc(done?"Timer done":(tState.heading||"Timer running"))+'</b>'+
         '<span>'+esc(tState.title||"")+' · '+(done?"tap to open":fmtClock(Math.max(tState.sec,0))+" left")+'</span></span></button>';
     }
+    /* shares: who sent you what, who updated what — newest first */
+    var shNotices=readShareNotices();
+    shNotices.slice(0,8).forEach(function(n){
+      rows+='<div class="nt-row static"><span class="nt-ic share">🍲</span>'+
+        '<span class="nt-txt"><b>'+esc(n.t)+'</b><span>'+esc(agoText(n.at))+'</span></span></div>';
+    });
     rows+='<div class="nt-row static"><span class="nt-ic tip">💡</span>'+
       '<span class="nt-txt"><b>Tip of the day</b><span>'+esc(tipForOffset(0))+'</span></span></div>';
     var perm=("Notification" in window)?Notification.permission:"unsupported";
@@ -2126,7 +2209,7 @@
       rows+='<div class="nt-row static"><span class="nt-ic off"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M4 4l16 16"/></svg></span>'+
         '<span class="nt-txt"><b>Notifications are blocked</b><span>Turn them on for Cooking Steps in your phone settings</span></span></div>';
     }
-    if(!live&&!done) rows+='<div class="nt-empty">No timers running. Start one on any recipe step.</div>';
+    if(!live&&!done&&!shNotices.length) rows+='<div class="nt-empty">No timers running. Start one on any recipe step.</div>';
     el.innerHTML=rows;
     var t=$("#ntTimer"); if(t) t.onclick=function(){ closeNotifs(); jumpToTimer(); };
     var en=$("#ntEnable"); if(en) en.onclick=function(){
@@ -2136,6 +2219,7 @@
   function openNotifs(){
     navOpened(); _return=document.activeElement;
     try{ localStorage.setItem("kitchencards.tipseen.v1",new Date().toDateString()); }catch(e){}
+    try{ localStorage.setItem("kitchencards.sharebellseen.v1",String(Date.now())); }catch(e){}
     renderNotifBody();
     $("#scrim").classList.add("on"); $("#notifSheet").classList.add("on");
     refreshInert(); focusFirst($("#notifSheet")); paintBell();
@@ -2151,7 +2235,9 @@
     var bell=$("#btnBell"), dot=$("#bellDot"); if(!dot) return;
     var live=tState.run&&tState.sec>0, done=tState.done;
     var freshTip=notifSeenTip()!==new Date().toDateString();
-    dot.hidden=!(live||done||freshTip);
+    var bellSeen=0; try{ bellSeen=+localStorage.getItem("kitchencards.sharebellseen.v1")||0; }catch(e){}
+    var freshShare=readShareNotices().some(function(n){ return (+n.at||0)>bellSeen; });
+    dot.hidden=!(live||done||freshTip||freshShare);
     if(bell) bell.classList.toggle("live",!!(live||done));
   }
   function jumpToTimer(){
@@ -2207,20 +2293,27 @@
     /* attribution: on a recipe being previewed from Explore, and on one already saved
        from another cook — both tap through to that cook's profile */
     var _pr=pubRowOf(cur);
+    var _sh=String(cur.id).indexOf("sh:")===0;
     var credName = _pr ? ((authorOf(_pr)||{}).username||"") : (cur.fromUser||"");
-    var credit = credName
-      ? '<button class="credit-pill" id="creditPill" data-u="'+esc(credName)+'">from @'+esc(credName)+'</button>'
-      : '';
+    var credit = "";
+    if(_sh){
+      /* a live-linked share: say whose it is and that it stays current, and offer the fork */
+      credit = (credName?'<button class="credit-pill sh-pill" id="creditPill" data-u="'+esc(credName)+'">Synced from @'+esc(credName)+'</button>':'')+
+        '<button class="credit-pill" id="shImportPill">Import a copy to edit</button>';
+    }else if(credName){
+      credit = '<button class="credit-pill" id="creditPill" data-u="'+esc(credName)+'">from @'+esc(credName)+'</button>';
+    }
     /* publishing was only reachable by long-press (an invisible gesture) — surface it
        on the recipe's own overview card, where the decision naturally happens */
-    if(!_pr && signedIn() && String(cur.id).indexOf("pub:")!==0){
+    if(!_pr && !_sh && signedIn() && String(cur.id).indexOf("pub:")!==0){
       var pub=isPublished(cur.id);
       credit += '<button class="credit-pill pub-pill'+(pub?" on":"")+'" id="pubPill">'+
         (pub?'✓ Published — tap to remove':'Publish to Explore')+'</button>';
+      if(profile) credit += '<button class="credit-pill" id="sendPill">Send to a friend</button>';
     }
     box.innerHTML='<div class="ingredients-card">'+hero+
       '<h1 class="step-title">'+esc(cur.title)+'</h1>'+credit+metaHtml+
-      scaleBarHTML()+videoPillHTML()+
+      scaleBarHTML()+((_sh&&!cur.video)?'':videoPillHTML())+
       (raw.length?'<div class="ing-tools"><button class="add-all-btn" id="ingAddAll"><svg viewBox="0 0 24 24"><path d="M6 6h15l-1.6 9H7.5z"/><path d="M6 6L5 3H2"/></svg>Add all to list</button><span class="ing-hint">or tap + on what you need</span></div>':'')+
       (items?'<ul class="chk chk-shop">'+items+'</ul>':'<p class="step-body">No ingredients listed. Tap edit to add them.</p>')+
       '</div>';
@@ -2232,6 +2325,8 @@
       this.disabled=true; this.textContent=was?"Removing…":"Publishing…";
       (was?unpublishRecipe(cur.id):publishRecipe(cur)).then(function(){ if(showingIng) renderIng(); });
     };
+    var sp=$("#sendPill"); if(sp) sp.onclick=function(){ if(cur) shareRecipe(cur.id); };
+    var ip=$("#shImportPill"); if(ip) ip.onclick=function(){ if(cur) importSharedCopy(cur.id); };
     var va=$("#vidAdd"); if(va) va.onclick=function(){ if(cur) openEditor(cur.id) };
     $("#stage").scrollTop=0;
     box.classList.remove("enter","enter-rev"); void box.offsetWidth;
@@ -2434,6 +2529,8 @@
   function openEditor(id){
     /* previews of other people's recipes are not editable — the edit would go nowhere */
     if(id&&String(id).indexOf("pub:")===0){ toast("Save it to your cookbook first, then edit your copy"); return; }
+    /* live-linked shares stay the owner's — the fork is the way to make it yours */
+    if(id&&String(id).indexOf("sh:")===0){ toast("This recipe is kept in sync by its owner — import a copy to edit it"); return; }
     editId=id||null;
     var r=id?recipes.filter(function(x){return x.id===id})[0]:null;
     $("#sheetTitle").textContent=r?"Edit recipe":"New recipe";
@@ -2762,7 +2859,10 @@
 
   /* export / import */
   function doExport(){
-    var json=JSON.stringify(recipes,null,2);
+    /* a backup is YOUR recipes: linked shares stay with their owners (re-importing
+       them here would turn them into disconnected copies), previews stay transient */
+    var mine=ownRecipes(recipes);
+    var json=JSON.stringify(mine,null,2);
     try{
       if(navigator.canShare){ var file=new File([json],"cooking-steps-backup.json",{type:"application/json"});
         if(navigator.canShare({files:[file]})){ navigator.share({files:[file],title:"Cooking Steps backup"}).catch(function(){}); toast("Sharing backup"); return; } }
@@ -2771,7 +2871,7 @@
     var url=URL.createObjectURL(blob), a=document.createElement("a");
     a.href=url; a.download="cooking-steps-backup.json"; a.click();
     setTimeout(function(){URL.revokeObjectURL(url)},2000);
-    toast(recipes.length+" recipe"+(recipes.length===1?"":"s")+" backed up");
+    toast(mine.length+" recipe"+(mine.length===1?"":"s")+" backed up");
   }
   function doImport(){
     var inp=document.createElement("input"); inp.type="file"; inp.accept="application/json,.json";
@@ -2975,16 +3075,33 @@
     return L.join("\n").replace(/\n{3,}/g,"\n\n").replace(/\n+$/,"");
   }
   var shareBuf={title:"",text:""};
+  var shareId=null;   /* the recipe the share sheet is open for (own recipes only) */
   function shareRecipe(id){
     var r=recipes.filter(function(x){return x.id===id})[0]; if(!r) return;
     shareBuf={title:r.title,text:recipeText(r)};
+    /* in-app sending is only for recipes this cook OWNS — a linked share or a
+       public preview is someone else's to send */
+    var own=String(id).indexOf("sh:")!==0&&String(id).indexOf("pub:")!==0;
+    shareId=own?id:null;
     openShareSheet();
   }
   function openShareSheet(){
     navOpened();
     _return=document.activeElement;
     var more=$("#shareMore"); if(more) more.hidden=!(navigator.share);
-    $("#scrim").classList.add("on"); $("#shareSheet").classList.add("on"); refreshInert(); focusFirst($("#shareSheet"));
+    var sc=$("#sendCook"), si=$("#sendSignIn");
+    var canSend=!!(shareId&&signedIn()&&profile);
+    if(sc) sc.classList.toggle("hidden",!canSend);
+    if(si){
+      si.classList.toggle("hidden",!(shareId&&!canSend));
+      si.textContent=signedIn()?"Pick a username first, then you can send recipes to friends":"Sign in to send recipes to friends inside the app";
+      si.onclick=function(){ closeShareSheet(); openAccount(); };
+    }
+    if(canSend){ var su=$("#sendUser"); if(su) su.value=""; renderSendList(); }
+    $("#scrim").classList.add("on"); $("#shareSheet").classList.add("on"); refreshInert();
+    /* focus the grid, not the username input — auto-focusing the input would
+       throw the phone keyboard over the sheet before anyone chose to type */
+    focusFirst($("#shareGrid"));
   }
   function closeShareSheet(){ $("#shareSheet").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); }
   function shareVia(net){
@@ -3473,6 +3590,15 @@
     var tok=signedIn()?session.access_token:null;
     saveSession(null); profile=null;
     pubIds={}; exploreLoaded=false;      /* the next account must not inherit publish state */
+    /* linked shares belong to the ACCOUNT, not the device — the next sign-in
+       must not see the previous account's shared recipes */
+    recipes=recipes.filter(function(x){ return String(x.id).indexOf("sh:")!==0; });
+    try{
+      localStorage.removeItem("kitchencards.shared.v1");
+      localStorage.removeItem("kitchencards.sharesseen.v1");
+      localStorage.removeItem("kitchencards.sharenotices.v1");
+      localStorage.removeItem("kitchencards.sharebellseen.v1");
+    }catch(e){}
     if(tok){ fetch(SUPA_URL+"/auth/v1/logout",{method:"POST",headers:{apikey:SUPA_KEY,Authorization:"Bearer "+tok}}).catch(function(){}); }
     try{ renderFilterBar(); renderLib($("#searchIn").value); }catch(e){}
     try{ showWelcome(); }catch(e){}
@@ -3624,7 +3750,10 @@
       try{ prevOwner=localStorage.getItem(OWNERKEY); }catch(e){}
       if(prevOwner && prevOwner!==uid) writeTombs({});
       try{ localStorage.setItem(OWNERKEY,uid); }catch(e){}
-      return supaFetch("/rest/v1/user_recipes?select=local_id,recipe,deleted,updated_at").then(function(rows){
+      /* user_id filter is LOAD-BEARING, not decorative: RLS now also grants us READ
+         access to rows other cooks shared with us — without this filter those rows
+         would flood in here and be merged as if they were this user's own recipes */
+      return supaFetch("/rest/v1/user_recipes?select=local_id,recipe,deleted,updated_at&user_id=eq."+encodeURIComponent(uid)).then(function(rows){
         rows=rows||[];
         var remote={}; rows.forEach(function(row){ remote[row.local_id]={ts:Date.parse(row.updated_at)||0,row:row}; });
         var tombs=readTombs(), changed=false, push=[];
@@ -3696,6 +3825,9 @@
       .then(function(res){
         syncing=false;
         if(syncPending){ syncPending=false; syncSoon(); }
+        /* shares ride along on every cookbook sync (throttled — the grants query is
+           tiny, but an editing burst shouldn't refetch friends' cookbooks each time) */
+        if(res&&signedIn()&&Date.now()-lastSharesAt>30000) syncShares();
         return res;
       });
   }
@@ -3898,10 +4030,12 @@
   /* reconciles the action bar for whatever `cur` is — called on EVERY player open */
   function paintSaveBtn(){
     var isPub=!!pubRowOf(cur);
+    var isShared=!!(cur&&String(cur.id).indexOf("sh:")===0);
     var b=$("#btnSavePublic"); if(b) b.classList.toggle("hidden",!isPub);
     var fav=$("#btnFav"); if(fav) fav.classList.toggle("hidden",isPub);
-    /* someone else's recipe is not editable — the edit would silently evaporate */
-    var ed=$("#btnEditFromPlayer"); if(ed) ed.classList.toggle("hidden",isPub);
+    /* someone else's recipe is not editable — the edit would silently evaporate.
+       A live-linked share is the same: the owner's next sync would overwrite it. */
+    var ed=$("#btnEditFromPlayer"); if(ed) ed.classList.toggle("hidden",isPub||isShared);
   }
   function savePublicToCookbook(){
     var row=pubRowOf(cur); if(!row) return;
@@ -3955,6 +4089,186 @@
   }
   function closeProfile(){ $("#profileSheet").classList.remove("on"); if(!anySheetOpen()) $("#scrim").classList.remove("on"); refreshInert(); restoreFocus(); }
   $("#btnProfClose").onclick=closeProfile;
+
+  /* ================= direct sharing (live-linked recipes) =================
+     A shared recipe lives ONCE — in the owner's user_recipes row. recipe_shares is
+     a grant list; RLS lets a recipient READ granted rows. The recipient's app keeps
+     a local "sh:<owner>:<local_id>" copy that is REPLACED wholesale from the server
+     on every shares sync: the owner is the authority, no merging, no timestamps to
+     fight over. The recipient's star (fav) is the one thing that survives locally.
+     All storage keys are LITERAL strings, never vars — this file's thrice-burned
+     boot-order rule (trash, TOMBKEY): paintBell runs at boot, before any var here. */
+  function readShareSeen(){ try{ return JSON.parse(localStorage.getItem("kitchencards.sharesseen.v1"))||{}; }catch(e){ return {}; } }
+  function writeShareSeen(m){ try{ localStorage.setItem("kitchencards.sharesseen.v1",JSON.stringify(m)); }catch(e){} }
+  function readShareNotices(){ try{ var a=JSON.parse(localStorage.getItem("kitchencards.sharenotices.v1")); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+  function writeShareNotices(a){ try{ localStorage.setItem("kitchencards.sharenotices.v1",JSON.stringify(a)); }catch(e){} }
+  function addShareNotice(txt){
+    var a=readShareNotices(); a.unshift({t:txt,at:Date.now()}); if(a.length>20)a.length=20;
+    writeShareNotices(a); paintBell(); webNotify("Cooking Steps",txt);
+    if($("#notifSheet").classList.contains("on")) renderNotifBody();
+  }
+
+  var lastSharesAt=0, sharesSyncing=false, shSkipped=false;
+  function syncShares(){
+    if(!signedIn()||!session.user) return Promise.resolve(false);
+    if(sharesSyncing) return Promise.resolve(false);
+    sharesSyncing=true; lastSharesAt=Date.now();
+    var me=session.user.id;
+    return supaFetch("/rest/v1/recipe_shares?select=owner,local_id&to_user=eq."+encodeURIComponent(me))
+      .then(function(grants){
+        grants=grants||[];
+        if(!grants.length) return applyShared([],{});
+        var owners={}; grants.forEach(function(g){ owners[g.owner]=1; });
+        var ids=Object.keys(owners).map(encodeURIComponent).join(",");
+        return supaFetch("/rest/v1/profiles?select=id,username&id=in.("+ids+")")
+          .then(function(ps){
+            var names={}; (ps||[]).forEach(function(p){ names[p.id]=p.username; });
+            /* RLS trims this to exactly the granted rows */
+            return supaFetch("/rest/v1/user_recipes?select=user_id,local_id,recipe,deleted,updated_at&user_id=in.("+ids+")")
+              .then(function(rows){ return applyShared(rows||[],names); });
+          });
+      })
+      .catch(function(){ return false; })
+      .then(function(res){ sharesSyncing=false; return res; });
+  }
+  /* server state in, local sh: set out — wholesale replace, owner is the authority */
+  function applyShared(rows,names){
+    var seen=readShareSeen(), nseen={};
+    var oldById={}; sharedOnes(recipes).forEach(function(x){ oldById[x.id]=x; });
+    var fresh=[], freshIds={};
+    shSkipped=false;
+    rows.forEach(function(row){
+      if(row.deleted||!row.recipe) return;
+      var id="sh:"+row.user_id+":"+row.local_id;
+      var rts=Date.parse(row.updated_at)||0;
+      var old=oldById[id];
+      /* never swap the recipe out from under an open player mid-cook — the fresh
+         body lands on the next sync after it closes (closePlayer retriggers) */
+      if(old && cur && cur.id===id && $("#player").classList.contains("on") && rts>(old._shAt||0)){
+        fresh.push(old); freshIds[id]=1; nseen[id]=(seen[id]!=null)?seen[id]:rts; shSkipped=true; return;
+      }
+      var nr=normalizeRecipe(row.recipe); if(!nr) return;
+      nr.id=id;
+      nr._shOwner=row.user_id; nr._shLid=row.local_id;
+      nr._shFrom=names[row.user_id]||(old&&old._shFrom)||"";
+      nr._shAt=rts;
+      nr.fromUser=nr._shFrom;          /* feeds the existing credit pill */
+      nr.userEdited=false;
+      nr.fav=old?!!old.fav:false;      /* the star is the recipient's, not the owner's */
+      fresh.push(nr); freshIds[id]=1;
+      var prev=seen[id];
+      if(prev==null) addShareNotice("@"+(nr._shFrom||"a cook")+' shared "'+nr.title+'" with you');
+      else if(rts>prev) addShareNotice("@"+(nr._shFrom||"a cook")+' updated "'+nr.title+'"');
+      nseen[id]=rts;
+    });
+    /* ended shares (owner revoked, or deleted the recipe) simply disappear */
+    var removed=[];
+    Object.keys(oldById).forEach(function(id){ if(!freshIds[id]) removed.push(oldById[id].title); });
+    var before=sharedOnes(recipes);
+    /* order-independent: the server may hand rows back in any order */
+    var sig=function(a){ return a.map(function(x){ return x.id+":"+(x._shAt||0)+":"+(x.fav?1:0); }).sort().join("|"); };
+    if(sig(fresh)!==sig(before)){
+      /* newest share/update first — server row order is arbitrary */
+      fresh.sort(function(a,b){ return (b._shAt||0)-(a._shAt||0); });
+      recipes=recipes.filter(function(x){ return String(x.id).indexOf("sh:")!==0; }).concat(fresh);
+      save(recipes);
+      try{ renderFilterBar(); renderLib($("#searchIn").value); }catch(e){}
+    }
+    removed.forEach(function(t){ addShareNotice('"'+t+'" is no longer shared with you'); });
+    writeShareSeen(nseen);
+    return true;
+  }
+  /* recipient takes a share out of their cookbook (and gives up the grant) */
+  function removeShare(id){
+    var r=recipes.filter(function(x){return x.id===id})[0]; if(!r) return;
+    recipes=recipes.filter(function(x){return x.id!==id});
+    save(recipes);
+    var seen=readShareSeen(); delete seen[id]; writeShareSeen(seen);
+    removeFromList(id);
+    if(cur&&cur.id===id&&$("#player").classList.contains("on")) closePlayer();
+    renderFilterBar(); renderLib($("#searchIn").value);
+    toast(r._shFrom?("Removed — ask @"+r._shFrom+" if you want it back"):"Removed from your cookbook");
+    if(signedIn()&&session.user&&r._shOwner&&r._shLid){
+      supaFetch("/rest/v1/recipe_shares?owner=eq."+encodeURIComponent(r._shOwner)+
+        "&local_id=eq."+encodeURIComponent(r._shLid)+
+        "&to_user=eq."+encodeURIComponent(session.user.id),{method:"DELETE"}).catch(function(){});
+    }
+  }
+  /* fork: an owned, editable copy — disconnected from the owner's future edits */
+  function importSharedCopy(id){
+    var src=recipes.filter(function(x){return x.id===id})[0]; if(!src) return;
+    var copy=normalizeRecipe(src); if(!copy){ toast("Couldn't copy that recipe"); return; }
+    copy.id=uid();
+    copy.fromUser=src._shFrom||"";
+    copy.fav=false;
+    touchRecipe(copy);
+    recipes.unshift(copy);
+    if(!save(recipes)){ recipes.shift(); return; }
+    syncSoon();
+    renderFilterBar(); renderLib($("#searchIn").value);
+    toast("Copied to your cookbook — this one is yours to edit");
+  }
+
+  /* ---- sender side: send by username, list who has it, revoke ---- */
+  function renderSendList(){
+    var el=$("#sendList"); if(!el) return;
+    el.innerHTML="";
+    if(!shareId||!signedIn()||!session.user) return;
+    var lid=shareId;
+    supaFetch("/rest/v1/recipe_shares?select=to_user&owner=eq."+encodeURIComponent(session.user.id)+"&local_id=eq."+encodeURIComponent(lid))
+      .then(function(rows){
+        rows=rows||[];
+        if(!rows.length||shareId!==lid) return;
+        var ids=rows.map(function(x){return encodeURIComponent(x.to_user)}).join(",");
+        return supaFetch("/rest/v1/profiles?select=id,username&id=in.("+ids+")").then(function(ps){
+          if(shareId!==lid) return;
+          var names={}; (ps||[]).forEach(function(p){ names[p.id]=p.username; });
+          el.innerHTML='<span class="send-with">Shared with</span>'+rows.map(function(x){
+            var u=names[x.to_user]||"?";
+            return '<span class="send-chip">@'+esc(u)+'<button class="send-x" data-uid="'+esc(x.to_user)+'" aria-label="Stop sharing with @'+esc(u)+'">×</button></span>';
+          }).join("");
+        });
+      }).catch(function(){});
+  }
+  $("#sendList").addEventListener("click",function(e){
+    var b=e.target&&e.target.closest?e.target.closest(".send-x"):null; if(!b) return;
+    if(!shareId||!signedIn()||!session.user) return;
+    b.disabled=true;
+    supaFetch("/rest/v1/recipe_shares?owner=eq."+encodeURIComponent(session.user.id)+
+      "&local_id=eq."+encodeURIComponent(shareId)+"&to_user=eq."+encodeURIComponent(b.getAttribute("data-uid")),{method:"DELETE"})
+      .then(function(){ toast("They no longer have it"); renderSendList(); })
+      .catch(function(){ b.disabled=false; toast("Couldn't stop the share — try again"); });
+  });
+  $("#sendGo").onclick=function(){
+    if(!shareId) return;
+    if(!signedIn()||!session.user||!profile){ toast("Sign in first"); return; }
+    var raw=$("#sendUser").value.trim().replace(/^@/,"");
+    if(!/^[a-zA-Z0-9_]{3,20}$/.test(raw)){ toast("Type their username, like @maza"); return; }
+    if(raw.toLowerCase()===String(profile.username||"").toLowerCase()){ toast("That's you — this one is already yours"); return; }
+    var btn=this, lid=shareId;
+    btn.disabled=true; btn.textContent="Sending…";
+    var done=function(msg){ btn.disabled=false; btn.textContent="Send"; if(msg) toast(msg); };
+    /* ilike with no wildcard = case-insensitive exact match */
+    supaFetch("/rest/v1/profiles?select=id,username&username=ilike."+encodeURIComponent(raw))
+      .then(function(ps){
+        var p=(ps||[])[0];
+        if(!p){ done('No cook named "@'+raw+'" — check the spelling'); return; }
+        /* the recipe row must exist in the cloud before the grant means anything */
+        return syncCookbook().then(function(){
+          return supaFetch("/rest/v1/recipe_shares",{
+            method:"POST",
+            headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+            body:JSON.stringify([{owner:session.user.id,local_id:lid,to_user:p.id}])
+          });
+        }).then(function(){
+          done("Sent — @"+p.username+" has it now");
+          $("#sendUser").value="";
+          renderSendList();
+        });
+      })
+      .catch(function(e){ done((e&&e.message)||"Couldn't send it — try again"); });
+  };
+  $("#sendUser").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); $("#sendGo").click(); } });
 
   /* ---- password show/hide eye ---- */
   function addEye(inp){
