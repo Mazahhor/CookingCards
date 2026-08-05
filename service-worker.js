@@ -1,4 +1,4 @@
-const CACHE = "cooking-steps-v32";
+const CACHE = "cooking-steps-v33";
 const ASSETS = ["/", "/index.html", "/site.css", "/blog/",
   "/app/", "/app/index.html", "/app/manifest.webmanifest",
   "/app/icons/icon-192.png", "/app/icons/icon-512.png", "/app/icons/icon-180.png",
