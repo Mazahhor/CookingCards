@@ -33,7 +33,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="36";</script>
+<script>window.__APPVER="37";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -445,6 +445,9 @@
   /* Explore sits above the library but below the player, so opening a recipe from
      Explore still uses the normal full-screen cooking view. */
   .explore{position:fixed;inset:0;background:var(--ground);z-index:16;overflow-y:auto;
+    /* contain: at the list's top/bottom edge iOS otherwise hands the drag to the
+       page behind and the overlay stops scrolling until the next touch */
+    overscroll-behavior:contain;
     opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease, visibility 0s linear .18s}
   .explore.on{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .18s ease, visibility 0s}
   .app-wrap-explore{max-width:var(--shell);margin:0 auto;width:100%;min-height:100%;display:flex;flex-direction:column;
@@ -4045,7 +4048,7 @@
     [].forEach.call(this.querySelectorAll(".chip-f"),function(b){
       var on=b===c; b.classList.toggle("on",on); b.setAttribute("aria-selected",on?"true":"false");
     });
-    $("#exploreList").scrollTop=0;
+    $("#explore").scrollTop=0;
     renderExplore($("#exploreSearch").value);
   });
 
