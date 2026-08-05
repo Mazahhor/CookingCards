@@ -33,7 +33,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="35";</script>
+<script>window.__APPVER="36";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -3924,8 +3924,8 @@
      travel the same open/save path as published ones. No network, no account. */
   var exploreTab="house";
   function houseRows(){
-    /* newest house recipes first — a fresh add lands on top — then the beginner trio */
-    return HOUSE.slice().reverse().concat(BEGINNER).map(function(r){
+    /* beginner trio pinned on top, then house recipes newest-first (a fresh add lands right below the beginners) */
+    return BEGINNER.concat(HOUSE.slice().reverse()).map(function(r){
       return {id:"house-"+r.id, title:r.title, category:r.category||"", user_id:null, recipe:r, _house:true};
     });
   }
