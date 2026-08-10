@@ -111,6 +111,21 @@ header.site.menu-open .navset{
   position:absolute;top:70px;right:24px;min-width:240px;
   background:var(--paper);border:1px solid var(--hairline);border-radius:16px;
   box-shadow:0 20px 46px var(--shadow);padding:10px;z-index:60;
+  transform-origin:top right;animation:navsetIn .16s ease-out both;
+}
+@keyframes navsetIn{from{opacity:0;transform:translateY(-6px) scale(.98)}}
+@media (prefers-reduced-motion:reduce){
+  header.site.menu-open .navset{animation:none}
+}
+/* The panel hangs off the burger, not the window. .nav is a centred .wrap, so
+   anchoring to the header (full-bleed, sticky) parked the menu ~150px right of
+   the button that opened it on wide screens. Only ≥761px: below that the panel
+   is deliberately near-full-width and still anchors to the header. */
+@media (min-width:761px){
+  .nav{position:relative}
+  /* right:24px == .wrap's side padding, so the panel's right edge lands exactly
+     on the burger's right edge. .nav is 66px tall, so this clears the header. */
+  header.site.menu-open .navset{top:calc(100% + 8px);right:24px;left:auto}
 }
 header.site.menu-open .navset a{display:block;padding:13px 14px;font-size:16.5px;border-radius:11px}
 header.site.menu-open .navset a:hover{background:var(--card);text-decoration:none}
