@@ -8,20 +8,20 @@
      counted twice. Without it the layout viewport IS the safe area, the insets
      collapse to 0, and bottom:0 lands exactly above the home indicator. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#16110B">
+<meta name="theme-color" content="#FCFAF4">
 <title>Cooking Steps</title>
 <meta name="description" content="Cook without losing your place. Swipe through any recipe one step at a time.">
 <link rel="canonical" href="https://cookingsteps.app/app/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://cookingsteps.app/app/">
 <meta property="og:site_name" content="Cooking Steps">
-<meta property="og:title" content="Cooking Steps — recipes that walk you through it">
+<meta property="og:title" content="Cooking Steps, recipes that walk you through it">
 <meta property="og:description" content="Cook without losing your place. Swipe through any recipe one step at a time.">
 <meta property="og:image" content="https://cookingsteps.app/app/icons/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Cooking Steps — recipes that walk you through it">
+<meta name="twitter:title" content="Cooking Steps, recipes that walk you through it">
 <meta name="twitter:description" content="Cook without losing your place. Swipe through any recipe one step at a time.">
 <meta name="twitter:image" content="https://cookingsteps.app/app/icons/og-image.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -33,7 +33,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>try{var kt=localStorage.getItem("kitchencards.theme.v1")||localStorage.getItem("cookingsteps.site.theme");document.documentElement.setAttribute("data-theme",kt==="dark"?"dark":"light");}catch(e){document.documentElement.setAttribute("data-theme","light");}</script>
-<script>window.__APPVER="38";</script>
+<script>window.__APPVER="39";</script>
 <style>
   :root{
     /* brand palette: true-black night ground, cream ink, brass gold */
@@ -120,15 +120,6 @@
     flex-direction:column;
     background:var(--ground);
   }
-  .icon-btn{
-    width:40px;height:40px;border-radius:999px;
-    display:grid;place-items:center;
-    background:var(--surface);
-    transition:background .15s ease, transform .1s ease;
-  }
-  .icon-btn:hover{background:var(--surface-2)}
-  .icon-btn:active{transform:scale(.93)}
-  .icon-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   :focus-visible{outline:2px solid var(--saffron);outline-offset:2px;border-radius:6px}
 
   /* ---------- LIBRARY ---------- */
@@ -231,8 +222,6 @@
   .scale-val b{font-family:var(--serif);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
   .scale-val span{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-top:3px}
   .scale-reset{flex:none;background:none;color:var(--saffron);font-size:12.5px;font-weight:600;padding:6px 6px 6px 2px}
-  .icon-btn.fav-on{color:var(--saffron)}
-  .icon-btn.fav-on svg{fill:var(--saffron)}
   /* video link pill (in player ingredients panel) */
   .vid-pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:11px 18px;font-size:14px;font-weight:600;text-decoration:none;cursor:pointer;transition:background .15s ease,transform .1s ease,filter .15s ease}
   .vid-pill:active{transform:scale(.97)}
@@ -263,7 +252,6 @@
   .icon-cell .ic-color{width:28px;height:28px}
   .thumb .ic-color{width:36px;height:36px}
   .thumb-sm .ic-color{width:24px;height:24px}
-  .thumb-xs .ic-color{width:20px;height:20px}
   /* emoji icon picker */
   .icon-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
   .icon-grid-label{grid-column:1/-1;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);margin:2px 0 -1px;display:flex;align-items:center;gap:6px}
@@ -308,7 +296,6 @@
   .share-ic.wa{background:#25D366}
   .share-ic.tg{background:#229ED9}
   .share-ic.x{background:#111}
-  .share-ic.fb{background:#1877F2}
   .share-ic.em{background:#EA5B48}
   .share-ic.sms{background:#34C759}
   .share-ic.cp{background:var(--surface-2)}
@@ -319,15 +306,6 @@
   .shop-btn{position:relative}
   .shop-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:var(--saffron);color:#1a1206;font-size:11px;font-weight:800;display:none;place-items:center;line-height:1}
   .shop-badge.on{display:grid}
-  .shop-group{display:flex;flex-direction:column;gap:1px}
-  .shop-group + .shop-group{margin-top:18px}
-  .shop-ghead{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-  .shop-ghead .thumb-xs{width:30px;height:30px;flex:none;border-radius:8px;display:grid;place-items:center;font-size:16px;overflow:hidden;background:radial-gradient(120% 120% at 30% 20%,var(--thumb-a),var(--thumb-b));box-shadow:inset 0 0 0 1px var(--hairline)}
-  .shop-ghead .thumb-xs .thumb-img{border-radius:8px}
-  .shop-ghead b{flex:1;font-family:var(--serif);font-size:16px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .shop-ghead .gx{width:30px;height:30px;flex:none;border-radius:8px;display:grid;place-items:center;color:var(--ink-faint)}
-  .shop-ghead .gx:hover{color:var(--paprika)}
-  .shop-ghead .gx svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
   /* flat shopping list: one row per ingredient, merged across recipes */
   .shop-row{display:flex;align-items:flex-start;gap:4px;border-bottom:1px solid var(--hairline)}
   .shop-row:last-child{border-bottom:none}
@@ -422,23 +400,6 @@
   .empty-acts .btn-primary,.empty-acts .btn-quiet{width:100%}
   .empty .big{font-size:40px}
   .empty b{font-family:var(--serif);font-size:20px;color:var(--ink)}
-  .lib-foot{display:flex;gap:10px;padding-top:14px}
-  .ghost-btn{
-    flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
-    background:var(--surface);border-radius:12px;padding:12px;font-size:13.5px;color:var(--ink-dim);
-    transition:background .15s ease;
-  }
-  .ghost-btn:hover{background:var(--surface-2);color:var(--ink)}
-  .ghost-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7}
-  .add-fab{
-    display:flex;align-items:center;justify-content:center;gap:9px;
-    background:var(--btn-bg);color:var(--btn-ink);border-radius:14px;padding:15px;
-    font-size:15px;font-weight:600;margin-top:12px;letter-spacing:.2px;
-    transition:transform .1s ease, filter .15s ease;
-  }
-  .add-fab:hover{filter:brightness(.94)}
-  .add-fab:active{transform:scale(.98)}
-  .add-fab svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2.2}
 
   /* ---------- PLAYER ---------- */
   /* fade+settle instead of display:none -> flex, which snapped in (looked like a flash) */
@@ -449,6 +410,9 @@
        page behind and the overlay stops scrolling until the next touch */
     overscroll-behavior:contain;
     opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease, visibility 0s linear .18s}
+  /* same containment for every other fullscreen scroller — one un-contained overlay
+     is how the Explore freeze happened */
+  .stage,.sheet-body,.welcome{overscroll-behavior:contain}
   .explore.on{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .18s ease, visibility 0s}
   .app-wrap-explore{max-width:var(--shell);margin:0 auto;width:100%;min-height:100%;display:flex;flex-direction:column;
     padding:0 18px}
@@ -540,9 +504,6 @@
   .play svg{width:30px;height:30px;fill:currentColor;stroke:none;margin-left:2px}
   .play.is-run svg{margin-left:0}
   .ingredients-card{display:flex;flex-direction:column;align-items:center;gap:18px;width:100%}
-  .ing-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:2px;width:100%;max-width:32ch;text-align:left}
-  .ing-list li{display:flex;gap:12px;padding:11px 4px;border-bottom:1px solid var(--hairline);font-size:15.5px;color:var(--text-body)}
-  .ing-list li::before{content:"";width:6px;height:6px;border-radius:999px;background:var(--saffron);margin-top:8px;flex:none}
   .chk{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:1px;width:100%;max-width:35ch;text-align:left}
   .chk li{display:flex;align-items:baseline;gap:10px;padding:11px 2px;border-bottom:1px solid var(--hairline);font-size:16px;color:var(--text-body);line-height:1.3}
   .chk li:last-child{border-bottom:none}
@@ -557,8 +518,6 @@
   .acts{list-style:none;counter-reset:a;padding:0;margin:0;display:flex;flex-direction:column;gap:11px;width:100%;max-width:32ch;text-align:left}
   .acts li{counter-increment:a;display:flex;gap:12px;align-items:flex-start;font-size:clamp(15px,4.3vw,17px);line-height:1.4;color:var(--text-body)}
   .acts li::before{content:counter(a);flex:none;width:23px;height:23px;border-radius:999px;background:var(--surface-2);color:var(--ink);font-size:11.5px;font-weight:700;display:grid;place-items:center;font-variant-numeric:tabular-nums;margin-top:2px}
-  .units-lib{margin:-6px 0 16px}
-  .units-bar{display:flex;gap:10px;justify-content:center;position:relative;z-index:3}
   .seg-ctrl{display:flex;background:var(--surface);border-radius:10px;padding:3px;gap:3px}
   .seg-ctrl button{padding:7px 15px;border-radius:8px;font-size:13px;font-weight:600;color:var(--ink-dim);font-variant-numeric:tabular-nums;transition:background .15s ease,color .15s ease}
   .seg-ctrl button.on{background:var(--btn-bg);color:var(--btn-ink)}
@@ -653,8 +612,6 @@
   .ta{resize:vertical;min-height:70px;line-height:1.45}
   /* auto-growing textareas: the box fits its content so you never scroll inside it */
   textarea.grow{resize:none;overflow:hidden}
-  .row-emoji{display:flex;gap:10px}
-  .row-emoji .in.emoji{width:66px;text-align:center;font-size:24px;flex:none}
   .steps-edit{display:flex;flex-direction:column;gap:12px}
   .step-edit{background:var(--surface);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:9px;position:relative}
   .step-edit .se-top{display:flex;align-items:center;gap:8px}
@@ -862,12 +819,12 @@
   <div class="sheet-body" id="sheetBody">
     <button class="paste-cta" id="pasteCta" aria-expanded="false" aria-controls="pasteField">
       <span class="pc-ic"><svg viewBox="0 0 24 24"><path d="M9 5h6M9 5a2 2 0 0 0-2 2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1a2 2 0 0 0-2-2M8 12h8M8 16h5"/></svg></span>
-      <span class="pc-txt"><b>Paste a whole recipe</b><small>Drop in any text — I'll split it into steps and pull out ingredients, servings & timers.</small></span>
+      <span class="pc-txt"><b>Paste a whole recipe</b><small>Drop in any text and I'll split it into steps and pull out ingredients, servings & timers.</small></span>
       <svg class="pc-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
     </button>
     <div class="field hidden" id="pasteField">
       <label>Paste recipe text or steps</label>
-      <textarea class="ta" id="pasteIn" aria-label="Paste recipe text" placeholder="Paste a whole recipe here — a messy paragraph is fine. I'll split it into steps and pull out ingredients, servings and timers (e.g. &quot;4-6 hours&quot;, &quot;20 min&quot;)."></textarea>
+      <textarea class="ta" id="pasteIn" aria-label="Paste recipe text" placeholder="Paste a whole recipe here, a messy paragraph is fine. I'll split it into steps and pull out ingredients, servings and timers (e.g. &quot;4-6 hours&quot;, &quot;20 min&quot;)."></textarea>
       <button class="add-step" id="btnParse" style="border-style:solid">
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Turn into steps
       </button>
@@ -1215,10 +1172,10 @@
     source:"theloveofspice.com",
     ingredients:["4 tbsp toor dal","4 tbsp yellow moong dal","1½ cups water (for pressure cooking)","1 cup water (for boiling)","1 tsp salt","¼ tsp turmeric powder","4 tbsp chopped coriander leaves","2 tbsp ghee","1 tsp cumin seeds","½ tsp black mustard seeds","10 curry leaves","8 garlic cloves, chopped","1 byadagi chilli","1 tsp asafoetida (hing) powder","8 tbsp chopped onions","4 tbsp chopped tomatoes"],
     steps:[
-      {heading:"Pressure cook the dal", body:"Wash and rinse both dals.\nPressure cook with the water — about 3 whistles on the stovetop, or 12 minutes on high in an Instant Pot.\nLet the pressure release naturally.", items:["4 tbsp toor dal","4 tbsp yellow moong dal","1½ cups water (for pressure cooking)"], timer:720},
+      {heading:"Pressure cook the dal", body:"Wash and rinse both dals.\nPressure cook with the water, about 3 whistles on the stovetop, or 12 minutes on high in an Instant Pot.\nLet the pressure release naturally.", items:["4 tbsp toor dal","4 tbsp yellow moong dal","1½ cups water (for pressure cooking)"], timer:720},
       {heading:"Boil the dal", body:"Add the cooked dal and water to a pot.\nMix in the salt and turmeric.\nCook on medium until it reaches a proper boil, 5-10 minutes.", items:["1 cup water (for boiling)","1 tsp salt","¼ tsp turmeric powder"], timer:600},
       {heading:"Start the tadka", body:"Heat the ghee in a separate pan.\nRoast the cumin seeds 30 seconds.\nAdd the mustard seeds and roast 30 seconds.\nAdd the curry leaves and roast 30 seconds.", items:["2 tbsp ghee","1 tsp cumin seeds","½ tsp black mustard seeds","10 curry leaves"], timer:90},
-      {heading:"Add garlic and spices", body:"Add the garlic and roast about 1 minute until the colour changes.\nAdd the byadagi chilli and asafoetida, roast 30 seconds.", items:["8 garlic cloves, chopped","1 byadagi chilli","1 tsp asafoetida (hing) powder"], timer:60},
+      {heading:"Add garlic and spices", body:"Add the garlic and roast about 1 minute until the color changes.\nAdd the byadagi chilli and asafoetida, roast 30 seconds.", items:["8 garlic cloves, chopped","1 byadagi chilli","1 tsp asafoetida (hing) powder"], timer:60},
       {heading:"Onions and tomatoes", body:"Add the onions and sauté until translucent, about 5 minutes.\nAdd the tomatoes and sauté 2 minutes until softened.\nTurn off the flame.", items:["8 tbsp chopped onions","4 tbsp chopped tomatoes"], timer:300},
       {heading:"Combine and serve", body:"Add the tadka and coriander leaves to the boiled dal.\nMix well and serve hot.", items:["4 tbsp chopped coriander leaves"], timer:0}
     ]
@@ -1246,7 +1203,7 @@
       {heading:"Make the dry coating", body:"In another bowl combine the three flours, both chilli powders, the pepper and salt.", items:["2 tbsp corn flour","2 tbsp rice flour","2 tbsp all-purpose flour (maida)","1 tbsp Kashmiri chilli powder","1 tsp red chilli powder","½ tsp black pepper powder","⅛ tsp salt (for the coating)"], timer:0},
       {heading:"Batter the wings", body:"Add the dry mix to the marinated wings.\nAdd the water gradually, mixing to a semi-thick paste that clings to the wings.", items:["3 tbsp water"], timer:0},
       {heading:"Fry the wings", body:"Heat the oil in a frying pan.\nFry in batches without crowding, 5-7 minutes on medium.\nCook until golden brown, crisp and cooked through.", items:["Oil, for frying"], timer:420},
-      {heading:"Serve", body:"Serve with a dip of your choice — schezwan chutney or ranch both work well.", items:[], timer:0}
+      {heading:"Serve", body:"Serve with a dip of your choice, schezwan chutney or ranch both work well.", items:[], timer:0}
     ]
   },{
     id:"seed-air-fryer-fries", photo:"/assets/fries.jpg", emoji:"🍟", title:"Air Fryer French Fries",
@@ -1258,7 +1215,7 @@
       {heading:"Soak", body:"Rinse the sticks to wash off the excess starch.\nSoak in cold water 5 minutes, then in hot water 10 minutes.", items:[], timer:600},
       {heading:"Dry and oil", body:"Drain and pat completely dry.\nOnce back at room temperature, coat lightly with the oil.", items:["1 tbsp oil"], timer:0},
       {heading:"Air fry", body:"Air fry at 390°F for 20-25 minutes (400°F in a Mealthy CrispLid).\nFlip at the 10 minute mark and toss with the salt.\nAfter 20 minutes check every couple of minutes until they are as crisp as you like.", items:["½ tsp salt"], timer:1500},
-      {heading:"Serve", body:"Serve hot with your favourite dipping sauce.", items:[], timer:0}
+      {heading:"Serve", body:"Serve hot with your favorite dipping sauce.", items:[], timer:0}
     ]
   },{
     id:"seed-crunch-choc-cake", photo:"/assets/choc-cake.jpg", emoji:"🍰", title:"Crunch Chocolate Cake",
@@ -1367,7 +1324,7 @@
       {heading:"Make the dry coating", body:"Mix the cornflour with a little chilli powder in a shallow bowl.", items:["Cornflour","Chilli powder"], timer:0},
       {heading:"Double dredge", body:"Dredge each strip in the cornflour mix.\nDip it back into the wet marinade.\nDredge a second time, pressing firmly to build a craggy, textured coating.", items:[], timer:0},
       {heading:"Fry until golden", body:"Heat the oil in a pan.\nDeep fry the strips until golden brown and crispy.", items:["Oil, for frying"], timer:0},
-      {heading:"Serve", body:"Drain and serve hot with your favourite dipping sauce.", items:[], timer:0}
+      {heading:"Serve", body:"Drain and serve hot with your favorite dipping sauce.", items:[], timer:0}
     ]
   }];
 
@@ -1386,7 +1343,7 @@
       /* CORRUPTED store (truncated write, quota clip). Never overwrite the bytes —
          stash them under a backup key so the data stays recoverable, and show empty. */
       try{localStorage.setItem(KEY+".corrupt."+Date.now(),raw);}catch(e){}
-      setTimeout(function(){ toast("Your cookbook data couldn't be read — a backup copy was kept."); },600);
+      setTimeout(function(){ toast("Your cookbook data couldn't be read, a backup copy was kept."); },600);
       return [];
     }
     if(!Array.isArray(r)){
@@ -1481,6 +1438,13 @@
       userEdited:!!r.userEdited, fav:!!r.fav,
       category:(typeof r.category==="string")?r.category.slice(0,40):"",
       video:(typeof r.video==="string"&&/^https?:\/\//i.test(r.video.trim()))?r.video.trim().slice(0,500):"",
+      /* attribution + provenance must survive the sync round trip: the pull path
+         rebuilds every remote recipe through here, and dropping these strips the
+         "@cook" byline, breaks the Explore saved-star match (duplicate saves),
+         and loses the bundled-recipe source credit */
+      source:(typeof r.source==="string")?r.source.slice(0,200):"",
+      fromUser:(typeof r.fromUser==="string")?r.fromUser.slice(0,40):"",
+      fromPublicId:(typeof r.fromPublicId==="string")?r.fromPublicId.slice(0,80):"",
       ingredients:Array.isArray(r.ingredients)?r.ingredients.map(function(x){return String(x==null?"":x)}).filter(Boolean):[],
       steps:steps
     };
@@ -1664,6 +1628,10 @@
     var c=e.target&&e.target.closest?e.target.closest(".chip-f"):null;
     if(!c) return;
     var f=c.getAttribute("data-f");
+    /* Explore's tab chips share this class but carry data-x, not data-f —
+       without this guard a tab tap wrote curFilter={mode:null} and silently
+       wiped the library's active filter */
+    if(f==null) return;
     if(f==="reorder"){ enterReorder(); return; }
     curFilter=(f==="cat")?{mode:"cat",cat:c.getAttribute("data-c")}:{mode:f,cat:""};
     renderFilterBar(); renderLib($("#searchIn").value);
@@ -1825,7 +1793,14 @@
   })();
   $("#btnReorderDone").onclick=exitReorder;
 
-  $("#searchIn").addEventListener("input",function(e){renderLib(e.target.value)});
+  /* debounced: renderLib rebuilds every card and re-scans every recipe's full
+     text, which is too much work to run on every single keystroke */
+  var searchT=null;
+  $("#searchIn").addEventListener("input",function(e){
+    var v=e.target.value;
+    clearTimeout(searchT);
+    searchT=setTimeout(function(){ renderLib(v); },120);
+  });
 
   /* ---------- long-press → card quick-actions menu ---------- */
   var lpTimer=null, lpFiredAt=0, lpX=0, lpY=0, cmId=null, lpArmed=false;
@@ -1915,7 +1890,7 @@
   $("#cmDelete").onclick=function(){
     var r=recipes.filter(function(x){return x.id===cmId})[0]; if(!r){ closeCardMenu(); return; }
     if(!window.confirm('Delete "'+r.title+'"?\n\nIt goes to Recently deleted in Settings, where you can restore it.')) return;
-    if(!trashRecipe(r)){ toast("Couldn't secure it in the bin — nothing was deleted"); closeCardMenu(); return; }
+    if(!trashRecipe(r)){ toast("Couldn't secure it in the bin, nothing was deleted"); closeCardMenu(); return; }
     var kept=recipes;
     recipes=recipes.filter(function(x){return x.id!==cmId});
     /* cookbook write failed — undo the trash copy and keep the recipe, else it
@@ -1928,20 +1903,6 @@
   };
 
   /* ---------- units toggle ---------- */
-  function unitsBarHTML(){
-    return '<div class="units-bar">'+
-      '<div class="seg-ctrl" role="group" aria-label="Weight unit">'+
-        '<button class="u-toggle'+(units.weight==="lb"?" on":"")+'" data-k="weight" data-v="lb">lb</button>'+
-        '<button class="u-toggle'+(units.weight==="oz"?" on":"")+'" data-k="weight" data-v="oz">oz</button>'+
-        '<button class="u-toggle'+(units.weight==="kg"?" on":"")+'" data-k="weight" data-v="kg">kg</button>'+
-      '</div>'+
-      '<div class="seg-ctrl" role="group" aria-label="Temperature unit">'+
-        '<button class="u-toggle'+(units.temp==="F"?" on":"")+'" data-k="temp" data-v="F">°F</button>'+
-        '<button class="u-toggle'+(units.temp==="C"?" on":"")+'" data-k="temp" data-v="C">°C</button>'+
-      '</div>'+
-    '</div>';
-  }
-  function renderUnitsLib(){ var el=$("#unitsLib"); if(el) el.innerHTML=unitsBarHTML(); }
   function setUnits(k,v){
     if(units[k]===v) return;
     units[k]=v;
@@ -1986,14 +1947,18 @@
   function refreshInert(){
     var sheetOn=anySheetOpen();
     var playerOn=$("#player").classList.contains("on");
-    setInert($("#app"), sheetOn||playerOn);
-    setInert($("#player"), sheetOn && playerOn);
+    /* the sign-in gate is opaque and aria-modal — everything behind it must be
+       inert too, or Tab and screen readers walk into the covered app */
+    var wel=$("#welcome");
+    var welOn=!!(wel&&!wel.hidden);
+    setInert($("#app"), sheetOn||playerOn||welOn);
+    setInert($("#player"), (sheetOn && playerOn)||welOn);
     /* Explore must go inert behind the player and sheets, or keyboard/screen-reader
        focus can wander into the covered screen */
     var ex=$("#explore");
-    if(ex) setInert(ex, !ex.classList.contains("on") || sheetOn || playerOn);
+    if(ex) setInert(ex, !ex.classList.contains("on") || sheetOn || playerOn || welOn);
     var sheets=document.querySelectorAll(".sheet");
-    for(var i=0;i<sheets.length;i++){ setInert(sheets[i], !sheets[i].classList.contains("on")); }
+    for(var i=0;i<sheets.length;i++){ setInert(sheets[i], !sheets[i].classList.contains("on")||welOn); }
   }
   function focusFirst(el){ try{ var f=el.querySelector('input,textarea,select,button:not([disabled]),[tabindex]:not([tabindex="-1"])'); if(f) f.focus(); }catch(e){} }
   function restoreFocus(){ try{ if(_return&&_return.focus) _return.focus(); }catch(e){} }
@@ -2346,7 +2311,7 @@
     if(!_pr && !_sh && signedIn() && String(cur.id).indexOf("pub:")!==0){
       var pub=isPublished(cur.id);
       credit += '<button class="credit-pill pub-pill'+(pub?" on":"")+'" id="pubPill">'+
-        (pub?'✓ Published — tap to remove':'Publish to Explore')+'</button>';
+        (pub?'✓ Published, tap to remove':'Publish to Explore')+'</button>';
       if(profile) credit += '<button class="credit-pill" id="sendPill">Send to a friend</button>';
     }
     box.innerHTML='<div class="ingredients-card">'+hero+
@@ -2445,7 +2410,7 @@
   function renderIconGrid(){
     var g=$("#iconGrid"); if(!g)return;
     g.innerHTML=
-      '<div class="icon-grid-label">🎨 <b>Native</b> — made just for Cooking Steps</div>'+
+      '<div class="icon-grid-label">🎨 <b>Native</b>, made just for Cooking Steps</div>'+
       CUSTOM_ORDER.map(function(k){return cellHTML("ic:"+k)}).join("")+
       '<div class="icon-grid-label">Emoji</div>'+
       EMOJI_SET.map(cellHTML).join("");
@@ -2529,13 +2494,13 @@
         renderPhotoPick(); saveDraft();
         toast("Photo added");
       }catch(e){
-        toast("That site won't let apps save its images — save the picture to your phone instead and upload it");
+        toast("That site won't let apps save its images. Save the picture to your phone instead and upload it");
         if(go){ go.disabled=false; go.textContent="Use"; }
       }
     };
     img.onerror=function(){
       if(!stillHere()) return;
-      toast("Couldn't load that link — double check the URL, or save the image and upload it");
+      toast("Couldn't load that link. Double check the URL, or save the image and upload it");
       if(go){ go.disabled=false; go.textContent="Use"; }
     };
     img.src=v;
@@ -2568,7 +2533,7 @@
     /* previews of other people's recipes are not editable — the edit would go nowhere */
     if(id&&String(id).indexOf("pub:")===0){ toast("Save it to your cookbook first, then edit your copy"); return; }
     /* live-linked shares stay the owner's — the fork is the way to make it yours */
-    if(id&&String(id).indexOf("sh:")===0){ toast("This recipe is kept in sync by its owner — import a copy to edit it"); return; }
+    if(id&&String(id).indexOf("sh:")===0){ toast("This recipe is kept in sync by its owner. Import a copy to edit it"); return; }
     editId=id||null;
     var r=id?recipes.filter(function(x){return x.id===id})[0]:null;
     $("#sheetTitle").textContent=r?"Edit recipe":"New recipe";
@@ -2718,7 +2683,9 @@
   $("#btnDelete").onclick=function(){
     if(!editId)return;
     var victim=recipes.filter(function(x){return x.id===editId})[0];
-    if(!trashRecipe(victim)){ toast("Couldn't secure it in the bin — nothing was deleted"); return; }
+    /* same confirm as the card-menu delete — the two delete doors should ask the same question */
+    if(victim&&!window.confirm('Delete "'+victim.title+'"?\n\nIt goes to Recently deleted in Settings, where you can restore it.')) return;
+    if(!trashRecipe(victim)){ toast("Couldn't secure it in the bin, nothing was deleted"); return; }
     var kept=recipes;
     recipes=recipes.filter(function(x){return x.id!==editId});
     if(!save(recipes)){ recipes=kept; purgeTrash(0); return; }
@@ -2849,7 +2816,7 @@
     raw=String(raw||"").replace(/\r/g,"").trim();
     var out={title:"",ingredients:[],steps:[],servings:"",prepMin:0,cookMin:0};
     var sv=raw.match(/(?:serves|servings?|makes|yields?)\s*:?\s*(\d+(?:\s*[-–]\s*\d+)?)/i);
-    if(sv) out.servings=sv[1].replace(/\s*-\s*/,"–");
+    if(sv) out.servings=sv[1].replace(/\s*-\s*/,"-");
     out.prepMin=labelMins(raw,"prep");
     out.cookMin=labelMins(raw,"cook")||labelMins(raw,"bake");
     var lines=raw.split("\n").map(function(s){return s.trim()});
@@ -2980,7 +2947,7 @@
   function findGroup(id){ for(var i=0;i<shopping.length;i++){ if(shopping[i].id===id) return shopping[i]; } return null; }
   function inList(id){ return !!findGroup(id); }
   function hasItem(id,text){ var g=findGroup(id); return !!g&&g.items.some(function(it){return it.t===text}); }
-  function addItem(r,text,scaledText){
+  function addItem(r,text,scaledText,defer){
     var g=findGroup(r.id);
     if(!g){ g={id:r.id,title:r.title,emoji:r.emoji||"🍽️",photo:r.photo||"",items:[]}; shopping.push(g); }
     else { g.title=r.title; g.emoji=r.emoji||"🍽️"; g.photo=r.photo||""; }
@@ -2989,7 +2956,8 @@
        was added, so the shopping list reflects "4 lb chicken" if that's what was on screen
        when 2x servings was selected, not the recipe's base "2 lb chicken". */
     if(!g.items.some(function(it){return it.t===text})) g.items.push({t:text,st:scaledText||text,done:false});
-    saveShopping(); renderShopCount();
+    /* `defer` lets addAll persist once for the whole batch instead of per line */
+    if(!defer){ saveShopping(); renderShopCount(); }
   }
   function removeItem(id,text){
     var g=findGroup(id); if(!g) return;
@@ -2997,11 +2965,10 @@
     if(!g.items.length) removeFromList(id); else { saveShopping(); renderShopCount(); }
   }
   function toggleItem(r,text,scaledText){ if(hasItem(r.id,text)) removeItem(r.id,text); else addItem(r,text,scaledText); paintBasket(); }
-  function addAll(r){ (r.ingredients||[]).forEach(function(t){ addItem(r,t,scaleLine(t)); }); paintBasket(); }
+  function addAll(r){ (r.ingredients||[]).forEach(function(t){ addItem(r,t,scaleLine(t),true); }); saveShopping(); renderShopCount(); paintBasket(); }
   function removeFromList(id){ shopping=shopping.filter(function(s){return s.id!==id}); saveShopping(); renderShopCount(); }
   function renderShopCount(){ var b=$("#shopBadge"); if(!b)return; var n=shopping.length; b.textContent=n; b.classList.toggle("on",n>0); }
   function paintBasket(){ var b=$("#btnBasket"); if(!b)return; var on=cur&&inList(cur.id); b.classList.toggle("fav-on",!!on); b.removeAttribute("aria-pressed"); b.setAttribute("aria-label","Shopping list"); }
-  function shopThumb(s){ return s.photo?'<img class="thumb-img" src="'+esc(s.photo)+'" alt="">':esc(s.emoji||"🍽️"); }
   /* ---- flat, de-duplicated shopping list ----
      Storage stays grouped by recipe (so the +/✓ buttons in a recipe keep working),
      but the list is RENDERED flat: one row per ingredient, merged across recipes. */
@@ -3204,9 +3171,6 @@
     var m=document.querySelector('meta[name="theme-color"]');
     if(!m){ m=document.createElement("meta"); m.setAttribute("name","theme-color"); if(document.head) document.head.appendChild(m); }
     if(m) m.setAttribute("content",theme==="light"?"#FCFAF4":"#000000");
-    var b=$("#btnTheme"); if(b){ b.setAttribute("aria-pressed",theme==="light"?"true":"false"); b.setAttribute("aria-label",theme==="dark"?"Switch to day mode":"Switch to night mode"); b.innerHTML= theme==="dark"
-      ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
-      : '<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>'; }
   }
   function setTheme(v){ if(v!=="light"&&v!=="dark")return; theme=v; try{localStorage.setItem(THEME,theme);localStorage.setItem("cookingsteps.site.theme",theme);}catch(e){} applyTheme(); if($("#settings").classList.contains("on")) renderSettingsBody(); }
   applyTheme();
@@ -3300,10 +3264,13 @@
     return a?'<img src="'+a+'" alt="">':esc(((profile&&(profile.display_name||profile.username))||"?").charAt(0).toUpperCase());
   }
   function pushAvatar(d){
-    if(!signedIn()) return;
+    if(!signedIn()){ toast("Saved on this device. Sign in to keep it on your account."); return; }
     ensureFreshSession().then(function(){
       return supaFetch("/rest/v1/profiles?id=eq."+encodeURIComponent(session.user.id),{method:"PATCH",body:JSON.stringify({avatar:d})});
-    }).then(function(){ if(profile) profile.avatar=d; }).catch(function(){});
+    }).then(function(){ if(profile) profile.avatar=d; toast("Profile photo updated"); })
+      /* the PATCH fails today until the avatar column lands server-side — say so
+         instead of letting a happy toast lie about a cross-device save */
+      .catch(function(){ toast("Saved on this device only for now"); });
   }
   function pickAvatar(){
     var inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
@@ -3316,9 +3283,8 @@
         x.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,S,S);
         URL.revokeObjectURL(url);
         var d=c.toDataURL("image/jpeg",.82);
-        setAvatarLocal(d); pushAvatar(d);
+        setAvatarLocal(d); pushAvatar(d);   /* pushAvatar owns the outcome toast */
         renderSettingsBody(); if($("#account").classList.contains("on")) renderAccountBody();
-        toast("Profile photo updated");
       };
       img.onerror=function(){ URL.revokeObjectURL(url); toast("Couldn't read that image"); };
       img.src=url;
@@ -3541,7 +3507,12 @@
            a stale token just makes calls fail soft, which is far better than
            silently logging someone out of their own cookbook. */
         var msg=((d&&(d.error_description||d.msg||d.error))||"").toLowerCase();
-        if(r.status===400 && /invalid|revoked|expired|already used/.test(msg)) saveSession(null);
+        if(r.status===400 && /invalid|revoked|expired|already used/.test(msg)){
+          saveSession(null);
+          /* mid-session sign-out must bring the gate back — without this the app
+             stayed open signed-out and Settings offered the stale account form */
+          try{ if($("#welcome")&&$("#welcome").hidden){ toast("You were signed out, sign in again to keep syncing"); showWelcome(); } }catch(e){}
+        }
         return signedIn()?session:null;
       });
     }).catch(function(){ return session; })   /* offline — keep what we have */
@@ -3670,7 +3641,7 @@
         passwordSignIn(c.em,c.pw).then(afterAuth)
           .catch(function(err){
             var m=(err.message||"").toLowerCase();
-            toast(/invalid login/.test(m)?"Wrong email or password — or tap Create an account":(err.message||"Could not sign in"));
+            toast(/invalid login/.test(m)?"Wrong email or password, or tap Create an account":(err.message||"Could not sign in"));
             b.disabled=false; b.textContent="Sign in";
           });
       };
@@ -3682,7 +3653,7 @@
           el.innerHTML='<p class="acct-note"><b>Almost there.</b><br>Confirm your email at '+esc(c.em)+', then come back and sign in.</p>';
         }).catch(function(err){
           var m=(err.message||"").toLowerCase();
-          toast(/already regist|already been/.test(m)?"That email already has an account — tap Sign in":(err.message||"Could not create account"));
+          toast(/already regist|already been/.test(m)?"That email already has an account, tap Sign in":(err.message||"Could not create account"));
           b.disabled=false; b.textContent="Create an account";
         });
       };
@@ -3694,7 +3665,7 @@
           el.innerHTML='<p class="acct-note"><b>Check your email.</b><br>We sent a sign-in link to '+esc(em)+'. Open it on this device and you\'ll be signed in.</p>';
         }).catch(function(err){
           var m=(err.message||"").toLowerCase();
-          toast(/rate limit/.test(m)?"Too many emails just now — use a password instead":(err.message||"Could not send the link"));
+          toast(/rate limit/.test(m)?"Too many emails just now, use a password instead":(err.message||"Could not send the link"));
           b.disabled=false; b.textContent="Email me a sign-in link instead";
         });
       };
@@ -3702,7 +3673,7 @@
       return;
     }
     if(!profile){
-      el.innerHTML='<p class="acct-note">Pick a username — this is your public handle, e.g. cookingsteps.app/@yourname</p>'+
+      el.innerHTML='<p class="acct-note">Pick a username. This is your public handle, e.g. cookingsteps.app/@yourname</p>'+
         '<div class="field"><label for="acctUser">Username</label><input class="in" id="acctUser" placeholder="yourname" autocomplete="off" maxlength="20"></div>'+
         '<div class="field"><label for="acctName">Display name</label><input class="in" id="acctName" placeholder="Your name" autocomplete="name" maxlength="40"></div>'+
         '<button class="btn-primary" id="acctCreate" style="width:100%">Create my profile</button>'+
@@ -3736,19 +3707,23 @@
       var b=this; b.disabled=true; b.textContent="Saving…";
       ensureFreshSession().then(function(){
         return supaFetch("/auth/v1/user",{method:"PUT",body:JSON.stringify({password:pw})});
-      }).then(function(){ toast("Password set — you can sign in with it from now on"); $("#passRow").classList.add("hidden"); $("#newPass").value=""; b.disabled=false; b.textContent="Save password"; })
+      }).then(function(){ toast("Password set, you can sign in with it from now on"); $("#passRow").classList.add("hidden"); $("#newPass").value=""; b.disabled=false; b.textContent="Save password"; })
         .catch(function(e){ toast(e.message||"Could not set the password"); b.disabled=false; b.textContent="Save password"; });
     };
     $("#acctSync").onclick=function(){
       var b=this.querySelector("span"); var old=b.textContent; b.textContent="Syncing…";
-      syncCookbook().then(function(ok){ b.textContent=ok?(recipes.length+" recipe"+(recipes.length===1?"":"s")+" backed up to your account"):"Couldn't sync — check your connection"; if(ok) toast("Synced"); });
+      syncCookbook().then(function(ok){ b.textContent=ok?(recipes.length+" recipe"+(recipes.length===1?"":"s")+" backed up to your account"):"Couldn't sync, check your connection"; if(ok) toast("Synced"); });
     };
     $("#acctOut").onclick=function(){
       if(!window.confirm("Sign out?\n\nYour recipes stay on this device and are backed up to your account.")) return;
       signOut(); renderAccountBody(); toast("Signed out");
     };
   }
-  function openAccount(){ navOpened(); _return=document.activeElement; renderAccountBody(); $("#scrim").classList.add("on"); $("#account").classList.add("on"); refreshInert(); focusFirst($("#account"));
+  function openAccount(){
+    /* signed out, the welcome gate IS the account UI — it has the real signup flow
+       (mode swap, confirm-password); the sheet's signed-out branch is a stale copy */
+    if(!signedIn()){ showWelcome(); return; }
+    navOpened(); _return=document.activeElement; renderAccountBody(); $("#scrim").classList.add("on"); $("#account").classList.add("on"); refreshInert(); focusFirst($("#account"));
     /* refresh identity in the background so a stale profile doesn't linger */
     ensureFreshSession().then(function(){ if(!signedIn())return null; return (session.user?Promise.resolve(session.user):fetchUser()).then(fetchProfile); })
       .then(function(){ if($("#account").classList.contains("on")) renderAccountBody(); }).catch(function(){});
@@ -3908,15 +3883,29 @@
 
   var exploreError=false;
   function fetchExplore(){
-    /* embed the author's profile so each card can show "from @handle" */
-    return supaFetch("/rest/v1/public_recipes?select=id,user_id,local_id,title,category,recipe,created_at,profiles!inner(username,display_name)&order=created_at.desc&limit=100")
-      .then(function(rows){ exploreRows=rows||[]; exploreLoaded=true; exploreError=false; return exploreRows; })
-      .catch(function(){
-        /* the embed needs a FK relationship; fall back to a plain list if it isn't there */
-        return supaFetch("/rest/v1/public_recipes?select=id,user_id,local_id,title,category,recipe,created_at&order=created_at.desc&limit=100")
-          .then(function(rows){ exploreRows=rows||[]; exploreLoaded=true; exploreError=false; return exploreRows; })
-          .catch(function(){ exploreError=true; return exploreRows; });   /* keep whatever we had; never hang on Loading… */
-      });
+    /* NOTE: no profiles!inner embed here — public_recipes.user_id and profiles.id
+       both point at auth.users, so PostgREST has no FK path between them and the
+       embed 400s every time (which is why bylines never rendered). Fetch the rows
+       plain, then hydrate the author handles with a second profiles query, the
+       same pattern the shares sync uses. */
+    return supaFetch("/rest/v1/public_recipes?select=id,user_id,local_id,title,category,recipe,created_at&order=created_at.desc&limit=100")
+      .then(function(rows){
+        rows=rows||[];
+        var ids={}; rows.forEach(function(r){ if(r.user_id) ids[r.user_id]=1; });
+        var idList=Object.keys(ids);
+        if(!idList.length){ exploreRows=rows; exploreLoaded=true; exploreError=false; return exploreRows; }
+        return supaFetch("/rest/v1/profiles?select=id,username,display_name&id=in.("+idList.map(encodeURIComponent).join(",")+")")
+          .then(function(ps){
+            var byId={}; (ps||[]).forEach(function(p){ byId[p.id]=p; });
+            rows.forEach(function(r){ r.profiles=byId[r.user_id]||null; });
+            exploreRows=rows; exploreLoaded=true; exploreError=false; return exploreRows;
+          })
+          .catch(function(){
+            /* rows without bylines beat no rows at all */
+            exploreRows=rows; exploreLoaded=true; exploreError=false; return exploreRows;
+          });
+      })
+      .catch(function(){ exploreError=true; return exploreRows; });   /* keep whatever we had; never hang on Loading… */
   }
   function authorOf(row){
     var p=row.profiles;
@@ -3940,9 +3929,9 @@
     var terms=(filter||"").toLowerCase().split(/\s+/).filter(Boolean);
     var rows=(house?houseRows():exploreRows).filter(function(row){
       if(!terms.length) return true;
-      var r=row.recipe||{};
-      var hay=(row.title+" "+(row.category||"")+" "+(r.ingredients||[]).join(" ")+" "+
-        (r.steps||[]).map(function(s){return (s.heading||"")+" "+(s.body||"")}).join(" ")).toLowerCase();
+      /* same haystack as the cookbook (searchText covers source + step items too),
+         so a query never finds a recipe on one surface and misses it on the other */
+      var hay=searchText(row.recipe||{title:row.title,category:row.category});
       return terms.every(function(t){return hay.indexOf(t)>-1});
     });
     if(!rows.length){
@@ -3960,7 +3949,7 @@
       }
       el.innerHTML='<div class="empty"><div class="big">'+(exploreLoaded?"🍽️":"⏳")+'</div><b>'+
         (exploreLoaded?(terms.length?"No matches":"No recipes shared yet"):"Loading…")+'</b><div>'+
-        (exploreLoaded?(terms.length?"Try another search.":"Check back soon — new recipes land here as cooks share them."):"Fetching recipes")+'</div></div>';
+        (exploreLoaded?(terms.length?"Try another search.":"Check back soon, new recipes land here as cooks share them."):"Fetching recipes")+'</div></div>';
       return;
     }
     el.innerHTML="";
@@ -3973,7 +3962,8 @@
       var r=row.recipe||{}, a=authorOf(row), mine=myId&&row.user_id===myId;
       var wrap=document.createElement("div"); wrap.className="rcard";
       var b=document.createElement("button"); b.className="rcard-main";
-      b.innerHTML='<span class="thumb">'+(r.photo?'<img class="thumb-img" src="'+esc(r.photo)+'" alt="">':iconVal(r.emoji||"🍽️"))+'</span>'+
+      b.innerHTML='<span class="thumb">'+(r.photo?'<img class="thumb-img" src="'+esc(r.photo)+'" alt="">':iconVal(r.emoji||"🍽️"))+
+          (r.video?'<span class="vid-badge" title="Has a cooking video"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>':'')+'</span>'+
         '<span class="meta"><b>'+esc(row.title)+'</b>'+
           '<span>'+((r.steps||[]).length)+' steps'+(r.servings?' <i>·</i> serves '+esc(r.servings):'')+'</span>'+
           (row._house?'<span class="byline mine">House recipe</span>':
@@ -4090,7 +4080,7 @@
     recipes.unshift(copy); save(recipes); syncSoon();
     closePlayer(); closeExplore();
     renderFilterBar(); renderLib("");
-    toast(a?("Saved — from @"+a.username):"Saved to your cookbook");
+    toast(a?("Saved, from @"+a.username):"Saved to your cookbook");
   }
 
   /* ---- public profile ---- */
@@ -4098,6 +4088,7 @@
     navOpened();
     _return=document.activeElement;
     $("#scrim").classList.add("on"); $("#profileSheet").classList.add("on"); refreshInert();
+    focusFirst($("#profileSheet"));   /* every opener moves focus in, or AT users are left on an inert element */
     var el=$("#profBody"); el.innerHTML='<p class="acct-note">Loading…</p>';
     supaFetch("/rest/v1/profiles?select=id,username,display_name&username=eq."+encodeURIComponent(username))
       .then(function(ps){
@@ -4116,7 +4107,8 @@
               var r=row.recipe||{};
               var wrap=document.createElement("div"); wrap.className="rcard";
               var b=document.createElement("button"); b.className="rcard-main";
-              b.innerHTML='<span class="thumb">'+(r.photo?'<img class="thumb-img" src="'+esc(r.photo)+'" alt="">':iconVal(r.emoji||"🍽️"))+'</span>'+
+              b.innerHTML='<span class="thumb">'+(r.photo?'<img class="thumb-img" src="'+esc(r.photo)+'" alt="">':iconVal(r.emoji||"🍽️"))+
+                  (r.video?'<span class="vid-badge" title="Has a cooking video"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>':'')+'</span>'+
                 '<span class="meta"><b>'+esc(row.title)+'</b><span>'+((r.steps||[]).length)+' steps'+(r.servings?' <i>·</i> serves '+esc(r.servings):'')+'</span></span>'+
                 '<span class="chev"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>';
               b.onclick=function(){ closeProfile(); openPublicRecipe(row); };
@@ -4158,13 +4150,15 @@
         if(!grants.length) return applyShared([],{});
         var owners={}; grants.forEach(function(g){ owners[g.owner]=1; });
         var ids=Object.keys(owners).map(encodeURIComponent).join(",");
-        return supaFetch("/rest/v1/profiles?select=id,username&id=in.("+ids+")")
-          .then(function(ps){
-            var names={}; (ps||[]).forEach(function(p){ names[p.id]=p.username; });
-            /* RLS trims this to exactly the granted rows */
-            return supaFetch("/rest/v1/user_recipes?select=user_id,local_id,recipe,deleted,updated_at&user_id=in.("+ids+")")
-              .then(function(rows){ return applyShared(rows||[],names); });
-          });
+        /* both queries depend only on the owner ids — fetch them together
+           (RLS trims user_recipes to exactly the granted rows) */
+        return Promise.all([
+          supaFetch("/rest/v1/profiles?select=id,username&id=in.("+ids+")"),
+          supaFetch("/rest/v1/user_recipes?select=user_id,local_id,recipe,deleted,updated_at&user_id=in.("+ids+")")
+        ]).then(function(res){
+          var names={}; (res[0]||[]).forEach(function(p){ names[p.id]=p.username; });
+          return applyShared(res[1]||[],names);
+        });
       })
       .catch(function(){ return false; })
       .then(function(res){ sharesSyncing=false; return res; });
@@ -4219,17 +4213,25 @@
   /* recipient takes a share out of their cookbook (and gives up the grant) */
   function removeShare(id){
     var r=recipes.filter(function(x){return x.id===id})[0]; if(!r) return;
-    recipes=recipes.filter(function(x){return x.id!==id});
-    save(recipes);
-    var seen=readShareSeen(); delete seen[id]; writeShareSeen(seen);
-    removeFromList(id);
-    if(cur&&cur.id===id&&$("#player").classList.contains("on")) closePlayer();
-    renderFilterBar(); renderLib($("#searchIn").value);
-    toast(r._shFrom?("Removed — ask @"+r._shFrom+" if you want it back"):"Removed from your cookbook");
+    var dropLocal=function(){
+      recipes=recipes.filter(function(x){return x.id!==id});
+      save(recipes);
+      var seen=readShareSeen(); delete seen[id]; writeShareSeen(seen);
+      removeFromList(id);
+      if(cur&&cur.id===id&&$("#player").classList.contains("on")) closePlayer();
+      renderFilterBar(); renderLib($("#searchIn").value);
+      toast(r._shFrom?("Removed, ask @"+r._shFrom+" if you want it back"):"Removed from your cookbook");
+    };
+    /* revoke the grant FIRST: removing locally while the grant survives meant the
+       next sync re-added the recipe and re-fired the "shared with you" notice */
     if(signedIn()&&session.user&&r._shOwner&&r._shLid){
       supaFetch("/rest/v1/recipe_shares?owner=eq."+encodeURIComponent(r._shOwner)+
         "&local_id=eq."+encodeURIComponent(r._shLid)+
-        "&to_user=eq."+encodeURIComponent(session.user.id),{method:"DELETE"}).catch(function(){});
+        "&to_user=eq."+encodeURIComponent(session.user.id),{method:"DELETE"})
+        .then(dropLocal)
+        .catch(function(){ toast("Couldn't remove it, check your connection and try again"); });
+    }else{
+      dropLocal();
     }
   }
   /* fork: an owned, editable copy — disconnected from the owner's future edits */
@@ -4244,7 +4246,7 @@
     if(!save(recipes)){ recipes.shift(); return; }
     syncSoon();
     renderFilterBar(); renderLib($("#searchIn").value);
-    toast("Copied to your cookbook — this one is yours to edit");
+    toast("Copied to your cookbook, this one is yours to edit");
   }
 
   /* ---- sender side: send by username, list who has it, revoke ---- */
@@ -4279,11 +4281,12 @@
   });
   /* ---- find-a-cook typeahead: type a few letters, matching profiles appear,
      tap one, Send. The reels-share pattern — nobody memorizes exact handles. ---- */
-  var sendSel=null, sugTimer=null, sugSeq=0;
-  function clearSendSug(){ var el=$("#sendSug"); if(el) el.innerHTML=""; }
+  var sendSel=null, sugTimer=null, sugSeq=0, lastSug=[];
+  function clearSendSug(){ var el=$("#sendSug"); if(el) el.innerHTML=""; lastSug=[]; }
   function renderSendSug(list){
     var el=$("#sendSug"); if(!el) return;
     el.innerHTML="";
+    lastSug=list;      /* Enter with nothing tapped falls back to the top match */
     list.forEach(function(p){
       var b=document.createElement("button");
       b.className="sug-row"; b.type="button"; b.setAttribute("role","option");
@@ -4305,7 +4308,9 @@
     if(term.length<2){ clearSendSug(); return; }
     sugTimer=setTimeout(function(){
       var seq=++sugSeq;
-      var t=encodeURIComponent("*"+term+"*");
+      /* escape _ — it is a single-character ILIKE wildcard, and unescaped it made
+         "maza_k" match mazaxk/maza1k, risking a live share to the wrong cook */
+      var t=encodeURIComponent("*"+term.replace(/_/g,"\\_")+"*");
       supaFetch("/rest/v1/profiles?select=id,username,display_name&or=(username.ilike."+t+",display_name.ilike."+t+")&limit=8")
         .then(function(ps){
           if(seq!==sugSeq) return;                 /* a newer keystroke owns the box */
@@ -4320,7 +4325,7 @@
     var btn=this, lid=shareId;
     var done=function(msg){ btn.disabled=false; btn.textContent="Send"; if(msg) toast(msg); };
     var sendTo=function(p){
-      if(p.username.toLowerCase()===String(profile.username||"").toLowerCase()){ done("That's you — this one is already yours"); return; }
+      if(p.username.toLowerCase()===String(profile.username||"").toLowerCase()){ done("That's you, this one is already yours"); return; }
       /* the recipe row must exist in the cloud before the grant means anything */
       return syncCookbook().then(function(){
         return supaFetch("/rest/v1/recipe_shares",{
@@ -4329,23 +4334,26 @@
           body:JSON.stringify([{owner:session.user.id,local_id:lid,to_user:p.id}])
         });
       }).then(function(){
-        done("Sent — @"+p.username+" has it now");
+        done("Sent, @"+p.username+" has it now");
         sendSel=null; $("#sendUser").value=""; clearSendSug();
         renderSendList();
-      }).catch(function(e){ done((e&&e.message)||"Couldn't send it — try again"); });
+      }).catch(function(e){ done((e&&e.message)||"Couldn't send it, try again"); });
     };
     btn.disabled=true; btn.textContent="Sending…";
     if(sendSel){ sendTo(sendSel); return; }
-    /* no tap-selection: fall back to treating the text as an exact username */
+    /* Enter without a tap: take the top suggestion — the keyboard path the
+       "pick a cook from the list" toast used to dead-end */
+    if(lastSug.length){ sendTo({id:lastSug[0].id,username:lastSug[0].username}); return; }
+    /* no suggestions either: treat the text as an exact handle (escaped — no wildcards) */
     var raw=$("#sendUser").value.trim().replace(/^@/,"");
     if(!/^[a-zA-Z0-9_]{3,20}$/.test(raw)){ done("Start typing and pick a cook from the list"); return; }
-    supaFetch("/rest/v1/profiles?select=id,username&username=ilike."+encodeURIComponent(raw))
+    supaFetch("/rest/v1/profiles?select=id,username&username=ilike."+encodeURIComponent(raw.replace(/_/g,"\\_")))
       .then(function(ps){
         var p=(ps||[])[0];
-        if(!p){ done('No cook named "@'+raw+'" — try searching part of the name'); return; }
+        if(!p){ done('No cook named "@'+raw+'", try searching part of the name'); return; }
         sendTo(p);
       })
-      .catch(function(e){ done((e&&e.message)||"Couldn't send it — try again"); });
+      .catch(function(e){ done((e&&e.message)||"Couldn't send it, try again"); });
   };
   $("#sendUser").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); $("#sendGo").click(); } });
 
@@ -4378,9 +4386,12 @@
     welMode="in";              /* the gate always reopens on sign-in, never mid-signup */
     renderWelcomeForm();
     w.hidden=false;
+    refreshInert();            /* the whole app behind the gate goes inert */
+    focusFirst(w);
   }
   function hideWelcome(){
     var w=$("#welcome"); if(w) w.hidden=true;
+    refreshInert();            /* release the app now the gate is gone */
     /* now they are actually in the app, today's tip may land */
     try{ tipNotifyDaily(); }catch(e){}
   }
@@ -4438,7 +4449,7 @@
       passwordSignIn(c.em,c.pw).then(enter)
         .catch(function(err){
           var m=(err.message||"").toLowerCase();
-          toast(/invalid login/.test(m)?"Wrong email or password — new here? Tap Create an account":(err.message||"Could not sign in"));
+          toast(/invalid login/.test(m)?"Wrong email or password. New here? Tap Create an account":(err.message||"Could not sign in"));
           b.disabled=false; b.textContent="Sign in";
         });
     };
@@ -4455,7 +4466,7 @@
         var m=(err.message||"").toLowerCase();
         /* an existing email is the one error worth steering, not just reporting */
         if(/already regist|already been/.test(m)){
-          toast("That email already has an account — signing you in instead");
+          toast("That email already has an account, signing you in instead");
           swap("in"); $("#welEmail").value=c.em; $("#welPass").focus();
           return;
         }
@@ -4468,10 +4479,10 @@
       if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast("Enter a valid email"); return; }
       var b=this; b.disabled=true; b.textContent="Sending…";
       sendMagicLink(em).then(function(){
-        b.textContent="Link sent — check your email";
+        b.textContent="Link sent, check your email";
       }).catch(function(err){
         var m=(err.message||"").toLowerCase();
-        toast(/rate limit/.test(m)?"Too many emails just now — use a password instead":(err.message||"Could not send the link"));
+        toast(/rate limit/.test(m)?"Too many emails just now, use a password instead":(err.message||"Could not send the link"));
         b.disabled=false; b.textContent="Email me a sign-in link instead";
       });
     };

@@ -17,9 +17,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="32x32" href="/app/icons/favicon-32.png">
 <link rel="apple-touch-icon" href="/app/icons/icon-180.png">
-<link rel="preload" href="/assets/fonts/fraunces-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/fraunces-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/site.css?v=1e359661">
+<link rel="stylesheet" href="/site.css?v=075c2c51">
 </head>
 <body>
 <header class="site">
@@ -210,7 +210,7 @@
     <li><b>Medium heat is your friend.</b> Beginners burn things on high and give up. Nearly everything cooks happily on medium. High heat is a privilege you earn later.</li>
     <li><b>Taste as you go.</b> Cooking without tasting is texting with your eyes closed. One little spoon, every few minutes, tells you everything.</li>
     <li><b>Boil vs simmer.</b> A boil is angry bubbles everywhere. A simmer is a lazy bubble every second or two. Recipes care about the difference, so now you know it.</li>
-    <li><b>Done is a number, not a colour.</b> Chicken is safe at 165°F inside. When in doubt, cut the thickest piece open. Clear juices, no pink, you are fine.</li>
+    <li><b>Done is a number, not a color.</b> Chicken is safe at 165°F inside. When in doubt, cut the thickest piece open. Clear juices, no pink, you are fine.</li>
   </ol>
 
   <h3 class="startsub">Beginner truths to keep on the fridge</h3>
@@ -338,7 +338,10 @@
   });
   document.addEventListener("keydown",function(e){if(e.key==="Escape")closeMenu()});
   addEventListener("hashchange",closeMenu);
-  addEventListener("resize",closeMenu);
+  /* close on real width changes only: phones fire resize when the URL bar
+     collapses mid-scroll or the keyboard opens, which yanked the menu shut */
+  var _mw=innerWidth;
+  addEventListener("resize",function(){ if(innerWidth!==_mw){ _mw=innerWidth; closeMenu(); } });
   if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("/service-worker.js").catch(function(){})});
 })();
 </script>

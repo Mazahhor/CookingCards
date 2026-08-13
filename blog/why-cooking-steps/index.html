@@ -17,9 +17,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="32x32" href="/app/icons/favicon-32.png">
 <link rel="apple-touch-icon" href="/app/icons/icon-180.png">
-<link rel="preload" href="/assets/fonts/fraunces-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/fraunces-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/site.css?v=1e359661">
+<link rel="stylesheet" href="/site.css?v=075c2c51">
 </head>
 <body>
 <header class="site">
@@ -169,7 +169,10 @@
   });
   document.addEventListener("keydown",function(e){if(e.key==="Escape")closeMenu()});
   addEventListener("hashchange",closeMenu);
-  addEventListener("resize",closeMenu);
+  /* close on real width changes only: phones fire resize when the URL bar
+     collapses mid-scroll or the keyboard opens, which yanked the menu shut */
+  var _mw=innerWidth;
+  addEventListener("resize",function(){ if(innerWidth!==_mw){ _mw=innerWidth; closeMenu(); } });
   if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("/service-worker.js").catch(function(){})});
 })();
 </script>

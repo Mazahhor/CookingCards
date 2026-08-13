@@ -1,5 +1,10 @@
-const CACHE = "cooking-steps-v38";
-const ASSETS = ["/", "/index.html", "/site.css", "/blog/",
+const CACHE = "cooking-steps-v39-f62199";
+// Precache the EXACT URLs pages request: site.css is always fetched with its
+// content-hash query, so the bare /site.css entry could never be served. The
+// fonts are preloaded on every page, so an offline shell needs them too.
+// (/blog/ dropped: navigations are network-first with /index.html fallback.)
+const ASSETS = ["/", "/index.html", "/site.css?v=075c2c51",
+  "/assets/fonts/fraunces-400.woff2", "/assets/fonts/fraunces-400-italic.woff2", "/assets/fonts/inter-400.woff2",
   "/app/", "/app/index.html", "/app/manifest.webmanifest",
   "/app/icons/icon-192.png", "/app/icons/icon-512.png", "/app/icons/icon-180.png",
   "/app/icons/icon-maskable-512.png"];

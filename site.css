@@ -2,15 +2,14 @@
    Light-first cream paper; [data-theme="dark"] flips to espresso night.
    Fonts are self-hosted (no Google Fonts request, no third-party calls). */
 
-@font-face{font-family:"Fraunces";font-style:normal;font-weight:400;font-display:swap;src:url("/assets/fonts/fraunces-400.woff2") format("woff2")}
-@font-face{font-family:"Fraunces";font-style:normal;font-weight:600;font-display:swap;src:url("/assets/fonts/fraunces-600.woff2") format("woff2")}
-@font-face{font-family:"Fraunces";font-style:normal;font-weight:700;font-display:swap;src:url("/assets/fonts/fraunces-700.woff2") format("woff2")}
-@font-face{font-family:"Fraunces";font-style:italic;font-weight:400;font-display:swap;src:url("/assets/fonts/fraunces-400-italic.woff2") format("woff2")}
-@font-face{font-family:"Fraunces";font-style:italic;font-weight:600;font-display:swap;src:url("/assets/fonts/fraunces-600-italic.woff2") format("woff2")}
-@font-face{font-family:"Inter";font-style:normal;font-weight:400;font-display:swap;src:url("/assets/fonts/inter-400.woff2") format("woff2")}
-@font-face{font-family:"Inter";font-style:normal;font-weight:500;font-display:swap;src:url("/assets/fonts/inter-500.woff2") format("woff2")}
-@font-face{font-family:"Inter";font-style:normal;font-weight:600;font-display:swap;src:url("/assets/fonts/inter-600.woff2") format("woff2")}
-@font-face{font-family:"Inter";font-style:normal;font-weight:700;font-display:swap;src:url("/assets/fonts/inter-700.woff2") format("woff2")}
+/* These are VARIABLE fonts: one file carries every weight, so each family needs
+   exactly one face per style with a full weight range. The old setup declared
+   nine faces over byte-identical copies of three files — ~350KB of duplicate
+   downloads per cold visit, and no 800 face at all (the -400 in the filename is
+   historical; the file holds the whole weight axis). */
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:100 900;font-display:swap;src:url("/assets/fonts/fraunces-400.woff2") format("woff2")}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:100 900;font-display:swap;src:url("/assets/fonts/fraunces-400-italic.woff2") format("woff2")}
+@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url("/assets/fonts/inter-400.woff2") format("woff2")}
 
 :root{
   --paper:#FCFAF4;
@@ -121,7 +120,7 @@ header.site.menu-open .navset{
    anchoring to the header (full-bleed, sticky) parked the menu ~150px right of
    the button that opened it on wide screens. Only ≥761px: below that the panel
    is deliberately near-full-width and still anchors to the header. */
-@media (min-width:761px){
+@media (min-width:760.02px){
   .nav{position:relative}
   /* right:24px == .wrap's side padding, so the panel's right edge lands exactly
      on the burger's right edge. .nav is 66px tall, so this clears the header. */
@@ -137,7 +136,7 @@ header.site.menu-open .navset .theme-btn{
 header.site.menu-open .navset .theme-btn:hover{background:var(--card)}
 header.site.menu-open .navset .tb-label{display:block;font-size:16.5px;color:var(--ink-2);font-weight:500}
 /* “I can’t cook” + Install ride inside the burger panel on phones only */
-@media (min-width:761px){
+@media (min-width:760.02px){
   header.site.menu-open .navset .m-only{display:none}
 }
 @media (max-width:760px){
