@@ -1,0 +1,42 @@
+name: Keep Supabase awake
+
+# Supabase pauses free-plan projects after about 7 days with no database
+# activity, which is what took Cooking Steps offline. This makes one tiny
+# read every 3 days so the project always counts as active.
+#
+# The key below is the PUBLIC anon key already shipped inside the app at
+# /app/index.html - it is safe to expose and grants nothing on its own
+# (row level security decides what it can actually read).
+#
+# Note: GitHub disables scheduled workflows in a repo with no commits for
+# 60 days. This repo gets a commit on every deploy, so that is not a risk
+# today, but if deploys ever stop for two months, re-enable it in the
+# Actions tab.
+
+on:
+  schedule:
+    - cron: "0 6 */3 * *"     # 06:00 UTC, every 3rd day
+  workflow_dispatch:           # also runnable by hand from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read one public row
+        env:
+          SUPA_URL: "https://rfmmwawgwpuppptjfabi.supabase.co"
+          SUPA_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmbW13YXdnd3B1cHBwdGpmYWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0MDgzOTcsImV4cCI6MjA5OTk4NDM5N30.J2ILmzXo2ZgK0ysYfVLZF7Y4wd-vy6X8FI0LL4wqTxI"
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/body.txt -w "%{http_code}" \
+            -H "apikey: ${SUPA_KEY}" \
+            -H "Authorization: Bearer ${SUPA_KEY}" \
+            "${SUPA_URL}/rest/v1/profiles?select=id&limit=1")
+          echo "HTTP ${code}"
+          head -c 300 /tmp/body.txt || true
+          echo
+          if [ "${code}" != "200" ]; then
+            echo "Supabase did not answer 200 - the project may be paused. Restore it in the dashboard." >&2
+            exit 1
+          fi
+          echo "Supabase is awake."
