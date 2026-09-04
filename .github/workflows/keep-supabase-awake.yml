@@ -27,16 +27,41 @@ jobs:
           SUPA_URL: "https://rfmmwawgwpuppptjfabi.supabase.co"
           SUPA_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmbW13YXdnd3B1cHBwdGpmYWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0MDgzOTcsImV4cCI6MjA5OTk4NDM5N30.J2ILmzXo2ZgK0ysYfVLZF7Y4wd-vy6X8FI0LL4wqTxI"
         run: |
-          set -euo pipefail
-          code=$(curl -sS -o /tmp/body.txt -w "%{http_code}" \
+          # NOTE: deliberately no `set -e`. curl exits non-zero (6) when the
+          # hostname does not resolve, which is EXACTLY the paused-project case
+          # we most want to explain - with -e the script died before printing
+          # anything useful and the log just said "exit code 6".
+          set -uo pipefail
+          http=$(curl -sS --max-time 30 -o /tmp/body.txt -w '%{http_code}' \
             -H "apikey: ${SUPA_KEY}" \
             -H "Authorization: Bearer ${SUPA_KEY}" \
-            "${SUPA_URL}/rest/v1/profiles?select=id&limit=1")
-          echo "HTTP ${code}"
+            "${SUPA_URL}/rest/v1/profiles?select=id&limit=1" 2>/tmp/err.txt)
+          rc=$?
+
+          if [ "${rc}" -ne 0 ]; then
+            echo "curl failed (exit ${rc}):"
+            cat /tmp/err.txt || true
+            if grep -qi "could not resolve host" /tmp/err.txt 2>/dev/null; then
+              echo
+              echo "=============================================================="
+              echo " The project hostname does not resolve."
+              echo " Supabase REMOVES DNS for paused free-plan projects, so this"
+              echo " is the signature of a paused project, not a network fault."
+              echo
+              echo " Fix: Supabase Dashboard -> project rfmmwawgwpuppptjfabi ->"
+              echo "      Resume. Data is preserved (1-year restore window)."
+              echo
+              echo " This job will keep failing every 3 days until it is resumed."
+              echo "=============================================================="
+            fi
+            exit 1
+          fi
+
+          echo "HTTP ${http}"
           head -c 300 /tmp/body.txt || true
           echo
-          if [ "${code}" != "200" ]; then
-            echo "Supabase did not answer 200 - the project may be paused. Restore it in the dashboard." >&2
+          if [ "${http}" != "200" ]; then
+            echo "Supabase answered ${http} instead of 200 - check the project health." >&2
             exit 1
           fi
           echo "Supabase is awake."
