@@ -1,4 +1,4 @@
-const CACHE = "cooking-steps-v39-f62199";
+const CACHE = "cooking-steps-v40-ee0f57";
 // Precache the EXACT URLs pages request: site.css is always fetched with its
 // content-hash query, so the bare /site.css entry could never be served. The
 // fonts are preloaded on every page, so an offline shell needs them too.
